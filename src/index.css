@@ -41,31 +41,47 @@
 
 @layer components {
   .glass-card {
-    @apply bg-slate-900/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-slate-800/90 shadow-lg rounded-3xl transition-all duration-200;
+    @apply bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-2xl border border-slate-800/90 shadow-xl rounded-3xl transition-all duration-200;
   }
   
   .glass-card-light {
     @apply bg-white/95 backdrop-blur-2xl border border-slate-200/90 shadow-md rounded-3xl transition-all duration-200 text-slate-900;
   }
 
+  .glass-gold-card {
+    @apply bg-gradient-to-br from-amber-950/30 via-slate-900/90 to-slate-950/95 backdrop-blur-2xl border border-gold-500/40 shadow-xl rounded-3xl transition-all duration-200;
+  }
+
   .gold-gradient-text {
-    @apply bg-gradient-to-r from-amber-200 via-gold-300 to-yellow-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-amber-200 via-gold-300 to-yellow-500 bg-clip-text text-transparent font-black;
   }
 
   .gold-gradient-bg {
-    @apply bg-gradient-to-r from-amber-400 via-gold-400 to-yellow-500 text-slate-950 font-bold;
+    @apply bg-gradient-to-r from-amber-400 via-gold-400 to-yellow-500 text-slate-950 font-black shadow-gold-glow;
   }
 
   .crypto-gradient-text {
-    @apply bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-400 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-400 bg-clip-text text-transparent font-black;
   }
 
   .touch-target {
-    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+    @apply min-h-[48px] min-w-[48px] flex items-center justify-center;
   }
 
   .interactive-tap {
-    @apply transition-transform duration-100 active:scale-[0.97] cursor-pointer;
+    @apply transition-all duration-100 active:scale-[0.97] cursor-pointer;
+  }
+
+  .shadow-gold-glow {
+    box-shadow: 0 0 20px -3px rgba(234, 179, 8, 0.35);
+  }
+
+  .shadow-gold-subtle {
+    box-shadow: 0 4px 20px -2px rgba(217, 119, 6, 0.15);
+  }
+
+  .shadow-dark-float {
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.05);
   }
 
   /* Custom Slim Range Slider */
@@ -84,13 +100,13 @@
   .custom-range-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    background: #ffffff;
+    background: #eab308;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5), 0 0 4px rgba(255, 255, 255, 0.4);
-    border: 2px solid #1e293b;
+    box-shadow: 0 0 12px rgba(234, 179, 8, 0.6), 0 0 4px rgba(0, 0, 0, 0.4);
+    border: 2px solid #0b0f17;
     transition: transform 0.1s ease;
   }
 
@@ -99,13 +115,13 @@
   }
 
   .custom-range-slider::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    background: #ffffff;
+    background: #eab308;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    border: 2px solid #1e293b;
+    box-shadow: 0 0 12px rgba(234, 179, 8, 0.6);
+    border: 2px solid #0b0f17;
   }
 }
 
@@ -125,10 +141,10 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: scale(0.99); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.2s ease-out forwards;
+  animation: fadeIn 0.22s ease-out forwards;
 }
