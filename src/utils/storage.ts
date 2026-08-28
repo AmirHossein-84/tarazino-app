@@ -315,21 +315,40 @@ export function exportBackupData(): string {
 
 export function importBackupData(jsonString: string): boolean {
   try {
-    const parsed: ExportedBackupData = JSON.parse(jsonString);
-    if (!parsed || !parsed.settings || !parsed.cryptoAssets) {
-      throw new Error('Invalid backup format');
+    const parsed: Partial<ExportedBackupData> = JSON.parse(jsonString);
+    if (!parsed || (!parsed.settings && !parsed.cryptoAssets)) {
+      throw new Error('Invalid backup format: missing core settings and assets');
     }
-    saveSettings(parsed.settings);
-    saveCryptoAssets(parsed.cryptoAssets);
-    if (parsed.goldHolding) saveGoldHolding(parsed.goldHolding);
-    if (Array.isArray(parsed.physicalGold)) savePhysicalGold(parsed.physicalGold);
-    if (Array.isArray(parsed.properties)) saveProperties(parsed.properties);
-    if (Array.isArray(parsed.goldBuyLots)) saveGoldBuyLots(parsed.goldBuyLots);
-    if (Array.isArray(parsed.physicalGoldSales)) savePhysicalGoldSales(parsed.physicalGoldSales);
-    if (parsed.transactions) saveTransactions(parsed.transactions);
-    if (Array.isArray(parsed.marketInstruments)) saveMarketInstruments(parsed.marketInstruments);
-    if (Array.isArray(parsed.marketHoldings)) saveMarketHoldings(parsed.marketHoldings);
-    if (parsed.nobitexConfig) saveNobitexConfig(parsed.nobitexConfig);
+
+    if (parsed.settings) {
+      saveSettings({ ...DEFAULT_SETTINGS, ...parsed.settings });
+    }
+    if (Array.isArray(parsed.cryptoAssets)) {
+      saveCryptoAssets(parsed.cryptoAssets);
+    }
+    if (parsed.goldHolding) {
+      saveGoldHolding({ ...DEFAULT_GOLD_HOLDING, ...parsed.goldHolding });
+    }
+    if (Array.isArray(parsed.physicalGold)) {
+      savePhysicalGold(parsed.physicalGold);
+    }
+    // Backward-compatible schema migration for properties, lots, and sales
+    saveProperties(Array.isArray(parsed.properties) ? parsed.properties : []);
+    saveGoldBuyLots(Array.isArray(parsed.goldBuyLots) ? parsed.goldBuyLots : []);
+    savePhysicalGoldSales(Array.isArray(parsed.physicalGoldSales) ? parsed.physicalGoldSales : []);
+    
+    if (Array.isArray(parsed.transactions)) {
+      saveTransactions(parsed.transactions);
+    }
+    if (Array.isArray(parsed.marketInstruments)) {
+      saveMarketInstruments(parsed.marketInstruments);
+    }
+    if (Array.isArray(parsed.marketHoldings)) {
+      saveMarketHoldings(parsed.marketHoldings);
+    }
+    if (parsed.nobitexConfig) {
+      saveNobitexConfig(parsed.nobitexConfig);
+    }
     return true;
   } catch (e) {
     console.error('Failed to import backup:', e);
