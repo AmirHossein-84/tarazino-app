@@ -54,16 +54,16 @@ jobs:
       - name: Make Gradlew Executable
         run: chmod +x android/gradlew
 
-      - name: Build Android APK
+      - name: Build Android Signed Release APK
         run: |
           cd android
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
 
       - name: Upload Android Artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
 
   # ========================================================
@@ -166,7 +166,7 @@ jobs:
       - name: Rename Release Files
         run: |
           TAG="${{ steps.get_version.outputs.tag }}"
-          mv release-files/app-debug.apk "release-files/Investment-App-${TAG}.apk"
+          mv release-files/app-release.apk "release-files/Investment-App-${TAG}.apk"
           mv release-files/Investment-App.ipa "release-files/Investment-App-${TAG}.ipa"
 
       - name: Create Preview Draft Release
