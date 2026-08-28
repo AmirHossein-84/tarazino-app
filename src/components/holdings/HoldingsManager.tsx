@@ -6,7 +6,13 @@ import {
   ArrowRight,
   TrendingUp,
 } from 'lucide-react';
-import { CryptoAsset, PhysicalGoldItem, PhysicalGoldType } from '../../types/investment';
+import {
+  CryptoAsset,
+  PhysicalGoldItem,
+  PhysicalGoldType,
+  PhysicalGoldBuyLot,
+  PhysicalGoldSaleRecord,
+} from '../../types/investment';
 import { useMarketData } from '../../hooks/useMarketData';
 import { formatToman, formatPercent, toPersianDigits } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
@@ -26,12 +32,17 @@ interface HoldingsManagerProps {
   totalPhysicalGoldValueTomans?: number;
   isRefreshingGold?: boolean;
   isGoldFetchError?: boolean;
+  goldBuyLots?: PhysicalGoldBuyLot[];
+  physicalGoldSales?: PhysicalGoldSaleRecord[];
   currencyMode?: CurrencyDisplayMode;
   formatCurrency?: (amountTomans: number, options?: any) => string;
   toDisplayValue?: (amountTomans: number) => number;
   onRefreshPhysicalGold?: () => Promise<void>;
   onUpdatePhysicalGoldQuantity?: (id: PhysicalGoldType, quantity: number) => void;
   onUpdatePhysicalGoldPrice?: (id: PhysicalGoldType, priceTomans: number, isCustom: boolean) => void;
+  onAddGoldBuyLot?: (lot: Omit<PhysicalGoldBuyLot, 'id' | 'totalCostTomans'>) => void;
+  onDeleteGoldSale?: (id: string) => void;
+  onClearGoldSales?: () => void;
   onNavigateToCalculator: () => void;
   onNavigateToMarket?: () => void;
   onNotify?: (message: string, type?: 'success' | 'info' | 'error') => void;
@@ -47,12 +58,17 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
   totalPhysicalGoldValueTomans = 0,
   isRefreshingGold = false,
   isGoldFetchError = false,
+  goldBuyLots = [],
+  physicalGoldSales = [],
   currencyMode = 'toman',
   formatCurrency = (v, opts) => `${formatToman(v)} ${opts?.isTomanSuffix ? 'ت' : 'تومان'}`,
   toDisplayValue = (v) => v,
   onRefreshPhysicalGold = async () => {},
   onUpdatePhysicalGoldQuantity = () => {},
   onUpdatePhysicalGoldPrice = () => {},
+  onAddGoldBuyLot,
+  onDeleteGoldSale,
+  onClearGoldSales,
   onNavigateToCalculator,
   onNavigateToMarket,
   onNotify,
@@ -116,9 +132,14 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
         isGoldFetchError={isGoldFetchError}
         currencyMode={currencyMode}
         formatCurrency={formatCurrency}
+        goldBuyLots={goldBuyLots}
+        physicalGoldSales={physicalGoldSales}
         onRefresh={onRefreshPhysicalGold}
         onUpdateQuantity={onUpdatePhysicalGoldQuantity}
         onUpdatePrice={onUpdatePhysicalGoldPrice}
+        onAddGoldBuyLot={onAddGoldBuyLot}
+        onDeleteGoldSale={onDeleteGoldSale}
+        onClearGoldSales={onClearGoldSales}
         onNotify={onNotify}
       />
 

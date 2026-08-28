@@ -1,0 +1,236 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Coins,
+  Plus,
+  Calendar,
+  Check,
+  Sparkles,
+  FileText,
+  DollarSign,
+} from 'lucide-react';
+import { PhysicalGoldItem, PhysicalGoldType, PhysicalGoldBuyLot } from '../../types/investment';
+import { formatToman, toPersianDigits, parseNumberInput, getPersianFormattedDate } from '../../utils/formatters';
+import { triggerHaptic } from '../../utils/haptics';
+import { BottomSheetModal } from '../common/BottomSheetModal';
+
+interface AddGoldLotModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  items: PhysicalGoldItem[];
+  defaultSelectedType?: PhysicalGoldType;
+  onSaveLot: (lot: Omit<PhysicalGoldBuyLot, 'id' | 'totalCostTomans'>) => void;
+}
+
+export const AddGoldLotModal: React.FC<AddGoldLotModalProps> = ({
+  isOpen,
+  onClose,
+  items,
+  defaultSelectedType = 'gold_18k',
+  onSaveLot,
+}) => {
+  const [selectedType, setSelectedType] = useState<PhysicalGoldType>(defaultSelectedType);
+  const [quantity, setQuantity] = useState('');
+  const [purchasePriceTomans, setPurchasePriceTomans] = useState('');
+  const [purchaseDate, setPurchaseDate] = useState('');
+  const [notes, setNotes] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedType(defaultSelectedType);
+      setQuantity('');
+      // Pre-fill live market price as default suggestion
+      const currentItem = items.find((i) => i.id === defaultSelectedType);
+      setPurchasePriceTomans(currentItem?.unitPriceTomans ? String(currentItem.unitPriceTomans) : '');
+      setPurchaseDate(getPersianFormattedDate());
+      setNotes('');
+    }
+  }, [isOpen, defaultSelectedType, items]);
+
+  if (!isOpen) return null;
+
+  const currentItem = items.find((i) => i.id === selectedType) || items[0];
+  const numQty = parseNumberInput(quantity);
+  const numUnitPrice = parseNumberInput(purchasePriceTomans);
+  const totalCost = numQty * numUnitPrice;
+
+  const handleSelectType = (id: PhysicalGoldType) => {
+    triggerHaptic('light');
+    setSelectedType(id);
+    const itm = items.find((i) => i.id === id);
+    if (itm && itm.unitPriceTomans > 0 && !purchasePriceTomans) {
+      setPurchasePriceTomans(String(itm.unitPriceTomans));
+    }
+  };
+
+  const handleSave = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (numQty <= 0 || numUnitPrice <= 0) {
+      alert('لطفاً مقدار و قیمت خرید واحد را معتبر وارد نمایید.');
+      return;
+    }
+
+    triggerHaptic('medium');
+    onSaveLot({
+      goldType: selectedType,
+      quantity: numQty,
+      purchaseUnitPriceTomans: numUnitPrice,
+      purchaseDate: purchaseDate.trim() || getPersianFormattedDate(),
+      notes: notes.trim() || undefined,
+    });
+    onClose();
+  };
+
+  const footerActions = (
+    <div className="flex items-center gap-2.5">
+      <button
+        type="button"
+        onClick={onClose}
+        className="py-3 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all interactive-tap touch-target"
+      >
+        انصراف
+      </button>
+      <button
+        type="button"
+        onClick={() => handleSave()}
+        className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-400 to-gold-500 hover:from-amber-300 hover:to-gold-400 text-slate-950 font-black text-xs transition-all shadow-gold-glow flex items-center justify-center gap-1.5 interactive-tap touch-target"
+      >
+        <Check className="w-4 h-4" />
+        <span>ثبت پله خرید طلا</span>
+      </button>
+    </div>
+  );
+
+  return (
+    <BottomSheetModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="ثبت پله خرید طلای فیزیکی (Buy Lot)"
+      subtitle="محاسبه دقیق بهای تمام‌شده میانگین و سود/زیان لحظه‌ای"
+      icon={<Sparkles className="w-5 h-5 text-gold-400" />}
+      footer={footerActions}
+      maxWidth="max-w-md"
+    >
+      <form onSubmit={handleSave} className="space-y-4">
+        
+        {/* 1. Item Selector Chips */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-300 block">نوع طلا یا مسکوکات</label>
+          <div className="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-0.5">
+            {items.map((item) => {
+              const isSelected = selectedType === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleSelectType(item.id)}
+                  className={`p-2.5 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all interactive-tap touch-target ${
+                    isSelected
+                      ? 'bg-amber-500/20 border-gold-500 text-gold-300 shadow-sm'
+                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <span className="text-sm">{item.id.startsWith('coin_') ? '🪙' : '🥇'}</span>
+                  <span className="truncate">{item.title}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 2. Quantity / Weight Input */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-300 block">
+              مقدار خریداری‌شده ({currentItem.unit})
+            </label>
+            {numQty > 0 && (
+              <span className="text-[11px] font-bold text-gold-400">
+                {toPersianDigits(numQty)} {currentItem.unit}
+              </span>
+            )}
+          </div>
+          <div className="relative flex items-center">
+            <input
+              type="number"
+              step="any"
+              min="0"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              placeholder={currentItem.unit === 'گرم' ? 'مثلاً ۱۰.۵' : 'مثلاً ۱'}
+              className="w-full pl-16 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-gold-500/80 focus:ring-1 focus:ring-gold-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              autoFocus
+            />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-gold-400 font-bold pointer-events-none">
+              {currentItem.unit}
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Purchase Unit Price Input */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-300 block">
+              قیمت خرید هر {currentItem.unit} (تومان)
+            </label>
+            {numUnitPrice > 0 && (
+              <span className="text-[11px] font-bold text-slate-400 dir-rtl">
+                {formatToman(numUnitPrice)} تومان
+              </span>
+            )}
+          </div>
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              inputMode="numeric"
+              value={purchasePriceTomans ? new Intl.NumberFormat('en-US').format(parseNumberInput(purchasePriceTomans)) : ''}
+              onChange={(e) => setPurchasePriceTomans(e.target.value)}
+              placeholder="قیمت واحد به تومان"
+              className="w-full pl-16 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-gold-500/80 focus:ring-1 focus:ring-gold-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600"
+            />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 font-bold pointer-events-none">
+              تومان
+            </div>
+          </div>
+        </div>
+
+        {/* Total Cost Preview */}
+        {totalCost > 0 && (
+          <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-gold-500/30 flex items-center justify-between animate-fadeIn">
+            <span className="text-xs font-bold text-slate-400">جمع هزینه این پله خرید:</span>
+            <div className="text-sm font-black text-gold-400 dir-ltr">
+              {formatToman(totalCost)} <span className="text-xs text-slate-400 font-normal">تومان</span>
+            </div>
+          </div>
+        )}
+
+        {/* 4. Purchase Date */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-300 block">تاریخ خرید</label>
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              value={purchaseDate}
+              onChange={(e) => setPurchaseDate(e.target.value)}
+              placeholder="مثال: ۱۴۰۲/۱۲/۲۰"
+              className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-gold-500/80 focus:ring-1 focus:ring-gold-500/80 text-slate-100 text-right font-medium text-xs outline-none transition-all placeholder:text-slate-600"
+            />
+            <Calendar className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+        </div>
+
+        {/* 5. Notes */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-300 block">یادداشت پله خرید</label>
+          <input
+            type="text"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="مثال: طلافروشی بازار بزرگ، بدون اجرت..."
+            className="w-full px-4 py-2.5 rounded-2xl bg-slate-950 border border-slate-800 focus:border-gold-500/80 focus:ring-1 focus:ring-gold-500/80 text-slate-100 text-right font-normal text-xs outline-none transition-all placeholder:text-slate-600"
+          />
+        </div>
+
+      </form>
+    </BottomSheetModal>
+  );
+};

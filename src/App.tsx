@@ -87,6 +87,14 @@ const AppContent: React.FC = () => {
     isRefreshingGold,
     isGoldFetchError,
     totalPhysicalGoldValueTomans,
+    totalPhysicalGoldPnl,
+    goldBuyLots,
+    physicalGoldSales,
+    addGoldBuyLot,
+    removeGoldBuyLot,
+    recordGoldSale,
+    deleteGoldSaleRecord,
+    clearGoldSaleHistory,
     updatePhysicalGoldQuantity,
     updatePhysicalGoldPrice,
     refreshPhysicalGoldPrices,
@@ -275,12 +283,17 @@ const AppContent: React.FC = () => {
               totalPhysicalGoldValueTomans={totalPhysicalGoldValueTomans}
               isRefreshingGold={isRefreshingGold}
               isGoldFetchError={isGoldFetchError}
+              goldBuyLots={goldBuyLots}
+              physicalGoldSales={physicalGoldSales}
               currencyMode={currencyMode}
               formatCurrency={formatCurrency}
               toDisplayValue={toDisplayValue}
               onRefreshPhysicalGold={refreshPhysicalGoldPrices}
               onUpdatePhysicalGoldQuantity={updatePhysicalGoldQuantity}
               onUpdatePhysicalGoldPrice={updatePhysicalGoldPrice}
+              onAddGoldBuyLot={addGoldBuyLot}
+              onDeleteGoldSale={deleteGoldSaleRecord}
+              onClearGoldSales={clearGoldSaleHistory}
               onNavigateToCalculator={() => setActiveTab('dashboard')}
               onNavigateToMarket={() => setActiveTab('gold')}
               onNotify={showNotification}

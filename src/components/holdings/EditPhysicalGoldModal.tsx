@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Check, RotateCcw } from 'lucide-react';
+import { Check, RotateCcw, TrendingUp, DollarSign } from 'lucide-react';
 import { PhysicalGoldItem, PhysicalGoldType } from '../../types/investment';
-import { formatToman, toPersianDigits } from '../../utils/formatters';
+import { formatToman, formatPercent, toPersianDigits, parseNumberInput } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { BottomSheetModal } from '../common/BottomSheetModal';
 
@@ -11,6 +11,7 @@ interface EditPhysicalGoldModalProps {
   onClose: () => void;
   onSaveQuantity: (id: PhysicalGoldType, quantity: number) => void;
   onSavePrice: (id: PhysicalGoldType, priceTomans: number, isCustom: boolean) => void;
+  onSaveAverageBuyPrice?: (id: PhysicalGoldType, averageBuyPrice: number) => void;
 }
 
 export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
@@ -19,15 +20,18 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
   onClose,
   onSaveQuantity,
   onSavePrice,
+  onSaveAverageBuyPrice,
 }) => {
   const [quantity, setQuantity] = useState<string>('0');
   const [priceTomans, setPriceTomans] = useState<string>('0');
+  const [averageBuyPrice, setAverageBuyPrice] = useState<string>('');
   const [isCustomPrice, setIsCustomPrice] = useState<boolean>(false);
 
   useEffect(() => {
     if (item) {
       setQuantity(item.quantity ? String(item.quantity) : '');
       setPriceTomans(item.unitPriceTomans ? String(item.unitPriceTomans) : '');
+      setAverageBuyPrice(item.averageBuyPriceTomans ? String(item.averageBuyPriceTomans) : '');
       setIsCustomPrice(!!item.isCustomPrice);
     }
   }, [item]);
@@ -36,13 +40,20 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
 
   const numQty = parseFloat(quantity) || 0;
   const numPrice = parseFloat(priceTomans) || 0;
+  const numAvgCost = parseNumberInput(averageBuyPrice);
   const totalVal = numQty * numPrice;
+  const totalCost = numQty * numAvgCost;
+  const unrealizedProfit = numAvgCost > 0 ? totalVal - totalCost : 0;
+  const unrealizedProfitPercent = totalCost > 0 ? (unrealizedProfit / totalCost) * 100 : 0;
 
   const handleSave = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     triggerHaptic('medium');
     onSaveQuantity(item.id, numQty);
     onSavePrice(item.id, numPrice, isCustomPrice);
+    if (onSaveAverageBuyPrice) {
+      onSaveAverageBuyPrice(item.id, numAvgCost);
+    }
     onClose();
   };
 
@@ -113,11 +124,39 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
           </div>
         </div>
 
+        {/* Average Buy Price (Cost Basis) */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-300 block">
+              میانگین قیمت خرید هر {item.unit} (تومان) - اختیاری
+            </label>
+            {numAvgCost > 0 && (
+              <span className="text-[11px] font-bold text-slate-400 dir-rtl">
+                {formatToman(numAvgCost)} تومان
+              </span>
+            )}
+          </div>
+
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              inputMode="numeric"
+              value={averageBuyPrice ? new Intl.NumberFormat('en-US').format(parseNumberInput(averageBuyPrice)) : ''}
+              onChange={(e) => setAverageBuyPrice(e.target.value)}
+              placeholder="جهت محاسبه سود/زیان لحظه‌ای"
+              className="w-full pl-16 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-gold-500/80 focus:ring-1 focus:ring-gold-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600"
+            />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 font-bold pointer-events-none">
+              تومان
+            </div>
+          </div>
+        </div>
+
         {/* Unit Price Input */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold text-slate-300 block">
-              قیمت هر {item.unit} (تومان)
+              نرخ روز هر {item.unit} (تومان)
             </label>
             {isCustomPrice && (
               <button
@@ -165,12 +204,36 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
           </div>
         </div>
 
-        {/* Value Preview Box */}
-        <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-gold-500/30 flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-400">ارزش کل این دارایی:</span>
-          <div className="text-sm font-black text-gold-400">
-            {formatToman(totalVal)} <span className="text-xs text-slate-400 font-normal">تومان</span>
+        {/* Value & PnL Preview Box */}
+        <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-gold-500/30 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-400">ارزش روز این دارایی:</span>
+            <div className="text-sm font-black text-gold-400">
+              {formatToman(totalVal)} <span className="text-xs text-slate-400 font-normal">تومان</span>
+            </div>
           </div>
+
+          {numAvgCost > 0 && numQty > 0 && (
+            <div className="flex items-center justify-between text-xs pt-1.5 border-t border-slate-800">
+              <span className="text-slate-400">سود/زیان برآورد شده:</span>
+              <div className="flex items-center gap-1.5 dir-ltr">
+                <span
+                  className={`font-black ${
+                    unrealizedProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                  }`}
+                >
+                  {unrealizedProfit >= 0 ? '+' : ''}{formatToman(unrealizedProfit)} تومان
+                </span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${
+                    unrealizedProfit >= 0 ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'
+                  }`}
+                >
+                  {unrealizedProfit >= 0 ? '+' : ''}{toPersianDigits(unrealizedProfitPercent.toFixed(1))}%
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </form>
     </BottomSheetModal>
