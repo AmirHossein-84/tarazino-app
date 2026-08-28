@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Coins, TrendingUp, Wallet, Sliders, ArrowDownCircle } from 'lucide-react';
+import { LayoutDashboard, Coins, TrendingUp, Building2, Wallet, Sliders, ArrowDownCircle } from 'lucide-react';
 import { ActiveTab } from '../../types/investment';
 import { triggerHaptic } from '../../utils/haptics';
 
@@ -13,6 +13,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab })
     { id: 'dashboard', label: 'داشبورد', icon: LayoutDashboard },
     { id: 'gold', label: 'بورس و طلا', icon: Coins },
     { id: 'crypto', label: 'ارز دیجیتال', icon: TrendingUp },
+    { id: 'properties', label: 'املاک', icon: Building2 },
     { id: 'holdings', label: 'دارایی‌ها', icon: Wallet },
     { id: 'sell', label: 'فروش', icon: ArrowDownCircle },
     { id: 'settings', label: 'تنظیمات', icon: Sliders },

@@ -10,6 +10,7 @@ import { DashboardView } from './components/dashboard/DashboardView';
 import { CryptoMarketView } from './components/crypto/CryptoMarketView';
 import { MarketInstrumentsView } from './components/market/MarketInstrumentsView';
 import { HoldingsManager } from './components/holdings/HoldingsManager';
+import { PropertyManagerView } from './components/properties/PropertyManagerView';
 import { SellView } from './components/sell/SellView';
 import { PercentagesConfig } from './components/settings/PercentagesConfig';
 import { BackupRestore } from './components/settings/BackupRestore';
@@ -89,6 +90,13 @@ const AppContent: React.FC = () => {
     updatePhysicalGoldQuantity,
     updatePhysicalGoldPrice,
     refreshPhysicalGoldPrices,
+    properties,
+    totalPropertiesValueTomans,
+    netWorthPropertiesValueTomans,
+    addProperty,
+    editProperty,
+    removeProperty,
+    updatePropertyValuation,
     transactions,
     deleteTransaction,
     clearAllHistory,
@@ -186,6 +194,7 @@ const AppContent: React.FC = () => {
             goldHoldingValue={totalGoldValue}
             physicalGoldValue={totalPhysicalGoldValueTomans}
             bourseGoldValue={totalGoldMarketValueTomans}
+            propertiesValue={netWorthPropertiesValueTomans}
             totalCryptoValue={totalCryptoValue}
             totalPortfolioValue={totalPortfolioValue}
             tomanCashBalance={tomanCashBalance}
@@ -236,7 +245,24 @@ const AppContent: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 4: HOLDINGS MANAGEMENT */}
+        {/* TAB 4: REAL ESTATE & PROPERTY MANAGEMENT */}
+        {activeTab === 'properties' && (
+          <div className="animate-fadeIn">
+            <PropertyManagerView
+              properties={properties}
+              currencyMode={currencyMode}
+              usdtRateTomans={usdtRateTomans}
+              formatCurrency={formatCurrency}
+              toDisplayValue={toDisplayValue}
+              onAddProperty={addProperty}
+              onEditProperty={editProperty}
+              onRemoveProperty={removeProperty}
+              onNotify={showNotification}
+            />
+          </div>
+        )}
+
+        {/* TAB 5: HOLDINGS MANAGEMENT */}
         {activeTab === 'holdings' && (
           <div className="animate-fadeIn">
             <HoldingsManager

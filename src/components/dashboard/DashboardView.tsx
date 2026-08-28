@@ -3,6 +3,7 @@ import {
   TrendingUp,
   Wallet,
   Coins,
+  Building2,
   ArrowUpRight,
   ArrowDownRight,
   Sparkles,
@@ -38,6 +39,7 @@ interface DashboardViewProps {
   goldHoldingValue: number;
   physicalGoldValue?: number;
   bourseGoldValue?: number;
+  propertiesValue?: number;
   totalCryptoValue: number;
   totalPortfolioValue: number;
   tomanCashBalance: number;
@@ -67,6 +69,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   goldHoldingValue,
   physicalGoldValue = 0,
   bourseGoldValue = 0,
+  propertiesValue = 0,
   totalCryptoValue,
   totalPortfolioValue,
   tomanCashBalance,
@@ -364,6 +367,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             )}
           </div>
+
+          {/* Real Estate / Properties Chip */}
+          {propertiesValue > 0 && (
+            <div
+              onClick={() => onNavigateToTab('properties')}
+              className="p-3 rounded-2xl bg-slate-950/80 border border-teal-500/30 hover:border-teal-500/60 transition-all cursor-pointer space-y-1 col-span-2 sm:col-span-1"
+            >
+              <div className="flex items-center justify-between text-[11px] text-slate-400">
+                <span className="flex items-center gap-1 font-bold text-teal-400">
+                  <Building2 className="w-3.5 h-3.5" />
+                  <span>املاک و مستغلات</span>
+                </span>
+                <span className="text-teal-300 font-bold">
+                  {totalPortfolioValue + propertiesValue > 0
+                    ? formatPercent((propertiesValue / (totalPortfolioValue + propertiesValue)) * 100)
+                    : '۰٪'}
+                </span>
+              </div>
+              <div className="text-sm font-black text-slate-100 dir-ltr text-right">
+                {formatCurrency(propertiesValue)}
+              </div>
+            </div>
+          )}
 
           {/* Nobitex Cash Chip */}
           {tomanCashBalance > 0 && (

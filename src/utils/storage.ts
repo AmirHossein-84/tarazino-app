@@ -3,6 +3,9 @@ import {
   CryptoAsset,
   GoldHolding,
   PhysicalGoldItem,
+  PhysicalGoldBuyLot,
+  PhysicalGoldSaleRecord,
+  PropertyItem,
   TransactionRecord,
   MarketInstrument,
   UserMarketHolding,
@@ -20,6 +23,9 @@ const STORAGE_KEYS = {
   CRYPTO_ASSETS: 'investment_app_crypto_assets_v1',
   GOLD_HOLDING: 'investment_app_gold_holding_v1',
   PHYSICAL_GOLD: 'investment_app_physical_gold_v1',
+  PROPERTIES: 'investment_app_properties_v1',
+  GOLD_BUY_LOTS: 'investment_app_gold_buy_lots_v1',
+  PHYSICAL_GOLD_SALES: 'investment_app_physical_gold_sales_v1',
   TRANSACTIONS: 'investment_app_transactions_v1',
   LAST_INPUT: 'investment_app_last_input_v1',
   MARKET_INSTRUMENTS: 'investment_app_market_instruments_v1',
@@ -34,6 +40,9 @@ export interface ExportedBackupData {
   cryptoAssets: CryptoAsset[];
   goldHolding: GoldHolding;
   physicalGold?: PhysicalGoldItem[];
+  properties?: PropertyItem[];
+  goldBuyLots?: PhysicalGoldBuyLot[];
+  physicalGoldSales?: PhysicalGoldSaleRecord[];
   transactions: TransactionRecord[];
   marketInstruments?: MarketInstrument[];
   marketHoldings?: UserMarketHolding[];
@@ -120,6 +129,68 @@ export function savePhysicalGold(items: PhysicalGoldItem[]): void {
     localStorage.setItem(STORAGE_KEYS.PHYSICAL_GOLD, JSON.stringify(items));
   } catch (e) {
     console.error('Failed to save physical gold:', e);
+  }
+}
+
+// -------------------------------------------------------------
+// REAL ESTATE & PROPERTY MANAGEMENT PERSISTENCE
+// -------------------------------------------------------------
+
+export function loadProperties(): PropertyItem[] {
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.PROPERTIES);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error('Failed to load properties:', e);
+    return [];
+  }
+}
+
+export function saveProperties(properties: PropertyItem[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.PROPERTIES, JSON.stringify(properties));
+  } catch (e) {
+    console.error('Failed to save properties:', e);
+  }
+}
+
+// -------------------------------------------------------------
+// PHYSICAL GOLD PURCHASE LOTS & REALIZED SALES AUDIT
+// -------------------------------------------------------------
+
+export function loadGoldBuyLots(): PhysicalGoldBuyLot[] {
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.GOLD_BUY_LOTS);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error('Failed to load gold buy lots:', e);
+    return [];
+  }
+}
+
+export function saveGoldBuyLots(lots: PhysicalGoldBuyLot[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.GOLD_BUY_LOTS, JSON.stringify(lots));
+  } catch (e) {
+    console.error('Failed to save gold buy lots:', e);
+  }
+}
+
+export function loadPhysicalGoldSales(): PhysicalGoldSaleRecord[] {
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.PHYSICAL_GOLD_SALES);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error('Failed to load physical gold sales:', e);
+    return [];
+  }
+}
+
+export function savePhysicalGoldSales(sales: PhysicalGoldSaleRecord[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.PHYSICAL_GOLD_SALES, JSON.stringify(sales));
+  } catch (e) {
+    console.error('Failed to save physical gold sales:', e);
   }
 }
 
@@ -225,12 +296,15 @@ export function saveNobitexConfig(config: NobitexConfig): void {
 
 export function exportBackupData(): string {
   const backup: ExportedBackupData = {
-    version: '1.3.0',
+    version: '2.0.0',
     exportDate: new Date().toISOString(),
     settings: loadSettings(),
     cryptoAssets: loadCryptoAssets(),
     goldHolding: loadGoldHolding(),
     physicalGold: loadPhysicalGold(),
+    properties: loadProperties(),
+    goldBuyLots: loadGoldBuyLots(),
+    physicalGoldSales: loadPhysicalGoldSales(),
     transactions: loadTransactions(),
     marketInstruments: loadMarketInstruments(),
     marketHoldings: loadMarketHoldings(),
@@ -249,6 +323,9 @@ export function importBackupData(jsonString: string): boolean {
     saveCryptoAssets(parsed.cryptoAssets);
     if (parsed.goldHolding) saveGoldHolding(parsed.goldHolding);
     if (Array.isArray(parsed.physicalGold)) savePhysicalGold(parsed.physicalGold);
+    if (Array.isArray(parsed.properties)) saveProperties(parsed.properties);
+    if (Array.isArray(parsed.goldBuyLots)) saveGoldBuyLots(parsed.goldBuyLots);
+    if (Array.isArray(parsed.physicalGoldSales)) savePhysicalGoldSales(parsed.physicalGoldSales);
     if (parsed.transactions) saveTransactions(parsed.transactions);
     if (Array.isArray(parsed.marketInstruments)) saveMarketInstruments(parsed.marketInstruments);
     if (Array.isArray(parsed.marketHoldings)) saveMarketHoldings(parsed.marketHoldings);
@@ -265,6 +342,9 @@ export function resetAllDataToDefault(): void {
   localStorage.removeItem(STORAGE_KEYS.CRYPTO_ASSETS);
   localStorage.removeItem(STORAGE_KEYS.GOLD_HOLDING);
   localStorage.removeItem(STORAGE_KEYS.PHYSICAL_GOLD);
+  localStorage.removeItem(STORAGE_KEYS.PROPERTIES);
+  localStorage.removeItem(STORAGE_KEYS.GOLD_BUY_LOTS);
+  localStorage.removeItem(STORAGE_KEYS.PHYSICAL_GOLD_SALES);
   localStorage.removeItem(STORAGE_KEYS.TRANSACTIONS);
   localStorage.removeItem(STORAGE_KEYS.LAST_INPUT);
   localStorage.removeItem(STORAGE_KEYS.MARKET_INSTRUMENTS);

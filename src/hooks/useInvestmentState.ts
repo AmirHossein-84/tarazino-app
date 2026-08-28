@@ -5,6 +5,7 @@ import {
   GoldHolding,
   PhysicalGoldItem,
   PhysicalGoldType,
+  PropertyItem,
   TransactionRecord,
   CalculationResult,
   ActiveTab,
@@ -19,6 +20,8 @@ import {
   saveGoldHolding,
   loadPhysicalGold,
   savePhysicalGold,
+  loadProperties,
+  saveProperties,
   loadTransactions,
   saveTransactions,
   loadLastInput,
@@ -43,6 +46,7 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
   const [cryptoAssets, setCryptoAssetsState] = useState<CryptoAsset[]>(() => loadCryptoAssets());
   const [goldHolding, setGoldHoldingState] = useState<GoldHolding>(() => loadGoldHolding());
   const [physicalGoldItems, setPhysicalGoldItemsState] = useState<PhysicalGoldItem[]>(() => loadPhysicalGold());
+  const [properties, setPropertiesState] = useState<PropertyItem[]>(() => loadProperties());
   const [isRefreshingGold, setIsRefreshingGold] = useState<boolean>(false);
   const [isGoldFetchError, setIsGoldFetchError] = useState<boolean>(false);
   const [transactions, setTransactionsState] = useState<TransactionRecord[]>(() => loadTransactions());
@@ -294,6 +298,81 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     showNotification('خریدها با موفقیت در موجودی دارایی‌ها و تاریخچه تراکنش‌ها ثبت شدند');
   }, [calculationResult, props, showNotification]);
 
+  // -------------------------------------------------------------
+  // REAL ESTATE & PROPERTY MANAGEMENT
+  // -------------------------------------------------------------
+
+  const addProperty = useCallback((propertyData: Omit<PropertyItem, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newProperty: PropertyItem = {
+      ...propertyData,
+      id: `prop_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    setPropertiesState((prev) => {
+      const updated = [newProperty, ...prev];
+      saveProperties(updated);
+      return updated;
+    });
+    showNotification(`ملک "${newProperty.title}" با موفقیت اضافه شد`);
+  }, [showNotification]);
+
+  const editProperty = useCallback((id: string, updates: Partial<PropertyItem>) => {
+    setPropertiesState((prev) => {
+      const updated = prev.map((p) => {
+        if (p.id !== id) return p;
+        return {
+          ...p,
+          ...updates,
+          updatedAt: Date.now(),
+        };
+      });
+      saveProperties(updated);
+      return updated;
+    });
+  }, []);
+
+  const removeProperty = useCallback((id: string) => {
+    setPropertiesState((prev) => {
+      const target = prev.find((p) => p.id === id);
+      const updated = prev.filter((p) => p.id !== id);
+      saveProperties(updated);
+      showNotification(`ملک "${target?.title || ''}" حذف شد`, 'info');
+      return updated;
+    });
+  }, [showNotification]);
+
+  const updatePropertyValuation = useCallback((id: string, valuationRial: number) => {
+    setPropertiesState((prev) => {
+      const updated = prev.map((p) => {
+        if (p.id !== id) return p;
+        return {
+          ...p,
+          currentValuationRial: Math.max(0, valuationRial),
+          updatedAt: Date.now(),
+        };
+      });
+      saveProperties(updated);
+      return updated;
+    });
+    showNotification('ارزش روز ملک به‌روزرسانی شد');
+  }, [showNotification]);
+
+  const totalPropertiesValueTomans = useMemo(() => {
+    return properties.reduce((sum, p) => {
+      const valToman = Math.round((p.currentValuationRial || p.purchasePriceRial || 0) / 10);
+      return sum + valToman;
+    }, 0);
+  }, [properties]);
+
+  const netWorthPropertiesValueTomans = useMemo(() => {
+    return properties.reduce((sum, p) => {
+      if (p.includeInTotalNetWorth === false) return sum;
+      const valToman = Math.round((p.currentValuationRial || p.purchasePriceRial || 0) / 10);
+      return sum + valToman;
+    }, 0);
+  }, [properties]);
+
   const deleteTransaction = useCallback((id: string) => {
     setTransactionsState((prev) => {
       const updated = prev.filter((tx) => tx.id !== id);
@@ -315,6 +394,7 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     setCryptoAssetsState(loadCryptoAssets());
     setGoldHoldingState(loadGoldHolding());
     setPhysicalGoldItemsState(loadPhysicalGold());
+    setPropertiesState([]);
     setTransactionsState([]);
     setInputAmountState(0);
     showNotification('تمامی اطلاعات به تنظیمات پیش‌فرض کارخانه بازنشانی شد', 'info');
@@ -345,6 +425,7 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
       setCryptoAssetsState(loadCryptoAssets());
       setGoldHoldingState(loadGoldHolding());
       setPhysicalGoldItemsState(loadPhysicalGold());
+      setPropertiesState(loadProperties());
       setTransactionsState(loadTransactions());
       showNotification('اطلاعات با موفقیت از فایل پشتیبان بازیابی شدند');
     } else {
@@ -374,6 +455,13 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     updatePhysicalGoldQuantity,
     updatePhysicalGoldPrice,
     refreshPhysicalGoldPrices,
+    properties,
+    totalPropertiesValueTomans,
+    netWorthPropertiesValueTomans,
+    addProperty,
+    editProperty,
+    removeProperty,
+    updatePropertyValuation,
     transactions,
     deleteTransaction,
     clearAllHistory,

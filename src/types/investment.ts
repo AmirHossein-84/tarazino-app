@@ -27,6 +27,32 @@ export type PhysicalGoldType =
   | 'coin_quarter'
   | 'coin_gram';
 
+export interface PhysicalGoldBuyLot {
+  id: string;
+  goldType: PhysicalGoldType;
+  quantity: number; // e.g. grams or coin count
+  purchaseUnitPriceTomans: number; // unit cost in Tomans
+  purchaseDate: string; // ISO string or Persian date
+  totalCostTomans: number; // quantity * purchaseUnitPriceTomans
+  notes?: string;
+}
+
+export interface PhysicalGoldSaleRecord {
+  id: string;
+  goldType: PhysicalGoldType;
+  title: string;
+  quantitySold: number;
+  unitCostBasisTomans: number;
+  saleUnitPriceTomans: number;
+  totalCostTomans: number;
+  totalRevenueTomans: number;
+  realizedProfitTomans: number;
+  realizedProfitPercent: number;
+  saleDate: string;
+  persianDate: string;
+  notes?: string;
+}
+
 export interface PhysicalGoldItem {
   id: PhysicalGoldType;
   title: string;
@@ -36,6 +62,26 @@ export interface PhysicalGoldItem {
   priceChangePercent?: number; // 24h change
   lastFetchedAt?: number;
   isCustomPrice?: boolean; // If user manually overridden the price
+  averageBuyPriceTomans?: number; // Weighted average cost per unit
+  totalCostTomans?: number; // Total purchase cost of currently owned quantity
+  buyLots?: PhysicalGoldBuyLot[];
+}
+
+export type PropertyType = 'residential' | 'commercial' | 'land' | 'office' | 'other';
+
+export interface PropertyItem {
+  id: string;
+  title: string;
+  type: PropertyType;
+  areaSquareMeters: number;
+  purchaseDate: string;
+  purchasePriceRial: number;
+  currentValuationRial: number;
+  currentValuationUsd: number;
+  notes?: string;
+  includeInTotalNetWorth: boolean;
+  createdAt?: number;
+  updatedAt?: number;
 }
 
 export interface GoldHolding {
@@ -92,11 +138,14 @@ export interface TransactionRecord {
 }
 
 export interface AppBackupData {
-  version: number;
+  version: number | string;
   exportDate: string;
   cryptoAssets: CryptoAsset[];
   goldHolding: GoldHolding;
   physicalGold?: PhysicalGoldItem[];
+  properties?: PropertyItem[];
+  goldBuyLots?: PhysicalGoldBuyLot[];
+  physicalGoldSales?: PhysicalGoldSaleRecord[];
   settings: AppSettings;
   transactions: TransactionRecord[];
   marketInstruments?: MarketInstrument[];
@@ -108,6 +157,7 @@ export type ActiveTab =
   | 'gold'
   | 'crypto'
   | 'holdings'
+  | 'properties'
   | 'sell'
   | 'settings'
   | 'history'
