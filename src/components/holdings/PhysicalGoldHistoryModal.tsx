@@ -151,7 +151,7 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
                     {summary.totalProfit >= 0 ? '+' : ''}{formatCurrency(summary.totalProfit)}
                   </span>
                   <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-md font-bold ${
+                    className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold ${
                       summary.totalProfit >= 0 ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'
                     }`}
                   >
@@ -238,7 +238,7 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
                           {isProfit ? '+' : ''}{formatCurrency(record.realizedProfitTomans)}
                         </span>
                         <span
-                          className={`text-[9px] px-1 py-0.2 rounded font-bold ${
+                          className={`text-[9px] px-1 py-0.5 rounded font-bold ${
                             isProfit ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'
                           }`}
                         >

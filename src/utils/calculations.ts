@@ -1,10 +1,64 @@
 import { AppSettings, CalculatedCryptoBuy, CalculationResult, CryptoAsset, GoldHolding } from '../types/investment';
 
 /**
+ * Distribute integer budget using Largest Remainder Method (Hamilton/Hare-Niemeyer method).
+ * Guarantees exact sum matching and zero floating-point artifacts.
+ */
+function distributeIntegerBudget(
+  items: { id: string; rawBuy: number }[],
+  totalBudget: number
+): { id: string; suggestedBuy: number }[] {
+  if (totalBudget <= 0 || items.length === 0) {
+    return items.map((item) => ({ id: item.id, suggestedBuy: 0 }));
+  }
+
+  const intBudget = Math.round(totalBudget);
+  const floors = items.map((item) => ({
+    id: item.id,
+    floor: Math.floor(Math.max(0, item.rawBuy)),
+    remainder: Math.max(0, item.rawBuy) - Math.floor(Math.max(0, item.rawBuy)),
+  }));
+
+  const currentFloorSum = floors.reduce((sum, item) => sum + item.floor, 0);
+  let diff = intBudget - currentFloorSum;
+
+  if (diff > 0) {
+    // Sort by remainder descending
+    const sortedIndices = floors
+      .map((item, idx) => ({ idx, remainder: item.remainder }))
+      .sort((a, b) => b.remainder - a.remainder);
+
+    for (let i = 0; i < diff; i++) {
+      const targetIdx = sortedIndices[i % sortedIndices.length].idx;
+      floors[targetIdx].floor += 1;
+    }
+  } else if (diff < 0) {
+    // Over-allocated due to rounding: reduce from items with lowest remainder and > 0 floor
+    const sortedIndices = floors
+      .map((item, idx) => ({ idx, remainder: item.remainder, floor: item.floor }))
+      .filter((item) => item.floor > 0)
+      .sort((a, b) => a.remainder - b.remainder);
+
+    let toReduce = Math.abs(diff);
+    for (let i = 0; i < toReduce && sortedIndices.length > 0; i++) {
+      const targetIdx = sortedIndices[i % sortedIndices.length].idx;
+      if (floors[targetIdx].floor > 0) {
+        floors[targetIdx].floor -= 1;
+      }
+    }
+  }
+
+  return floors.map((item) => ({
+    id: item.id,
+    suggestedBuy: Math.max(0, item.floor),
+  }));
+}
+
+/**
  * Waterfilling / iterative rebalancing algorithm for buy-only allocation.
  * Guarantees that:
  * 1. No buy amount is negative (buy-only, no forced selling).
- * 2. Total allocated equals totalBudget (up to rounding).
+ * 2. Total allocated equals totalBudget exactly.
  * 3. Weights converge towards target ratios as closely as possible.
  */
 export function calculateRebalancedBuys(
@@ -19,21 +73,25 @@ export function calculateRebalancedBuys(
   if (n === 0) return [];
 
   // Normalize target weights
-  const totalWeight = assets.reduce((sum, a) => sum + Math.max(0, a.targetWeight), 0);
+  const totalWeight = assets.reduce((sum, a) => sum + Math.max(0, a.targetWeight || 0), 0);
   if (totalWeight <= 0) {
     // If no valid weights, split equally
     const equalShare = totalBudget / n;
-    return assets.map((a) => ({ id: a.id, suggestedBuy: equalShare }));
+    return distributeIntegerBudget(
+      assets.map((a) => ({ id: a.id, rawBuy: equalShare })),
+      totalBudget
+    );
   }
 
   const normalized = assets.map((a) => ({
     ...a,
-    weight: Math.max(0, a.targetWeight) / totalWeight,
+    currentValue: Math.max(0, a.currentValue || 0),
+    weight: Math.max(0, a.targetWeight || 0) / totalWeight,
     buy: 0,
     locked: false,
   }));
 
-  let remainingBudget = totalBudget;
+  const remainingBudget = totalBudget;
   let activeAssets = [...normalized];
 
   // Iterative waterfilling
@@ -72,19 +130,10 @@ export function calculateRebalancedBuys(
     }
   }
 
-  // Ensure total sum matches totalBudget exactly by scaling if slight difference
-  const totalAllocated = normalized.reduce((sum, a) => sum + a.buy, 0);
-  if (totalAllocated > 0 && Math.abs(totalAllocated - totalBudget) > 1) {
-    const factor = totalBudget / totalAllocated;
-    normalized.forEach((a) => {
-      a.buy = Math.round(a.buy * factor);
-    });
-  }
-
-  return normalized.map((a) => ({
-    id: a.id,
-    suggestedBuy: Math.max(0, a.buy),
-  }));
+  return distributeIntegerBudget(
+    normalized.map((a) => ({ id: a.id, rawBuy: a.buy })),
+    totalBudget
+  );
 }
 
 /**
@@ -94,20 +143,25 @@ export function calculateDirectBuys(
   assets: { id: string; targetWeight: number }[],
   totalBudget: number
 ): { id: string; suggestedBuy: number }[] {
-  if (totalBudget <= 0) {
+  if (totalBudget <= 0 || assets.length === 0) {
     return assets.map((a) => ({ id: a.id, suggestedBuy: 0 }));
   }
 
-  const totalWeight = assets.reduce((sum, a) => sum + Math.max(0, a.targetWeight), 0);
+  const totalWeight = assets.reduce((sum, a) => sum + Math.max(0, a.targetWeight || 0), 0);
   if (totalWeight <= 0) {
     const share = totalBudget / assets.length;
-    return assets.map((a) => ({ id: a.id, suggestedBuy: share }));
+    return distributeIntegerBudget(
+      assets.map((a) => ({ id: a.id, rawBuy: share })),
+      totalBudget
+    );
   }
 
-  return assets.map((a) => ({
+  const rawAllocations = assets.map((a) => ({
     id: a.id,
-    suggestedBuy: Math.round((Math.max(0, a.targetWeight) / totalWeight) * totalBudget),
+    rawBuy: (Math.max(0, a.targetWeight || 0) / totalWeight) * totalBudget,
   }));
+
+  return distributeIntegerBudget(rawAllocations, totalBudget);
 }
 
 /**
@@ -119,25 +173,32 @@ export function calculatePortfolioAllocation(
   cryptoAssets: CryptoAsset[],
   goldHolding: GoldHolding
 ): CalculationResult {
-  const totalInputAmount = Math.max(0, inputAmount);
-  // Default: 30% savings
-  const totalSavingsAmount = Math.round(totalInputAmount * (settings.savingsPercent / 100));
+  const totalInputAmount = Math.max(0, inputAmount || 0);
+  const savingsPct = Math.min(100, Math.max(0, settings.savingsPercent ?? 30));
+  const totalSavingsAmount = Math.round(totalInputAmount * (savingsPct / 100));
 
   let goldBuyAmount = 0;
   let cryptoBuyAmount = 0;
 
-  const currentGoldVal = goldHolding.currentHoldingValue || 0;
-  const currentCryptoTotalVal = cryptoAssets.reduce(
-    (sum, c) => sum + (c.currentHoldingValue || 0),
-    0
+  const currentGoldVal = Math.max(0, goldHolding.currentHoldingValue || 0);
+  const currentCryptoTotalVal = Math.max(
+    0,
+    cryptoAssets.reduce((sum, c) => sum + Math.max(0, c.currentHoldingValue || 0), 0)
   );
+
+  const targetGoldWeight = Math.max(0, settings.goldPercent || 0);
+  const targetCryptoWeight = Math.max(0, settings.cryptoPercent || 0);
+  const topTotalWeight = targetGoldWeight + targetCryptoWeight;
+
+  const effectiveGoldWeight = topTotalWeight > 0 ? targetGoldWeight : 80;
+  const effectiveCryptoWeight = topTotalWeight > 0 ? targetCryptoWeight : 20;
 
   if (settings.calculationMode === 'rebalance') {
     // Rebalance Gold vs Crypto
     const topLevelAllocations = calculateRebalancedBuys(
       [
-        { id: 'gold', targetWeight: settings.goldPercent, currentValue: currentGoldVal },
-        { id: 'crypto', targetWeight: settings.cryptoPercent, currentValue: currentCryptoTotalVal },
+        { id: 'gold', targetWeight: effectiveGoldWeight, currentValue: currentGoldVal },
+        { id: 'crypto', targetWeight: effectiveCryptoWeight, currentValue: currentCryptoTotalVal },
       ],
       totalSavingsAmount
     );
@@ -146,9 +207,15 @@ export function calculatePortfolioAllocation(
     cryptoBuyAmount = topLevelAllocations.find((a) => a.id === 'crypto')?.suggestedBuy || 0;
   } else {
     // Direct percentage split
-    const totalTopPercent = settings.goldPercent + settings.cryptoPercent || 100;
-    goldBuyAmount = Math.round(totalSavingsAmount * (settings.goldPercent / totalTopPercent));
-    cryptoBuyAmount = Math.round(totalSavingsAmount * (settings.cryptoPercent / totalTopPercent));
+    const topAllocations = calculateDirectBuys(
+      [
+        { id: 'gold', targetWeight: effectiveGoldWeight },
+        { id: 'crypto', targetWeight: effectiveCryptoWeight },
+      ],
+      totalSavingsAmount
+    );
+    goldBuyAmount = topAllocations.find((a) => a.id === 'gold')?.suggestedBuy || 0;
+    cryptoBuyAmount = topAllocations.find((a) => a.id === 'crypto')?.suggestedBuy || 0;
   }
 
   // Allocate Crypto among individual crypto assets
@@ -158,8 +225,8 @@ export function calculatePortfolioAllocation(
     cryptoBuysList = calculateRebalancedBuys(
       cryptoAssets.map((c) => ({
         id: c.id,
-        targetWeight: c.targetPercent,
-        currentValue: c.currentHoldingValue || 0,
+        targetWeight: c.targetPercent || 0,
+        currentValue: Math.max(0, c.currentHoldingValue || 0),
       })),
       cryptoBuyAmount
     );
@@ -167,19 +234,18 @@ export function calculatePortfolioAllocation(
     cryptoBuysList = calculateDirectBuys(
       cryptoAssets.map((c) => ({
         id: c.id,
-        targetWeight: c.targetPercent,
+        targetWeight: c.targetPercent || 0,
       })),
       cryptoBuyAmount
     );
   }
 
   const buyMap = new Map(cryptoBuysList.map((b) => [b.id, b.suggestedBuy]));
-
   const finalCryptoTotal = currentCryptoTotalVal + cryptoBuyAmount;
 
   const calculatedCryptoBuys: CalculatedCryptoBuy[] = cryptoAssets.map((asset) => {
     const buy = buyMap.get(asset.id) || 0;
-    const current = asset.currentHoldingValue || 0;
+    const current = Math.max(0, asset.currentHoldingValue || 0);
     const finalVal = current + buy;
     const finalPercent = finalCryptoTotal > 0 ? (finalVal / finalCryptoTotal) * 100 : asset.targetPercent;
 

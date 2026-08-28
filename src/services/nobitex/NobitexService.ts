@@ -66,7 +66,7 @@ const COIN_METADATA: Record<string, { name: string; color: string; targetPercent
   pol: { name: 'پالیگان', color: '#8247E5', targetPercent: 10 },
   avax: { name: 'آوالانچ', color: '#E84142', targetPercent: 10 },
   link: { name: 'چین‌لینک', color: '#375BD2', targetPercent: 10 },
-  near: { name: 'نیر پروتکل', color: '#000000', targetPercent: 10 },
+  near: { name: 'نیر پروتکل', color: '#00C08B', targetPercent: 10 },
   sui: { name: 'سویی', color: '#2A82E4', targetPercent: 10 },
   apt: { name: 'آپتوس', color: '#2EE5AC', targetPercent: 10 },
   usdt: { name: 'تتر', color: '#26A17B', targetPercent: 10 },
@@ -626,11 +626,15 @@ class NobitexService {
       }
     } else {
       // If cache exists, process fresh trades in background
-      tradePromise.then((res) => {
-        if (res.priceMap.size > 0) {
-          console.log('[NobitexService] Background buy prices updated');
-        }
-      });
+      tradePromise
+        .then((res) => {
+          if (res.priceMap.size > 0) {
+            console.log('[NobitexService] Background buy prices updated');
+          }
+        })
+        .catch((err) => {
+          console.warn('[NobitexService] Background buy prices calculation failed:', err);
+        });
     }
 
     // 4. Extract active crypto balances (exclude zero balances and rls)
@@ -651,7 +655,8 @@ class NobitexService {
       const sym = asset.symbol.toLowerCase();
       processedSymbols.add(sym);
 
-      const wallet = cryptoWallets.find((w) => w.currency.toLowerCase() === sym);
+      // Check all wallets (including zero balance) to detect liquidated coins
+      const rawWallet = wallets.find((w) => w.currency.toLowerCase() === sym);
       const statKey = `${sym}-rls`;
       const stat = stats[statKey];
 
@@ -662,8 +667,11 @@ class NobitexService {
         unitPriceTomans = usdtPriceTomans;
       }
 
-      const coinAmount = wallet ? parseFloat(wallet.balance) : asset.currentAmount || 0;
-      const holdingValue = unitPriceTomans > 0 ? Math.round(coinAmount * unitPriceTomans) : asset.currentHoldingValue;
+      // If Nobitex returned wallet list and this coin is in wallet (even 0), sync exact balance
+      const coinAmount = rawWallet
+        ? parseFloat(rawWallet.balance || '0')
+        : (asset.currentAmount || 0);
+      const holdingValue = unitPriceTomans > 0 ? Math.round(coinAmount * unitPriceTomans) : (coinAmount > 0 ? asset.currentHoldingValue : 0);
 
       // Purchase Cost & PnL calculation
       const avgBuyPrice = avgBuyPriceMap.get(sym) || asset.averageBuyPrice || 0;
@@ -699,7 +707,7 @@ class NobitexService {
         unitPriceTomans = usdtPriceTomans;
       }
 
-      const coinAmount = parseFloat(wallet.balance);
+      const coinAmount = parseFloat(wallet.balance || '0');
       const holdingValue = unitPriceTomans > 0 ? Math.round(coinAmount * unitPriceTomans) : 0;
       const meta = COIN_METADATA[sym] || {
         name: sym.toUpperCase(),
@@ -713,7 +721,7 @@ class NobitexService {
       const profitPercent = totalCost !== undefined && totalCost > 0 ? ((holdingValue - totalCost) / totalCost) * 100 : undefined;
 
       updatedAssets.push({
-        id: `nobitex_${sym}_${Date.now()}`,
+        id: `nobitex_${sym}`,
         symbol: sym.toUpperCase(),
         name: meta.name,
         targetPercent: meta.targetPercent,

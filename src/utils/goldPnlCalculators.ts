@@ -93,19 +93,18 @@ export function calculateTotalPhysicalGoldPnl(
 
   let totalCurrentValueTomans = 0;
   let totalCostBasisTomans = 0;
+  let totalUnrealizedProfitTomans = 0;
   let hasAnyCostBasis = false;
 
   for (const pnl of itemPnlList) {
     totalCurrentValueTomans += pnl.currentValueTomans;
     if (pnl.hasCostBasis && pnl.quantity > 0) {
       totalCostBasisTomans += pnl.totalCostBasisTomans;
+      totalUnrealizedProfitTomans += pnl.unrealizedProfitTomans;
       hasAnyCostBasis = true;
     }
   }
 
-  const totalUnrealizedProfitTomans = hasAnyCostBasis
-    ? totalCurrentValueTomans - totalCostBasisTomans
-    : 0;
   const totalUnrealizedProfitPercent =
     hasAnyCostBasis && totalCostBasisTomans > 0
       ? (totalUnrealizedProfitTomans / totalCostBasisTomans) * 100
@@ -123,10 +122,10 @@ export function calculateTotalPhysicalGoldPnl(
 
 /**
  * Processes a gold sale / deduction:
- * 1. Computes weighted average cost basis
+ * 1. Computes exact cost basis from FIFO deducted lots or weighted cost
  * 2. Computes realized profit / loss (amount and %)
  * 3. Creates an immutable PhysicalGoldSaleRecord
- * 4. Deducts lots using FIFO or weighted reduction
+ * 4. Deducts lots using FIFO
  */
 export function processGoldSale(
   item: PhysicalGoldItem,
@@ -147,25 +146,24 @@ export function processGoldSale(
 
   let unitCostBasis = item.unitPriceTomans || safeSaleUnitPrice;
   let remainingQtyToDeduct = safeQtySold;
+  let saleTotalCostBasis = 0;
   const updatedItemLots: PhysicalGoldBuyLot[] = [];
 
   if (itemLots.length > 0) {
-    const totalLotsQty = itemLots.reduce((sum, l) => sum + l.quantity, 0);
-    const totalLotsCost = itemLots.reduce((sum, l) => sum + (l.totalCostTomans || l.quantity * l.purchaseUnitPriceTomans), 0);
-
-    if (totalLotsQty > 0) {
-      unitCostBasis = Math.round(totalLotsCost / totalLotsQty);
-    }
-
-    // FIFO deduction from lots
+    // FIFO deduction from lots and compute exact sold cost basis
     for (const lot of itemLots) {
       if (remainingQtyToDeduct <= 0) {
         updatedItemLots.push(lot);
       } else if (lot.quantity <= remainingQtyToDeduct) {
-        remainingQtyToDeduct -= lot.quantity;
+        const lotCost = lot.totalCostTomans || Math.round(lot.quantity * lot.purchaseUnitPriceTomans);
+        saleTotalCostBasis += lotCost;
+        remainingQtyToDeduct = Number((remainingQtyToDeduct - lot.quantity).toFixed(3));
         // Lot completely exhausted, do not keep
       } else {
-        const newLotQty = Number((lot.quantity - remainingQtyToDeduct).toFixed(3));
+        const qtyDeducted = remainingQtyToDeduct;
+        const costDeducted = Math.round(qtyDeducted * lot.purchaseUnitPriceTomans);
+        saleTotalCostBasis += costDeducted;
+        const newLotQty = Number((lot.quantity - qtyDeducted).toFixed(3));
         const newLotCost = Math.round(newLotQty * lot.purchaseUnitPriceTomans);
         remainingQtyToDeduct = 0;
         updatedItemLots.push({
@@ -175,30 +173,33 @@ export function processGoldSale(
         });
       }
     }
+
+    if (safeQtySold > 0) {
+      unitCostBasis = Math.round(saleTotalCostBasis / safeQtySold);
+    }
   } else if (item.averageBuyPriceTomans && item.averageBuyPriceTomans > 0) {
     unitCostBasis = item.averageBuyPriceTomans;
   }
 
-  const totalCostBasisTomans = Math.round(safeQtySold * unitCostBasis);
-  const realizedProfitTomans = totalRevenueTomans - totalCostBasisTomans;
+  const realizedProfitTomans = totalRevenueTomans - Math.round(safeQtySold * unitCostBasis);
+  const totalCostBasis = Math.round(safeQtySold * unitCostBasis);
   const realizedProfitPercent =
-    totalCostBasisTomans > 0 ? (realizedProfitTomans / totalCostBasisTomans) * 100 : 0;
+    totalCostBasis > 0 ? (realizedProfitTomans / totalCostBasis) * 100 : 0;
 
-  const now = new Date();
   const saleRecord: PhysicalGoldSaleRecord = {
-    id: `sale_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    id: 'sale_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
     goldType: item.id,
     title: item.title,
     quantitySold: safeQtySold,
     unitCostBasisTomans: unitCostBasis,
     saleUnitPriceTomans: safeSaleUnitPrice,
-    totalCostTomans: totalCostBasisTomans,
+    totalCostTomans: totalCostBasis,
     totalRevenueTomans,
     realizedProfitTomans,
     realizedProfitPercent,
-    saleDate: now.toISOString(),
-    persianDate: getPersianFormattedDate(now),
-    notes,
+    saleDate: new Date().toISOString(),
+    persianDate: getPersianFormattedDate(new Date()),
+    notes: notes || undefined,
   };
 
   return {

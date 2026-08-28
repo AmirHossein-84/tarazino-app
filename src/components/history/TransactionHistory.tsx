@@ -123,10 +123,10 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                   <div>
                     <button
                       onClick={() => toggleExpand(tx.id)}
-                      className="w-full pt-1 flex items-center justify-between text-xs text-slate-400 hover:text-slate-200 interactive-tap font-bold"
+                      className="w-full py-2 flex items-center justify-between text-xs text-slate-400 hover:text-slate-200 interactive-tap font-bold"
                     >
                       <span>جزئیات خرید هر رمزارز ({toPersianDigits(tx.cryptoBuys.filter(b => b.amount > 0).length)} ارز)</span>
-                      {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      {isExpanded ? <ChevronUp className="w-4 h-4 text-gold-400" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
 
                     {isExpanded && (
@@ -135,7 +135,7 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                           .filter((b) => b.amount > 0)
                           .map((b, idx) => (
                             <div
-                              key={idx}
+                              key={`${tx.id}-${b.symbol}-${idx}`}
                               className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 flex justify-between items-center"
                             >
                               <span className="font-black text-slate-200">{b.symbol}:</span>

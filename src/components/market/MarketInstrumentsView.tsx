@@ -353,7 +353,7 @@ export const MarketInstrumentsView: React.FC<MarketInstrumentsViewProps> = ({
 
                     {quote && (
                       <span
-                        className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md inline-flex items-center gap-0.5 dir-ltr ${
+                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md inline-flex items-center gap-0.5 dir-ltr ${
                           isPositive
                             ? 'bg-emerald-500/15 text-emerald-400'
                             : 'bg-rose-500/15 text-rose-400'

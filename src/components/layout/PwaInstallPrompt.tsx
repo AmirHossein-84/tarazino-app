@@ -47,7 +47,7 @@ export const PwaInstallPrompt: React.FC<PwaInstallPromptProps> = ({ isOpen, onCl
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-md bg-slate-900 dark:bg-slate-900 light:bg-white border border-slate-700/80 dark:border-slate-800 rounded-3xl p-6 shadow-2xl text-right overflow-hidden">
+      <div className="relative w-full max-w-md bg-slate-900 border border-slate-700/80 rounded-3xl p-6 shadow-2xl text-right overflow-hidden">
         
         {/* Decorative Top Gradient */}
         <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-gold-400 to-yellow-300" />
@@ -55,7 +55,7 @@ export const PwaInstallPrompt: React.FC<PwaInstallPromptProps> = ({ isOpen, onCl
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 left-4 p-2 text-slate-400 hover:text-slate-100 dark:hover:text-slate-100 rounded-xl bg-slate-800/60 dark:bg-slate-800/60 hover:bg-slate-800 transition-all cursor-pointer"
+          className="absolute top-4 left-4 p-2 text-slate-400 hover:text-slate-100 rounded-xl bg-slate-800/60 hover:bg-slate-800 transition-all cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
@@ -68,7 +68,7 @@ export const PwaInstallPrompt: React.FC<PwaInstallPromptProps> = ({ isOpen, onCl
             className="w-12 h-12 rounded-2xl border border-gold-500/40 object-cover shadow-gold-glow"
           />
           <div>
-            <h2 className="text-lg font-bold text-slate-100 dark:text-slate-100 light:text-slate-900">
+            <h2 className="text-lg font-bold text-slate-100">
               نصب برنامه روی گوشی (PWA)
             </h2>
             <p className="text-xs text-slate-400">بدون نیاز به دانلود از گوگل‌پلی یا اپ‌استور</p>
@@ -76,7 +76,7 @@ export const PwaInstallPrompt: React.FC<PwaInstallPromptProps> = ({ isOpen, onCl
         </div>
 
         {/* Features list */}
-        <div className="space-y-2.5 mb-6 text-xs text-slate-300 dark:text-slate-300 light:text-slate-700">
+        <div className="space-y-2.5 mb-6 text-xs text-slate-300">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>اجرای تمام‌صفحه و سریع مانند اپلیکیشن بومی</span>
@@ -98,19 +98,19 @@ export const PwaInstallPrompt: React.FC<PwaInstallPromptProps> = ({ isOpen, onCl
           </div>
         ) : isIOS ? (
           /* iOS Safari instructions */
-          <div className="p-4 rounded-2xl bg-slate-800/70 dark:bg-slate-800/70 light:bg-slate-100 border border-slate-700/60 dark:border-slate-700 space-y-3 text-xs">
+          <div className="p-4 rounded-2xl bg-slate-800/70 border border-slate-700/60 space-y-3 text-xs">
             <div className="font-bold text-gold-400 flex items-center gap-1.5">
               <span>راهنمای آیفون (Safari):</span>
             </div>
-            <div className="flex items-center gap-2.5 text-slate-200 dark:text-slate-200 light:text-slate-800">
+            <div className="flex items-center gap-2.5 text-slate-200">
               <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-400 flex items-center justify-center font-bold text-[10px]">۱</span>
               <span>دکمه اشتراک‌گذاری (<Share2 className="w-3.5 h-3.5 inline text-blue-400 mx-0.5" /> Share) در پایین مرورگر سافاری را لمس کنید.</span>
             </div>
-            <div className="flex items-center gap-2.5 text-slate-200 dark:text-slate-200 light:text-slate-800">
+            <div className="flex items-center gap-2.5 text-slate-200">
               <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-400 flex items-center justify-center font-bold text-[10px]">۲</span>
               <span>گزینه <PlusSquare className="w-3.5 h-3.5 inline text-emerald-400 mx-0.5" /> <strong>Add to Home Screen</strong> (افزودن به صفحه اصلی) را انتخاب کنید.</span>
             </div>
-            <div className="flex items-center gap-2.5 text-slate-200 dark:text-slate-200 light:text-slate-800">
+            <div className="flex items-center gap-2.5 text-slate-200">
               <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-400 flex items-center justify-center font-bold text-[10px]">۳</span>
               <span>در بالا سمت راست، روی <strong>Add</strong> بزنید.</span>
             </div>
@@ -127,7 +127,7 @@ export const PwaInstallPrompt: React.FC<PwaInstallPromptProps> = ({ isOpen, onCl
                 <span>نصب مستقیم اپلیکیشن</span>
               </button>
             ) : (
-              <div className="p-4 rounded-2xl bg-slate-800/70 dark:bg-slate-800/70 light:bg-slate-100 border border-slate-700/60 dark:border-slate-700 space-y-2 text-xs text-slate-300 dark:text-slate-300 light:text-slate-800">
+              <div className="p-4 rounded-2xl bg-slate-800/70 border border-slate-700/60 space-y-2 text-xs text-slate-300">
                 <p className="font-bold text-gold-400">راهنمای اندروید (Chrome):</p>
                 <p>روی منوی ۳ نقطه در بالای مرورگر کروم بزنید و گزینه <strong>«افزودن به صفحه اصلی» (Install app / Add to Home screen)</strong> را انتخاب کنید.</p>
               </div>

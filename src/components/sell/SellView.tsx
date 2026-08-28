@@ -37,6 +37,7 @@ interface SellViewProps {
   toDisplayValue?: (amountTomans: number) => number;
   onDeductBourseGold: (symbol: string, unitsToDeduct: number) => void;
   onDeductPhysicalGold: (id: PhysicalGoldType, quantityToDeduct: number) => void;
+  onDeductCrypto?: (id: string, amountToDeduct: number) => void;
   onNotify?: (message: string, type?: 'success' | 'info' | 'error') => void;
 }
 
@@ -52,6 +53,7 @@ export const SellView: React.FC<SellViewProps> = ({
   toDisplayValue = (v) => v,
   onDeductBourseGold,
   onDeductPhysicalGold,
+  onDeductCrypto,
   onNotify,
 }) => {
   const [inputAmount, setInputAmount] = useState<number>(0);
@@ -145,11 +147,21 @@ export const SellView: React.FC<SellViewProps> = ({
       }
     }
 
+    // Deduct crypto amounts if handler provided
+    if (onDeductCrypto) {
+      for (const item of calculationResult.cryptoSales) {
+        if (item.amountToSell > 0) {
+          onDeductCrypto(item.id, item.amountToSell);
+          deductedCount++;
+        }
+      }
+    }
+
     setIsConfirmModalOpen(false);
     setInputAmount(0);
     setDisplayInput('');
     onNotify?.(
-      `تعداد ${toPersianDigits(deductedCount)} قلم از موجودی طلا و بورس با موفقیت کسر شد. (موجودی رمزارزها از طریق نوبیتکس به‌طور خودکار هماهنگ می‌شود)`,
+      `تعداد ${toPersianDigits(deductedCount)} قلم از دارایی‌های مشخص‌شده با موفقیت از موجودی کسر شدند.`,
       'success'
     );
   };
@@ -246,7 +258,7 @@ export const SellView: React.FC<SellViewProps> = ({
                 <span>⚡</span>
                 <span>فروش هوشمند متعادل (پیش‌فرض)</span>
               </span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-rose-500/20 text-rose-300 font-bold">
+              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-rose-500/20 text-rose-300 font-bold">
                 پیشنهادی
               </span>
             </div>
@@ -384,7 +396,7 @@ export const SellView: React.FC<SellViewProps> = ({
                             <div>
                               <div className="flex items-center gap-1.5">
                                 <span className="font-black text-slate-100 text-sm">{item.symbol}</span>
-                                <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-amber-500/10 text-gold-400 font-bold border border-gold-500/30">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/10 text-gold-400 font-bold border border-gold-500/30">
                                   صندوق طلا
                                 </span>
                               </div>

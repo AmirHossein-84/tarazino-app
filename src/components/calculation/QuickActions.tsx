@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { CheckCircle, X, Sparkles } from 'lucide-react';
+import { CheckCircle, Sparkles } from 'lucide-react';
 import { CalculationResult } from '../../types/investment';
 import { formatToman } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
+import { BottomSheetModal } from '../common/BottomSheetModal';
 
 interface QuickActionsProps {
   calculationResult: CalculationResult;
@@ -58,55 +59,46 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
         </div>
       </div>
 
-      {/* Native-style Mobile Bottom Sheet Modal */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="relative w-full max-w-md bg-slate-900 border-t sm:border border-slate-700 rounded-t-[32px] sm:rounded-3xl p-6 shadow-2xl text-right animate-slideUp">
-            
-            {/* Top Drag Indicator for mobile */}
-            <div className="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mb-4 sm:hidden" />
+      {/* Standardized Bottom Sheet Modal */}
+      <BottomSheetModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        title="تأیید و اعمال خریدهای جدید"
+        subtitle="افزودن مبالغ پیشنهادی به دارایی‌ها"
+        icon={<Sparkles className="w-5 h-5 text-emerald-400" />}
+      >
+        <div className="space-y-4 text-right">
+          <p className="text-xs text-slate-300 leading-relaxed">
+            آیا از افزودن مبالغ خرید ({formatToman(calculationResult.totalSavingsAmount)} تومان) به موجودی فعلی طلا و ارزهای دیجیتال خود مطمئن هستید؟
+          </p>
 
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto mb-3.5 shadow-emerald-glow">
-              <Sparkles className="w-6 h-6" />
+          <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-xs space-y-2.5">
+            <div className="flex justify-between items-center text-slate-300">
+              <span>سهم خرید طلا:</span>
+              <span className="text-gold-400 font-black dir-ltr">{formatToman(calculationResult.goldBuyAmount)} تومان</span>
             </div>
-
-            <h3 className="text-base font-black text-slate-100 text-center mb-1.5">
-              تأیید و اعمال خریدهای جدید
-            </h3>
-
-            <p className="text-xs text-slate-300 text-center mb-4 leading-relaxed">
-              آیا از افزودن مبالغ خرید ({formatToman(calculationResult.totalSavingsAmount)} تومان) به موجودی فعلی طلا و ارزهای دیجیتال خود مطمئن هستید؟
-            </p>
-
-            <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-xs space-y-2 mb-5">
-              <div className="flex justify-between items-center text-slate-300">
-                <span>سهم خرید طلا:</span>
-                <span className="text-gold-400 font-black dir-ltr">{formatToman(calculationResult.goldBuyAmount)} تومان</span>
-              </div>
-              <div className="flex justify-between items-center text-slate-300">
-                <span>سهم خرید رمزارزها:</span>
-                <span className="text-indigo-400 font-black dir-ltr">{formatToman(calculationResult.cryptoBuyAmount)} تومان</span>
-              </div>
+            <div className="flex justify-between items-center text-slate-300">
+              <span>سهم خرید رمزارزها:</span>
+              <span className="text-indigo-400 font-black dir-ltr">{formatToman(calculationResult.cryptoBuyAmount)} تومان</span>
             </div>
+          </div>
 
-            <div className="flex gap-2.5">
-              <button
-                onClick={handleConfirm}
-                className="flex-1 py-3.5 rounded-2xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-xs interactive-tap touch-target transition-all shadow-emerald-glow"
-              >
-                بله، ثبت و ذخیره شود
-              </button>
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className="py-3.5 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs interactive-tap touch-target transition-all"
-              >
-                انصراف
-              </button>
-            </div>
-
+          <div className="flex gap-2.5 pt-2">
+            <button
+              onClick={handleConfirm}
+              className="flex-1 py-3.5 rounded-2xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-xs interactive-tap touch-target transition-all shadow-emerald-glow"
+            >
+              بله، ثبت و ذخیره شود
+            </button>
+            <button
+              onClick={() => setShowConfirmModal(false)}
+              className="py-3.5 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs interactive-tap touch-target transition-all"
+            >
+              انصراف
+            </button>
           </div>
         </div>
-      )}
+      </BottomSheetModal>
     </>
   );
 };

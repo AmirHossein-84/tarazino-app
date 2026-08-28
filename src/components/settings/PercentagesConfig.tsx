@@ -499,15 +499,15 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
                   </div>
 
                   {/* Stepper Controls (- / Value / +) */}
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     {/* Minus Button */}
                     <button
                       type="button"
                       onClick={() => handleStepCryptoPercent(asset.id, -1)}
-                      className="w-7 h-7 rounded-lg bg-slate-900 hover:bg-slate-800 active:bg-slate-700 text-slate-300 border border-slate-800 flex items-center justify-center interactive-tap"
+                      className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 active:bg-slate-700 text-slate-300 border border-slate-800 flex items-center justify-center interactive-tap touch-target"
                       title="کاهش ۱ درصد"
                     >
-                      <Minus className="w-3.5 h-3.5" />
+                      <Minus className="w-4 h-4" />
                     </button>
 
                     {/* Numeric Input */}
@@ -521,7 +521,7 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
                         onChange={(e) =>
                           handleCryptoPercentChange(asset.id, parseFloat(e.target.value) || 0)
                         }
-                        className="w-12 bg-slate-900 border border-slate-700 rounded-lg py-1 text-center dir-ltr text-xs font-black text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
+                        className="w-12 bg-slate-900 border border-slate-700 rounded-xl py-1.5 text-center dir-ltr text-xs font-black text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
                       />
                       <span className="text-[10px] text-slate-500 font-bold pr-1">٪</span>
                     </div>
@@ -530,10 +530,10 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
                     <button
                       type="button"
                       onClick={() => handleStepCryptoPercent(asset.id, 1)}
-                      className="w-7 h-7 rounded-lg bg-slate-900 hover:bg-slate-800 active:bg-slate-700 text-slate-300 border border-slate-800 flex items-center justify-center interactive-tap"
+                      className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 active:bg-slate-700 text-slate-300 border border-slate-800 flex items-center justify-center interactive-tap touch-target"
                       title="افزایش ۱ درصد"
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-4 h-4" />
                     </button>
                   </div>
 

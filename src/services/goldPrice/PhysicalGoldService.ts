@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { PhysicalGoldType } from '../../types/investment';
+import { toEnglishDigits } from '../../utils/formatters';
 
 export interface LiveGoldRate {
   id: PhysicalGoldType;
@@ -35,10 +36,40 @@ const TGJU_KEY_MAP: Record<string, PhysicalGoldType> = {
   gerami: 'coin_gram',
 };
 
+const OFFLINE_RATES_KEY = 'tgju_gold_rates_cache_v1';
+
 class PhysicalGoldService {
   private cache: Map<PhysicalGoldType, LiveGoldRate> = new Map();
   private lastFetchedAt = 0;
   private readonly cacheTtlMs = 45000; // 45 seconds cache
+
+  constructor() {
+    this.loadOfflineCache();
+  }
+
+  private loadOfflineCache(): void {
+    try {
+      if (typeof window === 'undefined') return;
+      const raw = localStorage.getItem(OFFLINE_RATES_KEY);
+      if (raw) {
+        const parsed: Record<string, LiveGoldRate> = JSON.parse(raw);
+        Object.entries(parsed).forEach(([key, val]) => {
+          this.cache.set(key as PhysicalGoldType, val);
+        });
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
+  private saveOfflineCache(rates: Record<string, LiveGoldRate>): void {
+    try {
+      if (typeof window === 'undefined') return;
+      localStorage.setItem(OFFLINE_RATES_KEY, JSON.stringify(rates));
+    } catch {
+      // Ignore
+    }
+  }
 
   private getBaseUrl(): string {
     // In native mobile apps (Capacitor Android / iOS), call TGJU directly
@@ -50,11 +81,11 @@ class PhysicalGoldService {
   }
 
   /**
-   * Parse TGJU price strings (removes commas and converts Rial to Toman)
+   * Parse TGJU price strings (removes commas, converts Persian digits, and converts Rial to Toman)
    */
   private parseRialPrice(raw?: string): number {
     if (!raw) return 0;
-    const clean = raw.replace(/,/g, '').trim();
+    const clean = toEnglishDigits(raw).replace(/[\s,،]/g, '').trim();
     const rials = parseInt(clean, 10);
     if (isNaN(rials) || rials <= 0) return 0;
     return Math.round(rials / 10); // Convert to Tomans
@@ -97,7 +128,7 @@ class PhysicalGoldService {
         const item = current[tgjuKey];
         if (item && item.p) {
           const priceTomans = this.parseRialPrice(item.p);
-          const rawDp = item.dp ? String(item.dp).replace(/,/g, '') : '0';
+          const rawDp = item.dp ? toEnglishDigits(String(item.dp)).replace(/,/g, '') : '0';
           const changePercent = parseFloat(rawDp) || 0;
 
           if (priceTomans > 0) {
@@ -113,6 +144,10 @@ class PhysicalGoldService {
             this.cache.set(ourType, rateObj);
           }
         }
+      }
+
+      if (Object.keys(results).length > 0) {
+        this.saveOfflineCache(results);
       }
 
       this.lastFetchedAt = Date.now();

@@ -303,7 +303,7 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
                     {gainToman >= 0 ? '+' : ''}{formatToman(gainToman)} تومان
                   </span>
                   <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-md font-bold ${
+                    className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold ${
                       gainToman >= 0 ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'
                     }`}
                   >

@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full backdrop-blur-2xl bg-slate-950/85 dark:bg-slate-950/85 light:bg-white/90 border-b border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 transition-colors">
+    <header className="sticky top-0 z-30 w-full backdrop-blur-2xl bg-white/90 dark:bg-slate-950/85 border-b border-slate-200 dark:border-slate-800/80 transition-colors">
       <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
         
         {/* Brand & Logo */}
@@ -51,11 +51,11 @@ export const Header: React.FC<HeaderProps> = ({
 
           <div>
             <div className="flex items-center gap-1.5">
-              <h1 className="text-base font-black tracking-tight text-slate-100 dark:text-slate-100 light:text-slate-900">
+              <h1 className="text-base font-black tracking-tight text-slate-900 dark:text-slate-100">
                 مدیریت سبد <span className="gold-gradient-text">طلا و کریپتو</span>
               </h1>
             </div>
-            <p className="text-[11px] text-slate-400 dark:text-slate-400 light:text-slate-500">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
               {todayPersian}
             </p>
           </div>
@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`px-3 py-2 rounded-2xl border text-xs font-black transition-all flex items-center gap-1.5 interactive-tap touch-target shadow-sm ${
                 currencyMode === 'usd'
                   ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/50 hover:bg-emerald-900/80 shadow-emerald-500/10'
-                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:text-gold-300 hover:border-gold-500/40'
+                  : 'bg-slate-100 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-800 hover:text-gold-500 dark:hover:text-gold-300 hover:border-gold-500/40'
               }`}
               title={currencyMode === 'usd' ? 'تغییر نمایش کل اپلیکیشن به تومان' : 'تغییر نمایش کل اپلیکیشن به دلار ($)'}
             >
@@ -92,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Theme Toggle Button */}
           <button
             onClick={handleToggleTheme}
-            className="p-2.5 rounded-2xl bg-slate-900/90 dark:bg-slate-900/90 light:bg-slate-100 border border-slate-800 dark:border-slate-800 light:border-slate-300 text-slate-300 hover:text-gold-400 transition-all interactive-tap touch-target"
+            className="p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-gold-500 dark:hover:text-gold-400 transition-all interactive-tap touch-target"
             aria-label="تغییر تم"
           >
             {isDark ? (

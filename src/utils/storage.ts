@@ -52,7 +52,9 @@ export interface ExportedBackupData {
 export function loadSettings(): AppSettings {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    return data ? { ...DEFAULT_SETTINGS, ...JSON.parse(data) } : DEFAULT_SETTINGS;
+    if (!data) return DEFAULT_SETTINGS;
+    const parsed = JSON.parse(data);
+    return parsed && typeof parsed === 'object' ? { ...DEFAULT_SETTINGS, ...parsed } : DEFAULT_SETTINGS;
   } catch (e) {
     console.error('Failed to load settings:', e);
     return DEFAULT_SETTINGS;
@@ -70,7 +72,9 @@ export function saveSettings(settings: AppSettings): void {
 export function loadCryptoAssets(): CryptoAsset[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.CRYPTO_ASSETS);
-    return data ? JSON.parse(data) : DEFAULT_CRYPTO_ASSETS;
+    if (!data) return DEFAULT_CRYPTO_ASSETS;
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : DEFAULT_CRYPTO_ASSETS;
   } catch (e) {
     console.error('Failed to load crypto assets:', e);
     return DEFAULT_CRYPTO_ASSETS;
@@ -88,7 +92,9 @@ export function saveCryptoAssets(assets: CryptoAsset[]): void {
 export function loadGoldHolding(): GoldHolding {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.GOLD_HOLDING);
-    return data ? { ...DEFAULT_GOLD_HOLDING, ...JSON.parse(data) } : DEFAULT_GOLD_HOLDING;
+    if (!data) return DEFAULT_GOLD_HOLDING;
+    const parsed = JSON.parse(data);
+    return parsed && typeof parsed === 'object' ? { ...DEFAULT_GOLD_HOLDING, ...parsed } : DEFAULT_GOLD_HOLDING;
   } catch (e) {
     console.error('Failed to load gold holding:', e);
     return DEFAULT_GOLD_HOLDING;
@@ -111,7 +117,8 @@ export function loadPhysicalGold(): PhysicalGoldItem[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.PHYSICAL_GOLD);
     if (!data) return DEFAULT_PHYSICAL_GOLD_ITEMS;
-    const parsed: PhysicalGoldItem[] = JSON.parse(data);
+    const parsed = JSON.parse(data);
+    if (!Array.isArray(parsed)) return DEFAULT_PHYSICAL_GOLD_ITEMS;
     
     // Merge with defaults in case new coin items were added
     return DEFAULT_PHYSICAL_GOLD_ITEMS.map((def) => {
@@ -139,7 +146,9 @@ export function savePhysicalGold(items: PhysicalGoldItem[]): void {
 export function loadProperties(): PropertyItem[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.PROPERTIES);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     console.error('Failed to load properties:', e);
     return [];
@@ -161,7 +170,9 @@ export function saveProperties(properties: PropertyItem[]): void {
 export function loadGoldBuyLots(): PhysicalGoldBuyLot[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.GOLD_BUY_LOTS);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     console.error('Failed to load gold buy lots:', e);
     return [];
@@ -179,7 +190,9 @@ export function saveGoldBuyLots(lots: PhysicalGoldBuyLot[]): void {
 export function loadPhysicalGoldSales(): PhysicalGoldSaleRecord[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.PHYSICAL_GOLD_SALES);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     console.error('Failed to load physical gold sales:', e);
     return [];
@@ -197,7 +210,9 @@ export function savePhysicalGoldSales(sales: PhysicalGoldSaleRecord[]): void {
 export function loadTransactions(): TransactionRecord[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     console.error('Failed to load transactions:', e);
     return [];
@@ -215,8 +230,9 @@ export function saveTransactions(transactions: TransactionRecord[]): void {
 export function loadLastInput(): number {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.LAST_INPUT);
-    return data ? parseFloat(data) || 0 : 0;
+    return data ? Number(data) || 0 : 0;
   } catch (e) {
+    console.error('Failed to load last input:', e);
     return 0;
   }
 }
@@ -230,13 +246,15 @@ export function saveLastInput(amount: number): void {
 }
 
 // -------------------------------------------------------------
-// TSETMC MARKET INSTRUMENTS & USER HOLDINGS PERSISTENCE
+// BOURSE & ETF MARKET INSTRUMENTS PERSISTENCE
 // -------------------------------------------------------------
 
 export function loadMarketInstruments(): MarketInstrument[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.MARKET_INSTRUMENTS);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     console.error('Failed to load market instruments:', e);
     return [];
@@ -254,7 +272,9 @@ export function saveMarketInstruments(instruments: MarketInstrument[]): void {
 export function loadMarketHoldings(): UserMarketHolding[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.MARKET_HOLDINGS);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
     console.error('Failed to load market holdings:', e);
     return [];
@@ -276,7 +296,11 @@ export function saveMarketHoldings(holdings: UserMarketHolding[]): void {
 export function loadNobitexConfig(): NobitexConfig {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.NOBITEX_CONFIG);
-    return data ? JSON.parse(data) : { authType: 'api_key', publicKey: '', secretKey: '' };
+    if (!data) return { authType: 'api_key', publicKey: '', secretKey: '' };
+    const parsed = JSON.parse(data);
+    return parsed && typeof parsed === 'object'
+      ? parsed
+      : { authType: 'api_key', publicKey: '', secretKey: '' };
   } catch (e) {
     console.error('Failed to load Nobitex config:', e);
     return { authType: 'api_key', publicKey: '', secretKey: '' };
@@ -295,6 +319,13 @@ export function saveNobitexConfig(config: NobitexConfig): void {
 }
 
 export function exportBackupData(): string {
+  const nobitex = loadNobitexConfig();
+  // Sanitize secret key from plaintext export for security
+  const sanitizedNobitex: NobitexConfig = {
+    ...nobitex,
+    secretKey: '',
+  };
+
   const backup: ExportedBackupData = {
     version: '2.0.0',
     exportDate: new Date().toISOString(),
@@ -308,7 +339,7 @@ export function exportBackupData(): string {
     transactions: loadTransactions(),
     marketInstruments: loadMarketInstruments(),
     marketHoldings: loadMarketHoldings(),
-    nobitexConfig: loadNobitexConfig(),
+    nobitexConfig: sanitizedNobitex,
   };
   return JSON.stringify(backup, null, 2);
 }
@@ -316,8 +347,8 @@ export function exportBackupData(): string {
 export function importBackupData(jsonString: string): boolean {
   try {
     const parsed: Partial<ExportedBackupData> = JSON.parse(jsonString);
-    if (!parsed || (!parsed.settings && !parsed.cryptoAssets)) {
-      throw new Error('Invalid backup format: missing core settings and assets');
+    if (!parsed || (!parsed.settings && !parsed.cryptoAssets && !parsed.goldHolding)) {
+      throw new Error('Invalid backup format: missing core settings or assets');
     }
 
     if (parsed.settings) {
@@ -332,11 +363,15 @@ export function importBackupData(jsonString: string): boolean {
     if (Array.isArray(parsed.physicalGold)) {
       savePhysicalGold(parsed.physicalGold);
     }
-    // Backward-compatible schema migration for properties, lots, and sales
-    saveProperties(Array.isArray(parsed.properties) ? parsed.properties : []);
-    saveGoldBuyLots(Array.isArray(parsed.goldBuyLots) ? parsed.goldBuyLots : []);
-    savePhysicalGoldSales(Array.isArray(parsed.physicalGoldSales) ? parsed.physicalGoldSales : []);
-    
+    if (Array.isArray(parsed.properties)) {
+      saveProperties(parsed.properties);
+    }
+    if (Array.isArray(parsed.goldBuyLots)) {
+      saveGoldBuyLots(parsed.goldBuyLots);
+    }
+    if (Array.isArray(parsed.physicalGoldSales)) {
+      savePhysicalGoldSales(parsed.physicalGoldSales);
+    }
     if (Array.isArray(parsed.transactions)) {
       saveTransactions(parsed.transactions);
     }

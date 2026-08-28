@@ -50,7 +50,7 @@ const POPULAR_TICKERS = [
   { symbol: 'dot', name: 'پولکادات', enName: 'Polkadot', color: '#E6007A' },
   { symbol: 'avax', name: 'آوالانچ', enName: 'Avalanche', color: '#E84142' },
   { symbol: 'sui', name: 'سویی', enName: 'Sui', color: '#2A82E4' },
-  { symbol: 'near', name: 'نیر پروتکل', enName: 'NEAR Protocol', color: '#000000' },
+  { symbol: 'near', name: 'نیر پروتکل', enName: 'NEAR Protocol', color: '#00C08B' },
   { symbol: 'link', name: 'چین‌لینک', enName: 'Chainlink', color: '#375BD2' },
   { symbol: 'not', name: 'نات‌کوین', enName: 'Notcoin', color: '#EAB308' },
 ];
@@ -308,7 +308,7 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                         <div>
                           <div className="flex items-center gap-1.5">
                             <span className="font-black text-slate-100 text-sm">{asset.symbol}</span>
-                            <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-slate-950 border border-slate-700 text-slate-400 font-bold">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-950 border border-slate-700 text-slate-400 font-bold">
                               وزن: {toPersianDigits(asset.targetPercent)}%
                             </span>
                           </div>
@@ -466,7 +466,7 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                         </span>
                         {stat?.dayChange !== undefined && (
                           <span
-                            className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md inline-flex items-center gap-0.5 dir-ltr ${
+                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md inline-flex items-center gap-0.5 dir-ltr ${
                               isPositive
                                 ? 'bg-emerald-500/15 text-emerald-400'
                                 : 'bg-rose-500/15 text-rose-400'

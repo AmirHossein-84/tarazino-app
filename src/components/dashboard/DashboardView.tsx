@@ -205,7 +205,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-bold text-slate-400 block">ارزش کل دارایی‌ها (سبد سرمایه)</span>
                 {currencyMode === 'usd' && (
-                  <span className="text-[10px] px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
                     USD ($)
                   </span>
                 )}

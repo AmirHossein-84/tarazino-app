@@ -163,7 +163,7 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
             const itemLots = updatedLots.filter((l) => l.goldType === item.id);
             const totalCost = itemLots.reduce((sum, l) => sum + l.totalCostTomans, 0);
             const totalQty = itemLots.reduce((sum, l) => sum + l.quantity, 0);
-            const avgCost = totalQty > 0 ? Math.round(totalCost / totalQty) : item.averageBuyPriceTomans;
+            const avgCost = totalQty > 0 ? Math.round(totalCost / totalQty) : undefined;
 
             return {
               ...item,
@@ -203,46 +203,42 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
         notes
       );
 
-      // 1. Update sales records
-      setPhysicalGoldSalesState((prev) => {
-        const updated = [saleRecord, ...prev];
-        savePhysicalGoldSales(updated);
-        return updated;
-      });
+      // Save sale record
+      const updatedSales = [saleRecord, ...physicalGoldSales];
+      setPhysicalGoldSalesState(updatedSales);
+      savePhysicalGoldSales(updatedSales);
 
-      // 2. Update buy lots
+      // Update remaining lots
       setGoldBuyLotsState(updatedLots);
       saveGoldBuyLots(updatedLots);
 
-      // 3. Update physical gold item quantity
+      // Update item holdings
       setPhysicalGoldItemsState((prev) => {
-        const updated = prev.map((itm) => {
-          if (itm.id === id) {
-            const newQty = Math.max(0, Number((itm.quantity - quantitySold).toFixed(3)));
-            const itmLots = updatedLots.filter((l) => l.goldType === id);
-            const totalCost = itmLots.reduce((sum, l) => sum + l.totalCostTomans, 0);
-            const totalQty = itmLots.reduce((sum, l) => sum + l.quantity, 0);
-            const avgCost = totalQty > 0 ? Math.round(totalCost / totalQty) : itm.averageBuyPriceTomans;
+        const updated = prev.map((it) => {
+          if (it.id === id) {
+            const newQty = Math.max(0, Number(((it.quantity || 0) - quantitySold).toFixed(3)));
+            const itemLots = updatedLots.filter((l) => l.goldType === id);
+            const totalCost = itemLots.reduce((sum, l) => sum + (l.totalCostTomans || l.quantity * l.purchaseUnitPriceTomans), 0);
+            const totalQty = itemLots.reduce((sum, l) => sum + l.quantity, 0);
+            const avgCost = totalQty > 0 ? Math.round(totalCost / totalQty) : undefined;
 
             return {
-              ...itm,
+              ...it,
               quantity: newQty,
               averageBuyPriceTomans: avgCost,
               totalCostTomans: totalCost,
-              buyLots: itmLots,
+              buyLots: itemLots,
             };
           }
-          return itm;
+          return it;
         });
         savePhysicalGold(updated);
         return updated;
       });
 
-      showNotification(
-        `فروش ${quantitySold} ${item.unit} ${item.title} در دفتر کل سوابق ثبت شد (سود: ${saleRecord.realizedProfitTomans >= 0 ? '+' : ''}${formatToman(saleRecord.realizedProfitTomans)} ت)`
-      );
+      showNotification(`فروش ${quantitySold} ${item.unit} ${item.title} با موفقیت ثبت شد`, 'success');
     },
-    [physicalGoldItems, goldBuyLots, showNotification]
+    [physicalGoldItems, goldBuyLots, physicalGoldSales, showNotification]
   );
 
   const deleteGoldSaleRecord = useCallback(
@@ -264,31 +260,21 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
   }, [showNotification]);
 
   const updatePhysicalGoldQuantity = useCallback(
-    (id: PhysicalGoldType, newQuantity: number, saleUnitPriceTomans?: number) => {
-      const currentItem = physicalGoldItems.find((i) => i.id === id);
-      const oldQty = currentItem?.quantity || 0;
-      const safeNewQty = Math.max(0, newQuantity);
-
-      if (oldQty > safeNewQty) {
-        // Decrease in quantity -> record sale audit
-        const qtySold = Number((oldQty - safeNewQty).toFixed(3));
-        recordGoldSale(id, qtySold, saleUnitPriceTomans);
-      } else {
-        // Increase or manual set
-        setPhysicalGoldItemsState((prev) => {
-          const updated = prev.map((item) => {
-            if (item.id === id) {
-              return { ...item, quantity: safeNewQty };
-            }
-            return item;
-          });
-          savePhysicalGold(updated);
-          return updated;
+    (id: PhysicalGoldType, newQuantity: number) => {
+      const safeNewQty = Math.max(0, Number(newQuantity.toFixed(3)));
+      setPhysicalGoldItemsState((prev) => {
+        const updated = prev.map((item) => {
+          if (item.id === id) {
+            return { ...item, quantity: safeNewQty };
+          }
+          return item;
         });
-        showNotification('موجودی طلای فیزیکی به‌روزرسانی شد');
-      }
+        savePhysicalGold(updated);
+        return updated;
+      });
+      showNotification('موجودی طلای فیزیکی به‌روزرسانی شد');
     },
-    [physicalGoldItems, recordGoldSale, showNotification]
+    [showNotification]
   );
 
   const updatePhysicalGoldPrice = useCallback((id: PhysicalGoldType, unitPriceTomans: number, isCustom = true) => {
@@ -379,6 +365,8 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
           edited.currentHoldingValue = Math.round(updates.currentAmount * edited.unitPrice);
         } else if (updates.currentHoldingValue !== undefined && edited.unitPrice && edited.unitPrice > 0) {
           edited.currentAmount = Number((updates.currentHoldingValue / edited.unitPrice).toFixed(6));
+        } else if (updates.unitPrice !== undefined && updates.currentAmount === undefined && item.currentAmount !== undefined) {
+          edited.currentHoldingValue = Math.round(item.currentAmount * updates.unitPrice);
         }
         return edited;
       });
@@ -397,6 +385,26 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
       return updated;
     });
   }, [showNotification]);
+
+  const deductCryptoAssetHolding = useCallback((id: string, amountToDeduct: number) => {
+    setCryptoAssetsState((prev) => {
+      const updated = prev.map((item) => {
+        if (item.id === id) {
+          const currentAmt = item.currentAmount || 0;
+          const newAmt = Math.max(0, Number((currentAmt - amountToDeduct).toFixed(6)));
+          const unitP = item.unitPrice || 0;
+          return {
+            ...item,
+            currentAmount: newAmt,
+            currentHoldingValue: Math.round(newAmt * unitP),
+          };
+        }
+        return item;
+      });
+      saveCryptoAssets(updated);
+      return updated;
+    });
+  }, []);
 
   // Combined Gold Valuation: TSETMC Gold Funds + Physical Gold & Coins
   const effectiveGoldHolding: GoldHolding = useMemo(() => {
@@ -640,6 +648,7 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     addCryptoAsset,
     editCryptoAsset,
     removeCryptoAsset,
+    deductCryptoAssetHolding,
     goldHolding,
     updateGoldHolding,
     physicalGoldItems,

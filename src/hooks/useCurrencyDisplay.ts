@@ -3,6 +3,7 @@ import { nobitexService } from '../services/nobitex/NobitexService';
 import { formatToman } from '../utils/formatters';
 
 const STORAGE_KEY = 'investment_app_currency_mode_v1';
+const USDT_RATE_STORAGE_KEY = 'investment_app_usdt_rate_v1';
 const DEFAULT_USDT_RATE_TOMANS = 93000;
 
 export type CurrencyDisplayMode = 'toman' | 'usd';
@@ -19,8 +20,8 @@ export interface UseCurrencyDisplayReturn {
   isFetchingRate: boolean;
   toggleCurrencyMode: () => void;
   setCurrencyMode: (mode: CurrencyDisplayMode) => void;
-  formatCurrency: (amountInTomans: number, options?: FormatCurrencyOptions | boolean) => string;
-  toDisplayValue: (amountInTomans: number) => number;
+  formatCurrency: (amountInTomans: number | null | undefined, options?: FormatCurrencyOptions | boolean) => string;
+  toDisplayValue: (amountInTomans: number | null | undefined) => number;
   currencyUnitLabel: string;
   refreshUsdtRate: () => Promise<void>;
 }
@@ -35,7 +36,19 @@ export function useCurrencyDisplay(): UseCurrencyDisplayReturn {
     }
   });
 
-  const [usdtRateTomans, setUsdtRateTomans] = useState<number>(DEFAULT_USDT_RATE_TOMANS);
+  const [usdtRateTomans, setUsdtRateTomans] = useState<number>(() => {
+    try {
+      const savedRate = localStorage.getItem(USDT_RATE_STORAGE_KEY);
+      if (savedRate) {
+        const parsed = parseInt(savedRate, 10);
+        if (!isNaN(parsed) && parsed > 0) return parsed;
+      }
+    } catch {
+      // Ignore
+    }
+    return DEFAULT_USDT_RATE_TOMANS;
+  });
+
   const [isFetchingRate, setIsFetchingRate] = useState<boolean>(false);
 
   const refreshUsdtRate = useCallback(async () => {
@@ -48,6 +61,11 @@ export function useCurrencyDisplay(): UseCurrencyDisplayReturn {
         if (!isNaN(rawRials) && rawRials > 0) {
           const rate = Math.round(rawRials / 10);
           setUsdtRateTomans(rate);
+          try {
+            localStorage.setItem(USDT_RATE_STORAGE_KEY, String(rate));
+          } catch {
+            // Ignore
+          }
         }
       }
     } catch (e) {
@@ -75,7 +93,10 @@ export function useCurrencyDisplay(): UseCurrencyDisplayReturn {
   }, [currencyMode, setCurrencyMode]);
 
   const toDisplayValue = useCallback(
-    (amountInTomans: number): number => {
+    (amountInTomans: number | null | undefined): number => {
+      if (amountInTomans === null || amountInTomans === undefined || isNaN(amountInTomans) || !isFinite(amountInTomans)) {
+        return 0;
+      }
       if (currencyMode === 'usd') {
         const rate = usdtRateTomans > 0 ? usdtRateTomans : DEFAULT_USDT_RATE_TOMANS;
         return Number((amountInTomans / rate).toFixed(2));
@@ -87,7 +108,7 @@ export function useCurrencyDisplay(): UseCurrencyDisplayReturn {
 
   const formatCurrency = useCallback(
     (
-      amountInTomans: number,
+      amountInTomans: number | null | undefined,
       optionsOrShowUnit?: FormatCurrencyOptions | boolean
     ): string => {
       const opts: FormatCurrencyOptions =
@@ -96,6 +117,10 @@ export function useCurrencyDisplay(): UseCurrencyDisplayReturn {
           : optionsOrShowUnit || { showUnit: true };
 
       const showUnit = opts.showUnit !== false;
+
+      if (amountInTomans === null || amountInTomans === undefined || isNaN(amountInTomans) || !isFinite(amountInTomans)) {
+        return showUnit ? (currencyMode === 'usd' ? '$ 0.00' : '0 تومان') : '0';
+      }
 
       if (currencyMode === 'usd') {
         const rate = usdtRateTomans > 0 ? usdtRateTomans : DEFAULT_USDT_RATE_TOMANS;

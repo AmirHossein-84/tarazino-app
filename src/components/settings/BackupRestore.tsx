@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Download, Upload, RotateCcw, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { BottomSheetModal } from '../common/BottomSheetModal';
 
 interface BackupRestoreProps {
   onExport: () => void;
@@ -102,42 +103,38 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
         </button>
       </div>
 
-      {/* Reset Confirmation Modal */}
-      {showResetModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-sm bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl text-right">
-            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
+      {/* Reset Confirmation Bottom Sheet Modal */}
+      <BottomSheetModal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        title="بازنشانی به مقادیر پیش‌فرض"
+        subtitle="حذف کلیه داده‌های محلی و بازگشت به تنظیمات اولیه"
+        icon={<AlertTriangle className="w-5 h-5 text-rose-400" />}
+      >
+        <div className="space-y-4 text-right">
+          <p className="text-xs text-slate-300 leading-relaxed">
+            آیا مطمئن هستید؟ تمام داده‌های ذخیره‌شده، دارایی‌های ثبت‌شده و تاریخچه پاک شده و درصدهای پیش‌فرض تصویر اولیه بازگردانده می‌شوند. این عملیات غیرقابل بازگشت است.
+          </p>
 
-            <h3 className="text-base font-bold text-slate-100 text-center mb-2">
-              بازنشانی به مقادیر پیش‌فرض
-            </h3>
-
-            <p className="text-xs text-slate-300 text-center mb-5 leading-relaxed">
-              آیا مطمئن هستید؟ تمام داده‌های ذخیره‌شده، دارایی‌های ثبت‌شده و تاریخچه پاک شده و درصدهای پیش‌فرض تصویر اولیه بازگردانده می‌شوند.
-            </p>
-
-            <div className="flex gap-2.5">
-              <button
-                onClick={() => {
-                  onResetToDefaults();
-                  setShowResetModal(false);
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs cursor-pointer transition-all"
-              >
-                بله، بازنشانی شود
-              </button>
-              <button
-                onClick={() => setShowResetModal(false)}
-                className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium cursor-pointer transition-all"
-              >
-                انصراف
-              </button>
-            </div>
+          <div className="flex gap-2.5 pt-2">
+            <button
+              onClick={() => {
+                onResetToDefaults();
+                setShowResetModal(false);
+              }}
+              className="flex-1 py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs interactive-tap touch-target transition-all shadow-md"
+            >
+              بله، بازنشانی شود
+            </button>
+            <button
+              onClick={() => setShowResetModal(false)}
+              className="py-3.5 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs interactive-tap touch-target transition-all"
+            >
+              انصراف
+            </button>
           </div>
         </div>
-      )}
+      </BottomSheetModal>
       {/* About App Branding Footer */}
       <div className="pt-4 border-t border-slate-800/80 flex flex-col items-center justify-center text-center space-y-2">
         <div className="w-14 h-14 rounded-2xl bg-slate-900 border border-gold-500/30 p-1 shadow-gold-glow">

@@ -82,6 +82,7 @@ const AppContent: React.FC = () => {
     addCryptoAsset,
     editCryptoAsset,
     removeCryptoAsset,
+    deductCryptoAssetHolding,
     goldHolding,
     physicalGoldItems,
     isRefreshingGold,
@@ -316,6 +317,7 @@ const AppContent: React.FC = () => {
               toDisplayValue={toDisplayValue}
               onDeductBourseGold={handleDeductBourseGold}
               onDeductPhysicalGold={handleDeductPhysicalGold}
+              onDeductCrypto={deductCryptoAssetHolding}
               onNotify={showNotification}
             />
           </div>

@@ -184,7 +184,7 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-black text-slate-100 text-sm">{item.instrument.symbol}</span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-amber-500/10 border border-gold-500/30 text-gold-400 font-bold">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/10 border border-gold-500/30 text-gold-400 font-bold">
                     صندوق طلا
                   </span>
                 </div>
@@ -256,7 +256,7 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
                 <div>
                   <div className="flex items-center gap-1.5">
                     <span className="font-black text-slate-100 text-sm">{asset.symbol}</span>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-slate-900 border border-slate-700 text-slate-400 font-bold">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-slate-400 font-bold">
                       وزن: {toPersianDigits(asset.targetPercent)}%
                     </span>
                   </div>

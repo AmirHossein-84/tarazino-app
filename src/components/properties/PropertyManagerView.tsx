@@ -407,7 +407,7 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
                           {gainToman >= 0 ? '+' : ''}{formatCurrency(gainToman)}
                         </span>
                         <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded-md font-bold dir-ltr ${
+                          className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold dir-ltr ${
                             gainToman >= 0
                               ? 'bg-emerald-500/15 text-emerald-300'
                               : 'bg-rose-500/15 text-rose-300'

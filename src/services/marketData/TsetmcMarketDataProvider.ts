@@ -48,6 +48,8 @@ function inferAssetType(name: string, symbol: string): AssetType {
   return 'stock';
 }
 
+const TSETMC_OFFLINE_CACHE_KEY = 'tsetmc_quote_cache_v1';
+
 export class TsetmcMarketDataProvider implements MarketDataProvider {
   readonly name = 'TSETMC (Tehran Stock Exchange)';
   
@@ -67,6 +69,37 @@ export class TsetmcMarketDataProvider implements MarketDataProvider {
     // In native mobile apps (Capacitor Android / iOS), call direct; in web browsers, use same-origin proxy
     const isNative = typeof window !== 'undefined' && Capacitor.isNativePlatform();
     this.baseUrl = isNative ? this.fallbackUrl : '/api/tsetmc';
+    this.loadOfflineCache();
+  }
+
+  private loadOfflineCache(): void {
+    try {
+      if (typeof window === 'undefined') return;
+      const raw = localStorage.getItem(TSETMC_OFFLINE_CACHE_KEY);
+      if (raw) {
+        const parsed: Record<string, MarketQuote> = JSON.parse(raw);
+        Object.entries(parsed).forEach(([key, quote]) => {
+          this.quoteCache.set(key, { quote: { ...quote, isStale: true }, fetchedAt: Date.now() - 30000 });
+        });
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
+  private saveOfflineCache(): void {
+    try {
+      if (typeof window === 'undefined') return;
+      const obj: Record<string, MarketQuote> = {};
+      this.quoteCache.forEach((val, key) => {
+        if (val.quote && val.quote.lastPriceTomans > 0) {
+          obj[key] = val.quote;
+        }
+      });
+      localStorage.setItem(TSETMC_OFFLINE_CACHE_KEY, JSON.stringify(obj));
+    } catch {
+      // Ignore
+    }
   }
 
   private async fetchWithThrottle(urlPath: string): Promise<any> {
@@ -102,7 +135,7 @@ export class TsetmcMarketDataProvider implements MarketDataProvider {
             return await fallbackRes.json();
           }
         } catch {
-          // Ignore fallback error and throw original
+          // Both failed, throw original error
         }
       }
       throw err;
@@ -223,6 +256,7 @@ export class TsetmcMarketDataProvider implements MarketDataProvider {
 
       // Store in cache
       this.quoteCache.set(insCode, { quote, fetchedAt: now });
+      this.saveOfflineCache();
 
       return quote;
     } catch (error) {

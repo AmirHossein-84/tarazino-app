@@ -127,7 +127,7 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
             <History className="w-3.5 h-3.5 text-amber-400" />
             <span>سوابق فروش</span>
             {physicalGoldSales.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-amber-500/20 text-gold-300 text-[10px] font-bold">
+              <span className="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-gold-300 text-[10px] font-bold">
                 {toPersianDigits(physicalGoldSales.length)}
               </span>
             )}
@@ -183,7 +183,7 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
                 {formatCurrency(totalPnl.totalUnrealizedProfitTomans)}
               </span>
               <span
-                className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${
+                className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
                   totalPnl.totalUnrealizedProfitTomans >= 0
                     ? 'bg-emerald-500/15 text-emerald-300'
                     : 'bg-rose-500/15 text-rose-300'
@@ -244,7 +244,7 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
                     <span>{item.id.startsWith('coin_') ? '🪙' : '✨'}</span>
                     <span>{item.title}</span>
                     {itemPnl.lotsCount > 0 && (
-                      <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-amber-500/15 text-gold-400 font-bold">
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-amber-500/15 text-gold-400 font-bold">
                         {toPersianDigits(itemPnl.lotsCount)} پله خرید
                       </span>
                     )}
@@ -264,7 +264,7 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
                 <div className="flex items-center gap-1.5">
                   {changePct !== 0 && hasPrice && (
                     <span
-                      className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md inline-flex items-center gap-0.5 dir-ltr ${
+                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md inline-flex items-center gap-0.5 dir-ltr ${
                         isPositive
                           ? 'bg-emerald-500/15 text-emerald-400'
                           : 'bg-rose-500/15 text-rose-400'
@@ -332,7 +332,7 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
                         {formatCurrency(itemPnl.unrealizedProfitTomans, { isTomanSuffix: true })}
                       </span>
                       <span
-                        className={`text-[9px] px-1 py-0.2 rounded font-bold ${
+                        className={`text-[9px] px-1 py-0.5 rounded font-bold ${
                           itemPnl.unrealizedProfitTomans >= 0
                             ? 'bg-emerald-500/15 text-emerald-300'
                             : 'bg-rose-500/15 text-rose-300'

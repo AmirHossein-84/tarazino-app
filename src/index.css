@@ -125,6 +125,24 @@
   }
 }
 
+@layer utilities {
+  .dir-ltr {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+  .dir-rtl {
+    direction: rtl;
+    unicode-bidi: isolate;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @keyframes slideUp {
   from {
     transform: translateY(100%);

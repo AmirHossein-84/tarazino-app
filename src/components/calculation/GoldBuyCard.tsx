@@ -143,7 +143,7 @@ export const GoldBuyCard: React.FC<GoldBuyCardProps> = ({
               </span>
               {quote && (
                 <span
-                  className={`text-[10px] font-black px-1.5 py-0.2 rounded-md dir-ltr ${
+                  className={`text-[10px] font-black px-1.5 py-0.5 rounded-md dir-ltr ${
                     quote.priceChangePercent >= 0
                       ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                       : 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
