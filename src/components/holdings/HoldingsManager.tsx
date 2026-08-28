@@ -248,19 +248,19 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
               }}
               className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/90 hover:border-indigo-500/50 transition-all flex items-center justify-between gap-3 interactive-tap"
             >
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <span
                   className="w-3.5 h-3.5 rounded-full shrink-0 shadow-sm"
                   style={{ backgroundColor: asset.color }}
                 />
-                <div>
-                  <div className="flex items-center gap-1.5">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="font-black text-slate-100 text-sm">{asset.symbol}</span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-slate-400 font-bold">
                       وزن: {toPersianDigits(asset.targetPercent)}%
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-400 truncate max-w-[130px]">
+                  <div className="text-[11px] text-slate-400 truncate">
                     {asset.currentAmount !== undefined && asset.currentAmount > 0
                       ? `${toPersianDigits(asset.currentAmount.toFixed(4))} ${asset.symbol}`
                       : asset.name}

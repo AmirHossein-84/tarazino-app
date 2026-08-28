@@ -232,50 +232,52 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
         </div>
       </div>
 
-      {/* 2. Type Filter Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-        <button
-          onClick={() => {
-            triggerHaptic('light');
-            setSelectedType('all');
-          }}
-          className={`py-2 px-3.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all interactive-tap touch-target ${
-            selectedType === 'all'
-              ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
-              : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800'
-          }`}
-        >
-          همه کاربری‌ها ({toPersianDigits(properties.length)})
-        </button>
+      {/* 2. Category Filter Pills */}
+      {properties.length > 0 && (
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1 px-0.5">
+          <button
+            onClick={() => {
+              triggerHaptic('light');
+              setSelectedType('all');
+            }}
+            className={`py-2 px-3.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all interactive-tap touch-target ${
+              selectedType === 'all'
+                ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
+                : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800'
+            }`}
+          >
+            همه کاربری‌ها ({toPersianDigits(properties.length)})
+          </button>
 
-        {(Object.keys(PROPERTY_TYPE_CONFIG) as PropertyType[]).map((typeKey) => {
-          const cfg = PROPERTY_TYPE_CONFIG[typeKey];
-          const Icon = cfg.icon;
-          const count = properties.filter((p) => p.type === typeKey).length;
-          if (count === 0 && selectedType !== typeKey) return null;
+          {(Object.keys(PROPERTY_TYPE_CONFIG) as PropertyType[]).map((typeKey) => {
+            const cfg = PROPERTY_TYPE_CONFIG[typeKey];
+            const Icon = cfg.icon;
+            const count = properties.filter((p) => p.type === typeKey).length;
+            if (count === 0 && selectedType !== typeKey) return null;
 
-          const isSelected = selectedType === typeKey;
+            const isSelected = selectedType === typeKey;
 
-          return (
-            <button
-              key={typeKey}
-              onClick={() => {
-                triggerHaptic('light');
-                setSelectedType(typeKey);
-              }}
-              className={`py-2 px-3 rounded-2xl text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all interactive-tap touch-target ${
-                isSelected
-                  ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
-                  : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{cfg.label}</span>
-              <span className="text-[10px] opacity-80">({toPersianDigits(count)})</span>
-            </button>
-          );
-        })}
-      </div>
+            return (
+              <button
+                key={typeKey}
+                onClick={() => {
+                  triggerHaptic('light');
+                  setSelectedType(typeKey);
+                }}
+                className={`py-2 px-3 rounded-2xl text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all interactive-tap touch-target ${
+                  isSelected
+                    ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
+                    : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{cfg.label}</span>
+                <span className="text-[10px] opacity-80">({toPersianDigits(count)})</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* 3. Property Cards List */}
       {filteredProperties.length > 0 ? (

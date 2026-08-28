@@ -65,7 +65,7 @@ export const PwaInstallPrompt: React.FC<PwaInstallPromptProps> = ({ isOpen, onCl
           <img
             src="/favicon.png"
             alt="لوگوی برنامه"
-            className="w-12 h-12 rounded-2xl border border-gold-500/40 object-cover shadow-gold-glow"
+            className="w-12 h-12 rounded-2xl object-cover"
           />
           <div>
             <h2 className="text-lg font-bold text-slate-100">

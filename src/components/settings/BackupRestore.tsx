@@ -96,10 +96,11 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
       <div className="pt-2">
         <button
           onClick={() => setShowResetModal(true)}
-          className="w-full py-3 px-4 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
+          className="w-full py-3.5 px-4 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold flex flex-wrap items-center justify-center gap-1.5 transition-all interactive-tap touch-target"
         >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>بازنشانی کلی به مقادیر پیش‌فرض اولیه (Factory Reset)</span>
+          <RotateCcw className="w-4 h-4 shrink-0" />
+          <span>بازنشانی کلی به مقادیر پیش‌فرض</span>
+          <span className="text-[10px] opacity-75 font-mono dir-ltr shrink-0">(Factory Reset)</span>
         </button>
       </div>
 
@@ -137,11 +138,11 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
       </BottomSheetModal>
       {/* About App Branding Footer */}
       <div className="pt-4 border-t border-slate-800/80 flex flex-col items-center justify-center text-center space-y-2">
-        <div className="w-14 h-14 rounded-2xl bg-slate-900 border border-gold-500/30 p-1 shadow-gold-glow">
+        <div className="w-14 h-14 rounded-2xl bg-slate-900 overflow-hidden flex items-center justify-center">
           <img
             src="/favicon.png"
             alt="لوگوی برنامه"
-            className="w-full h-full object-cover rounded-xl"
+            className="w-full h-full object-cover rounded-2xl"
           />
         </div>
         <div>

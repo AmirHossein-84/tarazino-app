@@ -27,6 +27,7 @@ import { PortfolioDonutChart, DonutChartItem } from '../common/PortfolioDonutCha
 import { PullToRefreshContainer } from '../common/PullToRefreshContainer';
 import { CapitalInputCard } from './CapitalInputCard';
 import { GoldBuyCard } from '../calculation/GoldBuyCard';
+import { QuickActions } from '../calculation/QuickActions';
 import { formatToman, formatPercent, toPersianDigits } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { CurrencyDisplayMode } from '../../hooks/useCurrencyDisplay';
@@ -590,6 +591,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               })}
             </div>
           </div>
+
+          {/* Quick Apply Purchases Action */}
+          <QuickActions
+            calculationResult={calculationResult}
+            onApplyPurchases={onApplyPurchases}
+            onNavigateToHoldings={() => onNavigateToTab('holdings')}
+          />
 
         </div>
       )}

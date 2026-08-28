@@ -76,7 +76,7 @@ export const DEFAULT_CRYPTO_ASSETS: CryptoAsset[] = [
   {
     id: 'pol',
     symbol: 'POL',
-    name: 'پولیگان (Polygon Ecosystem)',
+    name: 'پولیگان (Polygon)',
     targetPercent: 2,
     currentHoldingValue: 0,
     color: '#8247E5',
@@ -110,7 +110,7 @@ export const DEFAULT_PHYSICAL_GOLD_ITEMS = [
   },
   {
     id: 'gold_24k' as const,
-    title: 'طلای ۲۴ عیار (دست‌نخورده/شمش)',
+    title: 'طلای ۲۴ عیار (شمش)',
     unit: 'گرم' as const,
     quantity: 0,
     unitPriceTomans: 0,
@@ -118,7 +118,7 @@ export const DEFAULT_PHYSICAL_GOLD_ITEMS = [
   },
   {
     id: 'coin_emami' as const,
-    title: 'سکه تمام بهار آزادی (امامی / طرح جدید)',
+    title: 'سکه تمام امامی',
     unit: 'عدد' as const,
     quantity: 0,
     unitPriceTomans: 0,
@@ -126,7 +126,7 @@ export const DEFAULT_PHYSICAL_GOLD_ITEMS = [
   },
   {
     id: 'coin_bahar' as const,
-    title: 'سکه تمام بهار آزادی (طرح قدیم)',
+    title: 'سکه بهار آزادی (طرح قدیم)',
     unit: 'عدد' as const,
     quantity: 0,
     unitPriceTomans: 0,

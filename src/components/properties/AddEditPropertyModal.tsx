@@ -214,7 +214,7 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
               value={areaSquareMeters}
               onChange={(e) => setAreaSquareMeters(e.target.value)}
               placeholder="مثال: ۱۲۰"
-              className="w-full pl-16 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600"
+              className="w-full pl-24 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600 placeholder:text-right placeholder:dir-rtl"
             />
             <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 font-bold pointer-events-none">
               متر مربع
@@ -239,7 +239,7 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
               value={purchasePriceToman ? new Intl.NumberFormat('en-US').format(parseNumberInput(purchasePriceToman)) : ''}
               onChange={(e) => setPurchasePriceToman(e.target.value)}
               placeholder="مثال: ۱۰,۰۰۰,۰۰۰,۰۰۰"
-              className="w-full pl-16 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600"
+              className="w-full pl-20 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600 placeholder:text-right placeholder:dir-rtl"
             />
             <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 font-bold pointer-events-none">
               تومان
@@ -265,8 +265,8 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
               inputMode="numeric"
               value={currentValuationToman ? new Intl.NumberFormat('en-US').format(parseNumberInput(currentValuationToman)) : ''}
               onChange={(e) => setCurrentValuationToman(e.target.value)}
-              placeholder="در صورت خالی بودن، معادل قیمت خرید خواهد بود"
-              className="w-full pl-16 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600"
+              placeholder="در صورت خالی بودن، معادل قیمت خرید"
+              className="w-full pl-20 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600 placeholder:text-right placeholder:dir-rtl text-xs sm:text-base"
             />
             <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 font-bold pointer-events-none">
               تومان

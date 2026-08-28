@@ -273,12 +273,12 @@ export const MarketInstrumentsView: React.FC<MarketInstrumentsViewProps> = ({
       )}
 
       {/* 3. Instruments Section Header + Add Button */}
-      <div className="flex items-center justify-between pt-1">
-        <div>
+      <div className="flex items-center justify-between gap-2 pt-1">
+        <div className="min-w-0 flex-1">
           <h3 className="text-sm font-black text-slate-100">
             نمادها و دارایی‌های بورسی تحت نظر
           </h3>
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-slate-400 leading-tight">
             برای ویرایش تعداد واحدها یا حذف، روی هر کارت ضربه بزنید
           </p>
         </div>
@@ -288,10 +288,10 @@ export const MarketInstrumentsView: React.FC<MarketInstrumentsViewProps> = ({
             triggerHaptic('light');
             setIsAddModalOpen(true);
           }}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-gradient-to-r from-amber-400 to-gold-500 hover:from-amber-300 hover:to-gold-400 text-slate-950 font-black text-xs transition-all interactive-tap shadow-gold-glow touch-target"
+          className="shrink-0 flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-gold-500 hover:from-amber-300 hover:to-gold-400 text-slate-950 font-black text-xs transition-all interactive-tap shadow-gold-glow touch-target whitespace-nowrap"
         >
-          <Plus className="w-3.5 h-3.5" />
-          <span>افزودن نماد بورس</span>
+          <Plus className="w-4 h-4" />
+          <span>افزودن نماد</span>
         </button>
       </div>
 
