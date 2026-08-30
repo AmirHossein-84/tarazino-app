@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       version_tag:
-        description: 'شماره نسخه دلخواه (مثال: v1.0.1 یا v1.2.0 - در صورت خالی بودن خودکار تعیین می‌شود)'
+        description: 'شماره نسخه دلخواه (مثال: v1.1 یا v1.2 - در صورت خالی بودن خودکار تعیین می‌شود)'
         required: false
         default: ''
 
@@ -147,7 +147,7 @@ jobs:
           elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             TAG="${{ github.ref_name }}"
           else
-            TAG="v1.0.${{ github.run_number }}"
+            TAG="v1.${{ github.run_number }}"
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
@@ -166,8 +166,8 @@ jobs:
       - name: Rename Release Files
         run: |
           TAG="${{ steps.get_version.outputs.tag }}"
-          mv release-files/app-release.apk "release-files/Investment-App-${TAG}.apk"
-          mv release-files/Investment-App.ipa "release-files/Investment-App-${TAG}.ipa"
+          mv release-files/app-release.apk "release-files/Tarazino-${TAG}.apk"
+          mv release-files/Investment-App.ipa "release-files/Tarazino-${TAG}.ipa"
 
       - name: Create Preview Draft Release
         uses: softprops/action-gh-release@v2
@@ -175,14 +175,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.get_version.outputs.tag }}
-          name: "🔍 Investment App ${{ steps.get_version.outputs.tag }} (Android APK & iOS IPA)"
+          name: "💎 ترازینو (Tarazino) ${{ steps.get_version.outputs.tag }} (Android APK & iOS IPA)"
           draft: true
           prerelease: true
           make_latest: false
           body: |
             <div dir="rtl">
 
-            # 💎 اپلیکیشن جامع مدیریت پورتفوی سرمایه‌گذاری (نسخه ${{ steps.get_version.outputs.tag }})
+            # 💎 اپلیکیشن ترازینو - مدیریت سرمایه‌گذاری (نسخه ${{ steps.get_version.outputs.tag }})
 
 
             ---
@@ -194,7 +194,7 @@ jobs:
             - 📈 **محاسبه دقیق سود و زیان (P&L)**: نمایش درصد و مبلغ سود/زیان کل و تک‌تک دارایی‌ها با رنگ‌بندی دقیق
             - ⚖️ **ماشین‌حساب تعادل سبد (Rebalancing Engine)**: پیشنهاد خودکار مقادیر خرید و فروش جهت حفظ نسبت طلایی ۸۰/۲۰ یا درصد دلخواه
             - 💵 **حالت نمایش دوگانه (تومان / دلار)**: تبدیل آنی کلیه دارایی‌ها به دلار ($) بر مبنای نرخ لحظه‌ای تتر
-            - 🎨 **طراحی مدرن و ارگونومیک (Dark Glassmorphism)**: رابط کاربری سریع با فیدبک لمسی (Haptic) و انیمیشن‌های روان
+            - 🎨 **طراحی مدرن Soft Slate و Dark Mode**: رابط کاربری سریع با فیدبک لمسی (Haptic) و انیمیشن‌های روان
 
             ---
 
@@ -202,8 +202,8 @@ jobs:
 
             | پلتفرم | نام فایل خروجی | راهنمای نصب سریع |
             | :--- | :--- | :--- |
-            | **🤖 اندروید (Android APK)** | `Investment-App-${{ steps.get_version.outputs.tag }}.apk` | فایل APK را دانلود و مستقیماً روی گوشی نصب کنید. |
-            | **🍏 آیفون (iOS IPA)** | `Investment-App-${{ steps.get_version.outputs.tag }}.ipa` | با استفاده از ابزارهای رایگان **Sideloadly** یا **AltStore** / **SideStore** نصب فرمایید. |
+            | **🤖 اندروید (Android APK)** | `Tarazino-${{ steps.get_version.outputs.tag }}.apk` | فایل APK را دانلود و مستقیماً روی گوشی نصب کنید. |
+            | **🍏 آیفون (iOS IPA)** | `Tarazino-${{ steps.get_version.outputs.tag }}.ipa` | با استفاده از ابزارهای رایگان **Sideloadly** یا **AltStore** / **SideStore** نصب فرمایید. |
             | **🌐 نسخه تحت وب (PWA)** | بدون نیاز به دانلود | وب‌سایت **[investment-app-mu-five.vercel.app](https://investment-app-mu-five.vercel.app/)** را در سافاری باز کرده و **Add to Home Screen** را بزنید. |
 
             ---
