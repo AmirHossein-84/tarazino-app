@@ -83,7 +83,7 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
         <button
           type="button"
           onClick={handleClearAll}
-          className="py-2.5 px-3.5 rounded-2xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all interactive-tap touch-target flex items-center gap-1.5"
+          className="py-2.5 px-3.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 dark:text-rose-300 dark:border-rose-500/30 text-xs font-bold transition-all interactive-tap touch-target flex items-center gap-1.5"
         >
           <Trash2 className="w-3.5 h-3.5" />
           <span>پاک‌سازی تاریخچه</span>
@@ -93,7 +93,7 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
       <button
         type="button"
         onClick={onClose}
-        className="py-2.5 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all interactive-tap touch-target"
+        className="py-2.5 px-5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all interactive-tap touch-target border border-slate-200 dark:border-slate-700"
       >
         بستن
       </button>
@@ -106,7 +106,7 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
       onClose={onClose}
       title="دفتر کل سوابق فروش طلای فیزیکی و مسکوکات"
       subtitle="رهگیری سود/زیان محقق‌شده و تاریخچه نقد کردن دارایی‌های طلا"
-      icon={<History className="w-5 h-5 text-amber-400" />}
+      icon={<History className="w-5 h-5 text-amber-700 dark:text-amber-400" />}
       footer={footerActions}
       maxWidth="max-w-xl"
     >
@@ -114,45 +114,45 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
         
         {/* 1. Summary Ledger Header Card */}
         {sales.length > 0 && (
-          <div className="p-4 rounded-3xl bg-gradient-to-br from-amber-950/30 via-slate-900 to-slate-950 border border-amber-500/30 shadow-lg space-y-3">
+          <div className="p-4 rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/40 dark:from-amber-950/30 dark:via-slate-900 dark:to-slate-950 border border-amber-200 dark:border-amber-500/30 shadow-sm dark:shadow-lg space-y-3">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-amber-300 flex items-center gap-1.5">
-                <FileSpreadsheet className="w-4 h-4 text-gold-400" />
+              <span className="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                <FileSpreadsheet className="w-4 h-4 text-amber-700 dark:text-gold-400" />
                 <span>خلاصه حسابرسی سود محقق‌شده:</span>
               </span>
-              <span className="text-slate-400">
-                تعداد: <strong className="text-slate-200">{toPersianDigits(summary.salesCount)} تراکنش فروش</strong>
+              <span className="text-slate-500 dark:text-slate-400">
+                تعداد: <strong className="text-slate-900 dark:text-slate-200">{toPersianDigits(summary.salesCount)} تراکنش فروش</strong>
               </span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
-              <div className="p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800/80">
-                <span className="text-[10px] text-slate-400 block">کل دریافتی از فروش:</span>
-                <span className="font-black text-slate-100 dir-ltr block text-right mt-0.5">
+              <div className="p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block">کل دریافتی از فروش:</span>
+                <span className="font-black text-slate-900 dark:text-slate-100 dir-ltr block text-right mt-0.5">
                   {formatCurrency(summary.totalRevenue)}
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800/80">
-                <span className="text-[10px] text-slate-400 block">بهای تمام‌شده کل:</span>
-                <span className="font-black text-slate-300 dir-ltr block text-right mt-0.5">
+              <div className="p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block">بهای تمام‌شده کل:</span>
+                <span className="font-black text-slate-700 dark:text-slate-300 dir-ltr block text-right mt-0.5">
                   {formatCurrency(summary.totalCost)}
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-2xl bg-slate-950/80 border border-amber-500/30 col-span-2 sm:col-span-1">
-                <span className="text-[10px] text-slate-400 block">سود/زیان محقق‌شده:</span>
+              <div className="p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-amber-200 dark:border-amber-500/30 col-span-2 sm:col-span-1">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block">سود/زیان محقق‌شده:</span>
                 <div className="flex items-baseline justify-between mt-0.5">
                   <span
                     className={`font-black dir-ltr ${
-                      summary.totalProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                      summary.totalProfit >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
                     }`}
                   >
                     {summary.totalProfit >= 0 ? '+' : ''}{formatCurrency(summary.totalProfit)}
                   </span>
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold ${
-                      summary.totalProfit >= 0 ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'
+                      summary.totalProfit >= 0 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300'
                     }`}
                   >
                     {summary.totalProfit >= 0 ? '+' : ''}{toPersianDigits(summary.profitPercent.toFixed(1))}%
@@ -173,23 +173,23 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
               return (
                 <div
                   key={record.id}
-                  className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800/90 hover:border-slate-700 space-y-2.5 transition-all"
+                  className="p-3.5 rounded-2xl bg-white dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800/90 hover:border-slate-300 dark:hover:border-slate-700 space-y-2.5 transition-all shadow-xs"
                 >
                   {/* Top Bar: Title, Quantity & Delete */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-gold-400 flex items-center justify-center font-bold text-sm">
+                      <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-gold-400 flex items-center justify-center font-bold text-sm border border-amber-200 dark:border-transparent">
                         {record.goldType.startsWith('coin_') ? '🪙' : '🥇'}
                       </div>
                       <div>
-                        <h4 className="text-xs sm:text-sm font-black text-slate-100">{record.title}</h4>
-                        <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                        <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100">{record.title}</h4>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                           <span>مقدار فروش:</span>
-                          <strong className="text-slate-200">
+                          <strong className="text-slate-800 dark:text-slate-200">
                             {toPersianDigits(record.quantitySold)} {unitStr}
                           </strong>
                           <span>•</span>
-                          <span className="text-slate-500">{record.persianDate || record.saleDate.slice(0, 10)}</span>
+                          <span className="text-slate-400 dark:text-slate-500">{record.persianDate || record.saleDate.slice(0, 10)}</span>
                         </div>
                       </div>
                     </div>
@@ -197,7 +197,7 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
                     <button
                       type="button"
                       onClick={() => handleDelete(record.id, record.title)}
-                      className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 transition-all touch-target"
+                      className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-500 dark:hover:text-rose-400 dark:hover:bg-rose-950/40 transition-all touch-target"
                       title="حذف این سابقه"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -205,41 +205,41 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
                   </div>
 
                   {/* Financial Breakdown Row */}
-                  <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800/80 grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 grid grid-cols-2 gap-2 text-xs">
                     <div>
-                      <span className="text-[10px] text-slate-400 block">نرخ فروش واحد:</span>
-                      <span className="font-bold text-slate-200 dir-ltr text-right block">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block">نرخ فروش واحد:</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200 dir-ltr text-right block">
                         {formatCurrency(record.saleUnitPriceTomans)}
                       </span>
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-slate-400 block">بهای تمام‌شده واحد:</span>
-                      <span className="font-bold text-slate-400 dir-ltr text-right block">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block">بهای تمام‌شده واحد:</span>
+                      <span className="font-bold text-slate-500 dark:text-slate-400 dir-ltr text-right block">
                         {formatCurrency(record.unitCostBasisTomans)}
                       </span>
                     </div>
 
-                    <div className="pt-1.5 border-t border-slate-800/80">
-                      <span className="text-[10px] text-slate-400 block">مبلغ کل فروش:</span>
-                      <span className="font-black text-slate-100 dir-ltr text-right block">
+                    <div className="pt-1.5 border-t border-slate-200 dark:border-slate-800/80">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block">مبلغ کل فروش:</span>
+                      <span className="font-black text-slate-900 dark:text-slate-100 dir-ltr text-right block">
                         {formatCurrency(record.totalRevenueTomans)}
                       </span>
                     </div>
 
-                    <div className="pt-1.5 border-t border-slate-800/80">
-                      <span className="text-[10px] text-slate-400 block">سود/زیان محقق‌شده:</span>
+                    <div className="pt-1.5 border-t border-slate-200 dark:border-slate-800/80">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block">سود/زیان محقق‌شده:</span>
                       <div className="flex items-center justify-between">
                         <span
                           className={`font-black dir-ltr ${
-                            isProfit ? 'text-emerald-400' : 'text-rose-400'
+                            isProfit ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
                           }`}
                         >
                           {isProfit ? '+' : ''}{formatCurrency(record.realizedProfitTomans)}
                         </span>
                         <span
                           className={`text-[9px] px-1 py-0.5 rounded font-bold ${
-                            isProfit ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'
+                            isProfit ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300'
                           }`}
                         >
                           {isProfit ? '+' : ''}{toPersianDigits(record.realizedProfitPercent.toFixed(1))}%
@@ -250,7 +250,7 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
 
                   {/* Notes if available */}
                   {record.notes && (
-                    <p className="text-[10px] text-slate-400 bg-slate-900/40 px-2 py-1 rounded-lg">
+                    <p className="text-[10px] text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-900/40 px-2 py-1 rounded-lg">
                       📝 {record.notes}
                     </p>
                   )}
@@ -260,13 +260,13 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
           </div>
         ) : (
           /* Empty State */
-          <div className="p-8 text-center space-y-3 rounded-2xl bg-slate-950/60 border border-slate-800/80">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-gold-400 mx-auto flex items-center justify-center">
+          <div className="p-8 text-center space-y-3 rounded-2xl bg-slate-50/80 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-gold-400 mx-auto flex items-center justify-center border border-amber-200 dark:border-transparent">
               <History className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <h4 className="text-xs sm:text-sm font-bold text-slate-200">هنوز فروشی ثبت نشده است</h4>
-              <p className="text-[11px] text-slate-400 max-w-xs mx-auto leading-relaxed">
+              <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-200">هنوز فروشی ثبت نشده است</h4>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">
                 هنگامی که در بخش «فروش هوشمند» یا به صورت دستی از موجودی طلای فیزیکی خود کسر می‌کنید، سود/زیان محقق‌شده به طور خودکار در این دفتر کل ثبت می‌گردد.
               </p>
             </div>

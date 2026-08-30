@@ -97,17 +97,17 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
     <div className="space-y-4">
       
       {/* Tab Header Banner */}
-      <div className="glass-card p-4 sm:p-5 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="glass-card p-4 sm:p-5 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-gold-500/30 flex items-center justify-center text-gold-400">
+            <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-gold-500/30 flex items-center justify-center text-amber-700 dark:text-gold-400">
               <Wallet className="w-4 h-4" />
             </div>
-            <h2 className="text-base font-black text-slate-100">
+            <h2 className="text-base font-black text-slate-900 dark:text-slate-100">
               مدیریت موجودی دارایی‌های فعلی (Holdings)
             </h2>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             موجودی طلای فیزیکی و سکه، صندوق‌های بورسی (TSETMC) و ارزهای دیجیتال خود را مدیریت کنید.
           </p>
         </div>
@@ -117,7 +117,7 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
             triggerHaptic('light');
             onNavigateToCalculator();
           }}
-          className="self-stretch sm:self-auto py-2.5 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-gold-400 hover:text-gold-300 border border-gold-500/30 text-xs font-bold flex items-center justify-center gap-1.5 transition-all interactive-tap touch-target"
+          className="self-stretch sm:self-auto py-2.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-amber-700 dark:text-gold-400 hover:text-amber-800 dark:hover:text-gold-300 border border-amber-200 dark:border-gold-500/30 text-xs font-bold flex items-center justify-center gap-1.5 transition-all interactive-tap touch-target"
         >
           <span>مشاهده محاسبات خرید</span>
           <ArrowRight className="w-3.5 h-3.5 rotate-180" />
@@ -144,18 +144,18 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
       />
 
       {/* 2. TSETMC GOLD SECTION */}
-      <div className="p-4 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-950/20 via-slate-900 to-slate-950 border border-gold-500/30 shadow-lg space-y-3.5">
+      <div className="p-4 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/40 dark:from-amber-950/20 dark:via-slate-900 dark:to-slate-950 border border-amber-200 dark:border-gold-500/30 shadow-sm dark:shadow-lg space-y-3.5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-gold-400 flex items-center justify-center font-bold text-lg">
+            <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-gold-400 border border-amber-200 dark:border-gold-500/30 flex items-center justify-center font-bold text-lg">
               📈
             </div>
             <div>
-              <h3 className="text-base font-black text-slate-100">
+              <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
                 موجودی طلای بورسی <span className="gold-gradient-text">(صندوق‌های TSETMC)</span>
               </h3>
-              <p className="text-[11px] text-slate-400">
-                ارزش کل روز: <span className="dir-ltr font-bold text-gold-300">{formatCurrency(totalMarketValueTomans)}</span>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                ارزش کل روز: <span className="dir-ltr font-bold text-amber-700 dark:text-gold-300">{formatCurrency(totalMarketValueTomans)}</span>
               </p>
             </div>
           </div>
@@ -166,7 +166,7 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
                 triggerHaptic('light');
                 onNavigateToMarket();
               }}
-              className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-gold-300 border border-gold-500/40 text-xs font-bold transition-all interactive-tap flex items-center gap-1 shrink-0"
+              className="px-3 py-1.5 rounded-xl bg-amber-100/80 hover:bg-amber-200 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 text-amber-800 dark:text-gold-300 border border-amber-300 dark:border-gold-500/40 text-xs font-bold transition-all interactive-tap flex items-center gap-1 shrink-0"
             >
               <span>پایش قیمت‌های زنده</span>
               <ArrowRight className="w-3.5 h-3.5 rotate-180" />
@@ -179,22 +179,22 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
           {goldItems.map((item) => (
             <div
               key={item.instrument.id}
-              className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-between gap-3"
+              className="p-3.5 rounded-2xl bg-white dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-3 shadow-xs"
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-black text-slate-100 text-sm">{item.instrument.symbol}</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/10 border border-gold-500/30 text-gold-400 font-bold">
+                  <span className="font-black text-slate-900 dark:text-slate-100 text-sm">{item.instrument.symbol}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-500/10 dark:border-gold-500/30 dark:text-gold-400 font-bold">
                     صندوق طلا
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                   موجودی: {item.holding ? `${toPersianDigits(item.holding.quantity)} واحد` : 'ثبت نشده'}
                 </div>
               </div>
 
               <div className="text-left">
-                <div className="text-xs font-black text-gold-400 dir-ltr text-right">
+                <div className="text-xs font-black text-amber-700 dark:text-gold-400 dir-ltr text-right">
                   {item.currentValueTomans
                     ? formatCurrency(item.currentValueTomans, { isTomanSuffix: true })
                     : '۰ ت'}
@@ -211,17 +211,17 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
       </div>
 
       {/* 3. CRYPTO HOLDINGS SECTION */}
-      <div className="glass-card p-4 sm:p-6 border border-slate-800 space-y-3.5">
-        <div className="flex items-center justify-between gap-3 border-b border-slate-800 pb-3">
+      <div className="glass-card p-4 sm:p-6 border border-slate-200 dark:border-slate-800 space-y-3.5">
+        <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
-              <h3 className="text-base font-black text-slate-100">
+              <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
                 موجودی فعلی ارزهای دیجیتال
               </h3>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              مجموع ارزش کریپتو: <span className="dir-ltr font-bold text-indigo-300">{formatCurrency(totalCryptoValue)}</span>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              مجموع ارزش کریپتو: <span className="dir-ltr font-bold text-indigo-700 dark:text-indigo-300">{formatCurrency(totalCryptoValue)}</span>
             </p>
           </div>
 
@@ -246,21 +246,21 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
                 triggerHaptic('light');
                 setEditingAsset(asset);
               }}
-              className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/90 hover:border-indigo-500/50 transition-all flex items-center justify-between gap-3 interactive-tap"
+              className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/90 hover:border-indigo-400 dark:hover:border-indigo-500/50 transition-all flex items-center justify-between gap-3 interactive-tap"
             >
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <span
                   className="w-3.5 h-3.5 rounded-full shrink-0 shadow-sm"
                   style={{ backgroundColor: asset.color }}
                 />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="font-black text-slate-100 text-sm">{asset.symbol}</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-slate-400 font-bold">
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-black text-slate-900 dark:text-slate-100 text-sm leading-none">{asset.symbol}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold leading-none shrink-0">
                       وزن: {toPersianDigits(asset.targetPercent)}%
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-400 truncate">
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pt-0.5">
                     {asset.currentAmount !== undefined && asset.currentAmount > 0
                       ? `${toPersianDigits(asset.currentAmount.toFixed(4))} ${asset.symbol}`
                       : asset.name}
@@ -271,7 +271,7 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
               {/* Balance & Edit Icon */}
               <div className="flex items-center gap-2">
                 <div className="text-left">
-                  <div className="text-xs font-black text-slate-200 dir-ltr text-right">
+                  <div className="text-xs font-black text-slate-900 dark:text-slate-200 dir-ltr text-right">
                     {asset.currentHoldingValue > 0
                       ? formatCurrency(asset.currentHoldingValue, { isTomanSuffix: true })
                       : '0'}
@@ -279,7 +279,7 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
                   {asset.profitPercent !== undefined && (
                     <div
                       className={`text-[10px] font-bold dir-ltr text-right ${
-                        asset.profitPercent >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                        asset.profitPercent >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
                       }`}
                     >
                       {asset.profitPercent >= 0 ? '+' : ''}{formatPercent(asset.profitPercent, 1)}
@@ -292,7 +292,7 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
                   )}
                 </div>
 
-                <div className="p-2 rounded-xl bg-slate-900 text-slate-400">
+                <div className="p-2 rounded-xl bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-transparent">
                   <Edit3 className="w-3.5 h-3.5" />
                 </div>
               </div>

@@ -79,3 +79,34 @@ export const getPersianFormattedDate = (date: Date = new Date()): string => {
     return (date instanceof Date ? date : new Date()).toLocaleDateString();
   }
 };
+
+export const getTodayPersianDate = (): string => {
+  try {
+    const formatted = new Intl.DateTimeFormat('fa-IR-u-nu-latn', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
+    return toEnglishDigits(formatted);
+  } catch {
+    return new Date().toISOString().split('T')[0];
+  }
+};
+
+export const gregorianToPersianDate = (dateString: string): string => {
+  if (!dateString) return '';
+  try {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return dateString;
+    const formatted = new Intl.DateTimeFormat('fa-IR-u-nu-latn', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(d);
+    return toEnglishDigits(formatted);
+  } catch {
+    return dateString;
+  }
+};
+
+

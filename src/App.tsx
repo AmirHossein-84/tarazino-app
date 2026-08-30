@@ -180,7 +180,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 dark:bg-dark-bg text-slate-100 selection:bg-gold-500/30 selection:text-gold-200 pb-[max(7rem,calc(env(safe-area-inset-bottom)+5.5rem))] transition-colors">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-gold-500/30 selection:text-gold-900 dark:selection:text-gold-200 pb-[max(7rem,calc(env(safe-area-inset-bottom)+5.5rem))] transition-colors duration-200">
       
       {/* Top Header */}
       <Header
@@ -364,22 +364,34 @@ const AppContent: React.FC = () => {
       {/* Floating Bottom Navigation */}
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Toast Notification Snackbar */}
+      {/* Toast Notification Snackbar (Bottom-Floating above BottomNav) */}
       {notification && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 animate-bounce duration-300">
+        <div className="fixed bottom-[max(5.25rem,calc(env(safe-area-inset-bottom)+4.5rem))] left-4 right-4 z-50 flex justify-center pointer-events-none animate-toast-slide-up">
           <div
-            className={`px-4 py-2.5 rounded-2xl shadow-2xl backdrop-blur-xl border flex items-center gap-2 text-xs font-bold text-slate-100 ${
+            className={`pointer-events-auto max-w-md px-4 py-3 rounded-2xl shadow-xl dark:shadow-2xl backdrop-blur-xl border flex items-center gap-2.5 text-xs font-bold transition-all ${
               notification.type === 'success'
-                ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-300'
+                ? 'bg-white/95 dark:bg-slate-900/95 border-emerald-500/40 text-emerald-900 dark:text-emerald-300 shadow-emerald-500/10'
                 : notification.type === 'error'
-                ? 'bg-rose-950/90 border-rose-500/50 text-rose-300'
-                : 'bg-slate-900/90 border-slate-700 text-slate-200'
+                ? 'bg-white/95 dark:bg-slate-900/95 border-rose-500/40 text-rose-900 dark:text-rose-300 shadow-rose-500/10'
+                : 'bg-white/95 dark:bg-slate-900/95 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200 shadow-slate-900/10'
             }`}
           >
-            {notification.type === 'success' && <CheckCircle className="w-4 h-4 text-emerald-400" />}
-            {notification.type === 'error' && <AlertCircle className="w-4 h-4 text-rose-400" />}
-            {notification.type === 'info' && <Info className="w-4 h-4 text-indigo-400" />}
-            <span>{notification.message}</span>
+            {notification.type === 'success' && (
+              <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+            )}
+            {notification.type === 'error' && (
+              <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center shrink-0">
+                <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+              </div>
+            )}
+            {notification.type === 'info' && (
+              <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center shrink-0">
+                <Info className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              </div>
+            )}
+            <span className="leading-snug">{notification.message}</span>
           </div>
         </div>
       )}

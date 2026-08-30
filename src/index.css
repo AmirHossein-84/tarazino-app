@@ -8,6 +8,11 @@
     --sab: env(safe-area-inset-bottom, 0px);
     --sal: env(safe-area-inset-left, 0px);
     --sar: env(safe-area-inset-right, 0px);
+    --donut-track: rgba(226, 232, 240, 0.9);
+  }
+
+  .dark {
+    --donut-track: rgba(30, 41, 59, 0.5);
   }
 
   * {
@@ -21,7 +26,7 @@
   }
 
   body {
-    @apply transition-colors duration-200 bg-dark-bg text-slate-100;
+    @apply transition-colors duration-200 bg-slate-100 dark:bg-dark-bg text-slate-900 dark:text-slate-100;
     padding-top: var(--sat);
     padding-bottom: var(--sab);
   }
@@ -35,25 +40,29 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-700/60 rounded-full hover:bg-slate-600;
+    @apply bg-slate-300 hover:bg-slate-400 dark:bg-slate-700/60 dark:hover:bg-slate-600 rounded-full;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-2xl border border-slate-800/90 shadow-xl rounded-3xl transition-all duration-200;
+    @apply bg-white/95 dark:bg-slate-950/80 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800/90 shadow-sm dark:shadow-xl rounded-3xl transition-all duration-200 text-slate-900 dark:text-slate-100;
   }
   
   .glass-card-light {
-    @apply bg-white/95 backdrop-blur-2xl border border-slate-200/90 shadow-md rounded-3xl transition-all duration-200 text-slate-900;
+    @apply bg-white/95 backdrop-blur-2xl border border-slate-200/90 shadow-sm rounded-3xl transition-all duration-200 text-slate-900;
+  }
+
+  .card-well {
+    @apply bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 rounded-2xl transition-all duration-200;
   }
 
   .glass-gold-card {
-    @apply bg-gradient-to-br from-amber-950/30 via-slate-900/90 to-slate-950/95 backdrop-blur-2xl border border-gold-500/40 shadow-xl rounded-3xl transition-all duration-200;
+    @apply bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-white dark:from-amber-950/30 dark:via-slate-900/90 dark:to-slate-950/95 backdrop-blur-2xl border border-amber-500/30 dark:border-gold-500/40 shadow-sm dark:shadow-xl rounded-3xl transition-all duration-200 text-slate-900 dark:text-slate-100;
   }
 
   .gold-gradient-text {
-    @apply bg-gradient-to-r from-amber-200 via-gold-300 to-yellow-500 bg-clip-text text-transparent font-black;
+    @apply bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 dark:from-amber-200 dark:via-gold-300 dark:to-yellow-500 bg-clip-text text-transparent font-black;
   }
 
   .gold-gradient-bg {
@@ -61,7 +70,7 @@
   }
 
   .crypto-gradient-text {
-    @apply bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-400 bg-clip-text text-transparent font-black;
+    @apply bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-300 dark:via-purple-300 dark:to-pink-400 bg-clip-text text-transparent font-black;
   }
 
   .touch-target {
@@ -90,7 +99,7 @@
     appearance: none;
     width: 100%;
     height: 6px;
-    background: #0f172a;
+    @apply bg-slate-200 dark:bg-slate-900;
     border-radius: 9999px;
     outline: none;
     margin: 8px 0;
@@ -105,8 +114,8 @@
     border-radius: 50%;
     background: #eab308;
     cursor: pointer;
-    box-shadow: 0 0 12px rgba(234, 179, 8, 0.6), 0 0 4px rgba(0, 0, 0, 0.4);
-    border: 2px solid #0b0f17;
+    box-shadow: 0 0 12px rgba(234, 179, 8, 0.6), 0 0 4px rgba(0, 0, 0, 0.2);
+    @apply border-2 border-white dark:border-[#0b0f17];
     transition: transform 0.1s ease;
   }
 
@@ -121,7 +130,7 @@
     background: #eab308;
     cursor: pointer;
     box-shadow: 0 0 12px rgba(234, 179, 8, 0.6);
-    border: 2px solid #0b0f17;
+    @apply border-2 border-white dark:border-[#0b0f17];
   }
 }
 

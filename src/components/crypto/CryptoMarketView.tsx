@@ -200,23 +200,23 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
 
         {/* 2. PORTFOLIO P&L SUMMARY BAR */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 space-y-1">
-            <span className="text-[10px] text-slate-400 font-medium block">
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 space-y-1">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block">
               ارزش کل دارایی‌های کریپتو
             </span>
-            <div className="text-sm sm:text-base font-black text-indigo-400 dir-ltr text-right">
+            <div className="text-sm sm:text-base font-black text-indigo-700 dark:text-indigo-400 dir-ltr text-right">
               {formatCurrency(totalCryptoValue)}
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 space-y-1">
-            <span className="text-[10px] text-slate-400 font-medium block">
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 space-y-1">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block">
               سود / زیان کل کریپتو
             </span>
             {totalCryptoProfitTomans !== undefined ? (
               <div
                 className={`text-sm sm:text-base font-black flex items-center gap-1 dir-ltr text-right ${
-                  totalCryptoProfitTomans >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                  totalCryptoProfitTomans >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
                 }`}
               >
                 <span>{totalCryptoProfitTomans >= 0 ? '+' : ''}{formatCurrency(totalCryptoProfitTomans)}</span>
@@ -225,17 +225,17 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                 </span>
               </div>
             ) : (
-              <span className="text-[11px] text-slate-400 font-medium block">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block">
                 {userOwnedAssets.length > 0 ? 'برای محاسبه روی ارزها بزنید' : 'بدون دارایی فعال'}
               </span>
             )}
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 space-y-1 col-span-2 sm:col-span-1">
-            <span className="text-[10px] text-slate-400 font-medium block">
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 space-y-1 col-span-2 sm:col-span-1">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block">
               موجودی نقد نوبیتکس
             </span>
-            <div className="text-sm sm:text-base font-black text-emerald-400 dir-ltr text-right">
+            <div className="text-sm sm:text-base font-black text-emerald-700 dark:text-emerald-400 dir-ltr text-right">
               {formatCurrency(tomanCashBalance)}
             </div>
           </div>
@@ -243,17 +243,17 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
 
         {/* 3. CRYPTO PORTFOLIO DONUT CHART (Above Holdings) */}
         {donutItems.length > 0 && (
-          <div className="p-5 rounded-3xl bg-slate-900/80 border border-indigo-500/30 shadow-xl space-y-4">
+          <div className="p-5 rounded-3xl bg-white dark:bg-slate-900/80 border border-indigo-200 dark:border-indigo-500/30 shadow-md dark:shadow-xl space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
                   <Coins className="w-4 h-4" />
                 </div>
-                <h3 className="text-sm font-black text-slate-100">
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">
                   ترکیب دارایی‌های کریپتو
                 </h3>
               </div>
-              <span className="text-xs font-black text-indigo-400 dir-ltr">
+              <span className="text-xs font-black text-indigo-700 dark:text-indigo-400 dir-ltr">
                 مجموع: {formatCurrency(totalCryptoValue, { isTomanSuffix: true })}
               </span>
             </div>
@@ -270,15 +270,15 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
 
         {/* 4. USER OWNED CRYPTO HOLDINGS WITH PROFIT / LOSS */}
         {userOwnedAssets.length > 0 && (
-          <div className="glass-card p-4 sm:p-5 border border-indigo-500/30 shadow-xl space-y-3.5">
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+          <div className="glass-card p-4 sm:p-5 border border-indigo-200 dark:border-indigo-500/30 shadow-md dark:shadow-xl space-y-3.5">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-2.5">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
-                <h3 className="text-sm font-black text-slate-100">
+                <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 dark:bg-indigo-500" />
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">
                   موجودی و سود/زیان دارایی‌های شما
                 </h3>
               </div>
-              <span className="text-xs font-black text-indigo-300 dir-ltr">
+              <span className="text-xs font-black text-indigo-700 dark:text-indigo-300 dir-ltr">
                 {toPersianDigits(userOwnedAssets.length)} ارز در سبد
               </span>
             </div>
@@ -297,7 +297,7 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                       triggerHaptic('light');
                       setEditingAsset(asset);
                     }}
-                    className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800/90 hover:border-indigo-500/50 transition-all space-y-2.5 cursor-pointer interactive-tap group"
+                    className="p-3.5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/90 hover:border-indigo-400 dark:hover:border-indigo-500/50 transition-all space-y-2.5 cursor-pointer interactive-tap group shadow-sm dark:shadow-md"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -305,14 +305,14 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                           className="w-4 h-4 rounded-full shrink-0 shadow-sm"
                           style={{ backgroundColor: asset.color }}
                         />
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-black text-slate-100 text-sm">{asset.symbol}</span>
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-950 border border-slate-700 text-slate-400 font-bold">
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-black text-slate-900 dark:text-slate-100 text-sm leading-none">{asset.symbol}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold leading-none shrink-0">
                               وزن: {toPersianDigits(asset.targetPercent)}%
                             </span>
                           </div>
-                          <span className="text-[11px] text-slate-400 block truncate mt-0.5">
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate pt-0.5">
                             {asset.currentAmount !== undefined && asset.currentAmount > 0
                               ? `${toPersianDigits(asset.currentAmount.toFixed(4))} ${asset.symbol}`
                               : asset.name}
@@ -325,8 +325,8 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                         <span
                           className={`text-[10px] font-black px-2 py-0.5 rounded-md inline-flex items-center gap-0.5 dir-ltr shrink-0 ${
                             isProfitPositive
-                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                              : 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30'
+                              : 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-500/15 dark:text-rose-400 dark:border-rose-500/30'
                           }`}
                         >
                           {isProfitPositive ? (
@@ -337,26 +337,26 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                           <span>{isProfitPositive ? '+' : ''}{formatPercent(profitPct, 1)}</span>
                         </span>
                       ) : (
-                        <span className="text-[10px] text-indigo-400 font-medium px-2 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 hover:bg-indigo-500/20 shrink-0">
+                        <span className="text-[10px] text-indigo-700 dark:text-indigo-400 font-medium px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 shrink-0">
                           ثبت قیمت خرید ✏️
                         </span>
                       )}
                     </div>
 
                     {/* Pricing & Valuation Details */}
-                    <div className="p-2.5 rounded-xl bg-slate-950/90 border border-slate-800/80 flex items-center justify-between text-xs">
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs">
                       <div>
-                        <span className="text-[10px] text-slate-400 block">ارزش فعلی:</span>
-                        <span className="font-black text-indigo-300 dir-ltr text-right block">
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block">ارزش فعلی:</span>
+                        <span className="font-black text-indigo-700 dark:text-indigo-300 dir-ltr text-right block">
                           {formatCurrency(asset.currentHoldingValue, { isTomanSuffix: true })}
                         </span>
                       </div>
 
                       <div className="text-left">
-                        <span className="text-[10px] text-slate-400 block">
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
                           {asset.averageBuyPrice ? 'میانگین خرید:' : 'نرخ روز:'}
                         </span>
-                        <span className="text-xs font-bold text-slate-200 dir-ltr text-right block">
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 dir-ltr text-right block">
                           {asset.averageBuyPrice
                             ? formatCurrency(asset.averageBuyPrice, { isUnitPrice: true, isTomanSuffix: true })
                             : asset.unitPrice
@@ -368,9 +368,9 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
 
                     {/* Net Profit amount */}
                     {hasProfit && (
-                      <div className="flex items-center justify-between text-[11px] pt-0.5">
-                        <span className="text-slate-400">سود / زیان خالص:</span>
-                        <span className={`font-bold dir-ltr ${isProfitPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      <div className="flex items-center justify-between text-[11px] pt-0.5 border-t border-slate-100 dark:border-slate-800/60">
+                        <span className="text-slate-500 dark:text-slate-400">سود / زیان خالص:</span>
+                        <span className={`font-bold dir-ltr ${isProfitPositive ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
                           {isProfitPositive ? '+' : ''}{formatCurrency(profitVal, { isTomanSuffix: true })}
                         </span>
                       </div>
@@ -388,8 +388,8 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
           {/* Search & Filter */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-indigo-400" />
-              <h3 className="text-sm font-black text-slate-100">
+              <TrendingUp className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">
                 قیمت لحظه‌ای بازار نوبیتکس
               </h3>
             </div>
@@ -407,7 +407,7 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="جستجوی نام یا نماد رمزارز (بیت‌کوین، ETH, SOL...)"
-              className="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 pl-10"
+              className="w-full bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 pl-10"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           </div>
@@ -431,7 +431,7 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                 return (
                   <div
                     key={ticker.symbol}
-                    className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800/90 hover:border-slate-700 transition-all space-y-2"
+                    className="p-3.5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/90 hover:border-indigo-300 dark:hover:border-slate-700 transition-all space-y-2 shadow-sm dark:shadow-md"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -443,7 +443,7 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-bold text-slate-200 block truncate">
+                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block truncate">
                               {ticker.name}
                             </span>
                             <span className="text-[10px] text-slate-500 font-mono">
@@ -451,7 +451,7 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                             </span>
                           </div>
                           {userCoinAmount > 0 && (
-                            <span className="text-[10px] text-emerald-400 font-bold block">
+                            <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold block">
                               موجودی شما: {userCoinAmount} {ticker.symbol.toUpperCase()}
                             </span>
                           )}
@@ -459,7 +459,7 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                       </div>
 
                       <div className="text-left space-y-0.5 shrink-0">
-                        <span className="text-xs font-black text-slate-100 block dir-ltr text-right">
+                        <span className="text-xs font-black text-slate-900 dark:text-slate-100 block dir-ltr text-right">
                           {priceTomans > 0
                             ? formatCurrency(priceTomans, { isUnitPrice: true, isTomanSuffix: true })
                             : 'در حال دریافت...'}
@@ -468,8 +468,8 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                           <span
                             className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md inline-flex items-center gap-0.5 dir-ltr ${
                               isPositive
-                                ? 'bg-emerald-500/15 text-emerald-400'
-                                : 'bg-rose-500/15 text-rose-400'
+                                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400'
+                                : 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400'
                             }`}
                           >
                             {isPositive ? (
@@ -485,12 +485,12 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
 
                     {/* Additional 24h high/low stats if available */}
                     {stat && stat.dayHigh && stat.dayLow && (
-                      <div className="pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
+                      <div className="pt-1.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
                         <span>
-                          کف ۲۴ ساعته: <strong className="text-slate-300 dir-ltr">{formatCurrency(Math.round(parseFloat(stat.dayLow) / 10), { isUnitPrice: true, isTomanSuffix: true })}</strong>
+                          کف ۲۴ ساعته: <strong className="text-slate-700 dark:text-slate-300 dir-ltr">{formatCurrency(Math.round(parseFloat(stat.dayLow) / 10), { isUnitPrice: true, isTomanSuffix: true })}</strong>
                         </span>
                         <span>
-                          سقف ۲۴ ساعته: <strong className="text-slate-300 dir-ltr">{formatCurrency(Math.round(parseFloat(stat.dayHigh) / 10), { isUnitPrice: true, isTomanSuffix: true })}</strong>
+                          سقف ۲۴ ساعته: <strong className="text-slate-700 dark:text-slate-300 dir-ltr">{formatCurrency(Math.round(parseFloat(stat.dayHigh) / 10), { isUnitPrice: true, isTomanSuffix: true })}</strong>
                         </span>
                       </div>
                     )}

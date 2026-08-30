@@ -92,12 +92,12 @@ export const AddMarketInstrumentModal: React.FC<AddMarketInstrumentModalProps> =
     const parsedQty = parseFloat(quantity);
     if (isNaN(parsedQty) || parsedQty <= 0) return;
 
-    const parsedAvgPrice = averageBuyPrice.trim()
+    const avgBuyPriceTomans = averageBuyPrice.trim()
       ? parseNumberInput(averageBuyPrice)
       : undefined;
 
     triggerHaptic('success');
-    onAdd(selectedInstrument, parsedQty, parsedAvgPrice);
+    onAdd(selectedInstrument, parsedQty, avgBuyPriceTomans);
     onClose();
   };
 
@@ -109,7 +109,7 @@ export const AddMarketInstrumentModal: React.FC<AddMarketInstrumentModalProps> =
       <button
         type="button"
         onClick={onClose}
-        className="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all interactive-tap touch-target"
+        className="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all interactive-tap touch-target border border-slate-200 dark:border-slate-700"
       >
         انصراف
       </button>
@@ -121,7 +121,7 @@ export const AddMarketInstrumentModal: React.FC<AddMarketInstrumentModalProps> =
         className={`px-5 py-3 rounded-2xl text-xs font-black transition-all interactive-tap touch-target ${
           selectedInstrument && parseFloat(quantity) > 0
             ? 'bg-gradient-to-r from-amber-400 via-gold-500 to-yellow-500 text-slate-950 shadow-gold-glow'
-            : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+            : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-slate-300 dark:border-slate-700'
         }`}
       >
         افزودن به دارایی‌ها
@@ -135,7 +135,7 @@ export const AddMarketInstrumentModal: React.FC<AddMarketInstrumentModalProps> =
       onClose={onClose}
       title="افزودن صندوق یا سهم جدید به سبد"
       subtitle="جستجو در نمادهای بازار بورس و صندوق‌های طلای TSETMC"
-      icon={<Coins className="w-4 h-4 text-gold-400" />}
+      icon={<Coins className="w-4 h-4 text-amber-700 dark:text-gold-400" />}
       footer={footerActions}
       maxWidth="max-w-lg"
     >
@@ -151,17 +151,17 @@ export const AddMarketInstrumentModal: React.FC<AddMarketInstrumentModalProps> =
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 placeholder="جستجوی نماد یا نام شرکت (عیار، طلا، خودرو...)"
-                className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-gold-400 pl-10"
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-500 dark:focus:border-gold-400 focus:bg-white pl-10"
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                {isSearching ? <Loader2 className="w-4 h-4 animate-spin text-gold-400" /> : <Search className="w-4 h-4" />}
+                {isSearching ? <Loader2 className="w-4 h-4 animate-spin text-amber-600 dark:text-gold-400" /> : <Search className="w-4 h-4" />}
               </div>
             </div>
 
             {/* Popular Gold ETFs Quick Select */}
             {!searchQuery && (
               <div className="space-y-2">
-                <span className="text-[11px] font-bold text-slate-400 block">
+                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400 block">
                   صندوق‌های طلای محبوب بورس:
                 </span>
                 <div className="grid grid-cols-2 gap-2">
@@ -170,17 +170,17 @@ export const AddMarketInstrumentModal: React.FC<AddMarketInstrumentModalProps> =
                       key={inst.symbol}
                       type="button"
                       onClick={() => handleSelectInstrument(inst)}
-                      className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-gold-500/40 text-right transition-all flex items-center justify-between group touch-target"
+                      className="p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/90 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-gold-400/50 dark:hover:border-gold-500/40 text-right transition-all flex items-center justify-between group touch-target"
                     >
                       <div className="min-w-0">
-                        <span className="text-xs font-bold text-gold-400 block truncate">
+                        <span className="text-xs font-bold text-amber-700 dark:text-gold-400 block truncate">
                           {inst.symbol}
                         </span>
-                        <span className="text-[10px] text-slate-400 block truncate">
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
                           {inst.name}
                         </span>
                       </div>
-                      <Plus className="w-3.5 h-3.5 text-slate-500 group-hover:text-gold-400 shrink-0" />
+                      <Plus className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-700 dark:text-slate-500 dark:group-hover:text-gold-400 shrink-0" />
                     </button>
                   ))}
                 </div>
@@ -194,43 +194,43 @@ export const AddMarketInstrumentModal: React.FC<AddMarketInstrumentModalProps> =
                   <div
                     key={inst.insCode || inst.symbol}
                     onClick={() => handleSelectInstrument(inst)}
-                    className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-gold-500/50 cursor-pointer flex items-center justify-between transition-all"
+                    className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/90 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-gold-400/60 dark:hover:border-gold-500/50 cursor-pointer flex items-center justify-between transition-all"
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-slate-100">{inst.symbol}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-gold-400 font-mono">
+                        <span className="text-xs font-black text-slate-900 dark:text-slate-100">{inst.symbol}</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-amber-800 dark:text-gold-400 font-mono">
                           {inst.assetType}
                         </span>
                       </div>
-                      <span className="text-[10px] text-slate-400 block truncate mt-0.5">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate mt-0.5">
                         {inst.name}
                       </span>
                     </div>
-                    <Plus className="w-4 h-4 text-gold-400" />
+                    <Plus className="w-4 h-4 text-amber-700 dark:text-gold-400" />
                   </div>
                 ))}
               </div>
             )}
 
             {searchQuery && !isSearching && searchResults.length === 0 && (
-              <p className="text-xs text-center text-slate-500 py-3">نمادی یافت نشد.</p>
+              <p className="text-xs text-center text-slate-400 dark:text-slate-500 py-3">نمادی یافت نشد.</p>
             )}
           </div>
         ) : (
           /* Step 2: Selected Instrument & Holding Inputs */
           <div className="space-y-3">
-            <div className="p-3 rounded-2xl bg-gold-500/10 border border-gold-500/30 flex items-center justify-between">
+            <div className="p-3 rounded-2xl bg-amber-50 dark:bg-gold-500/10 border border-amber-300 dark:border-gold-500/30 flex items-center justify-between">
               <div>
-                <span className="text-xs font-black text-gold-300 block">
+                <span className="text-xs font-black text-amber-900 dark:text-gold-300 block">
                   {selectedInstrument.name} ({selectedInstrument.symbol})
                 </span>
-                <span className="text-[10px] text-slate-400">کد TSETMC: {selectedInstrument.insCode}</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">کد TSETMC: {selectedInstrument.insCode}</span>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedInstrument(null)}
-                className="text-[11px] text-slate-400 hover:text-rose-400 font-bold"
+                className="text-[11px] text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 font-bold"
               >
                 تغییر نماد
               </button>
@@ -238,8 +238,8 @@ export const AddMarketInstrumentModal: React.FC<AddMarketInstrumentModalProps> =
 
             {/* Quantity */}
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-slate-300 block">
-                تعداد واحدهای خریداری‌شده <span className="text-rose-400">*</span>
+              <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
+                تعداد واحدهای خریداری‌شده <span className="text-rose-500 dark:text-rose-400">*</span>
               </label>
               <input
                 type="number"
@@ -249,13 +249,13 @@ export const AddMarketInstrumentModal: React.FC<AddMarketInstrumentModalProps> =
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 placeholder="مثال: ۲۸۰"
-                className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-sm font-black text-slate-100 placeholder-slate-600 focus:outline-none focus:border-gold-500 dir-ltr text-right font-mono"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-black text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-amber-500 dark:focus:border-gold-500 focus:bg-white dir-ltr text-right font-mono"
               />
             </div>
 
             {/* Optional Average Purchase Price */}
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-slate-300 block">
+              <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
                 میانگین قیمت خرید هر واحد به تومان (اختیاری جهت محاسبه سود/زیان)
               </label>
               <input
@@ -263,10 +263,10 @@ export const AddMarketInstrumentModal: React.FC<AddMarketInstrumentModalProps> =
                 value={averageBuyPrice}
                 onChange={(e) => setAverageBuyPrice(e.target.value)}
                 placeholder="مثال: ۳۵,۰۰۰"
-                className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-xs font-bold text-slate-100 placeholder-slate-600 focus:outline-none focus:border-gold-500 dir-ltr text-right font-mono"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-amber-500 dark:focus:border-gold-500 focus:bg-white dir-ltr text-right font-mono"
               />
               {avgPriceWords && (
-                <div className="px-3 py-1 rounded-xl bg-gold-500/10 text-[10px] font-bold text-gold-300">
+                <div className="px-3 py-1 rounded-xl bg-amber-50 dark:bg-gold-500/10 text-[10px] font-bold text-amber-900 dark:text-gold-300 border border-amber-200 dark:border-gold-500/20">
                   {avgPriceWords}
                 </div>
               )}

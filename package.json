@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "test": "npx --yes tsx tests/run_all_tests.ts",
     "cap:sync": "npm run build && npx cap sync",
     "cap:open": "npx cap open android"
   },

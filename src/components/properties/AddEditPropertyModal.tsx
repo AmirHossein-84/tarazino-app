@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Building2,
   Home,
@@ -15,7 +15,14 @@ import {
   Percent,
 } from 'lucide-react';
 import { PropertyItem, PropertyType } from '../../types/investment';
-import { formatToman, toPersianDigits, parseNumberInput, getPersianFormattedDate } from '../../utils/formatters';
+import {
+  formatToman,
+  toPersianDigits,
+  parseNumberInput,
+  getPersianFormattedDate,
+  getTodayPersianDate,
+  gregorianToPersianDate,
+} from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { BottomSheetModal } from '../common/BottomSheetModal';
 
@@ -43,6 +50,8 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
   usdtRateTomans = 93000,
 }) => {
   const isEditing = !!initialProperty;
+
+  const datePickerRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState('');
   const [type, setType] = useState<PropertyType>('residential');
@@ -126,7 +135,7 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
       <button
         type="button"
         onClick={onClose}
-        className="py-3 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all interactive-tap touch-target"
+        className="py-3 px-5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-all interactive-tap touch-target border border-slate-200 dark:border-slate-700"
       >
         انصراف
       </button>
@@ -147,7 +156,7 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
       onClose={onClose}
       title={isEditing ? 'ویرایش اطلاعات ملک' : 'ثبت ملک و مستغلات جدید'}
       subtitle="مدیریت ارزش‌گذاری و محاسبه در دارایی کل"
-      icon={<Building2 className="w-5 h-5 text-emerald-400" />}
+      icon={<Building2 className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />}
       footer={footerActions}
       maxWidth="max-w-lg"
     >
@@ -155,22 +164,22 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
         
         {/* 1. Title */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-300 block">
-            عنوان یا نام ملک <span className="text-rose-400">*</span>
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+            عنوان یا نام ملک <span className="text-rose-500 dark:text-rose-400">*</span>
           </label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="مثال: آپارتمان مسکونی سعادت‌آباد"
-            className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-slate-100 text-right font-medium text-sm outline-none transition-all placeholder:text-slate-600"
+            className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 focus:bg-white text-slate-900 dark:text-slate-100 text-right font-medium text-sm outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
             autoFocus={!isEditing}
           />
         </div>
 
         {/* 2. Type Selector Chips */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-300 block">نوع کاربری ملک</label>
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">نوع کاربری ملک</label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {PROPERTY_TYPES.map((pt) => {
               const Icon = pt.icon;
@@ -185,11 +194,11 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
                   }}
                   className={`py-2 px-2.5 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all interactive-tap touch-target ${
                     isSelected
-                      ? 'bg-emerald-950/60 border-emerald-500 text-emerald-300 shadow-sm'
-                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:border-emerald-500 dark:text-emerald-300 shadow-sm'
+                      : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-400' : 'text-slate-500'}`} />
+                  <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`} />
                   <span className="truncate">{pt.label}</span>
                 </button>
               );
@@ -200,9 +209,9 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
         {/* 3. Area (Square Meters) */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-300 block">مساحت (متر مربع)</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">مساحت (متر مربع)</label>
             {numArea > 0 && (
-              <span className="text-[11px] font-bold text-emerald-400">
+              <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
                 {toPersianDigits(numArea)} متر مربع
               </span>
             )}
@@ -214,9 +223,9 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
               value={areaSquareMeters}
               onChange={(e) => setAreaSquareMeters(e.target.value)}
               placeholder="مثال: ۱۲۰"
-              className="w-full pl-24 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600 placeholder:text-right placeholder:dir-rtl"
+              className="w-full pl-24 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 focus:bg-white text-slate-900 dark:text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 placeholder:text-right placeholder:dir-rtl"
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 font-bold pointer-events-none">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 font-bold pointer-events-none">
               متر مربع
             </div>
           </div>
@@ -225,9 +234,9 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
         {/* 4. Purchase Price (Toman) */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-300 block">قیمت خرید (تومان)</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">قیمت خرید (تومان)</label>
             {numPurchaseToman > 0 && (
-              <span className="text-[11px] font-bold text-slate-400 dir-rtl">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 dir-rtl">
                 {formatToman(numPurchaseToman)} تومان
               </span>
             )}
@@ -239,9 +248,9 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
               value={purchasePriceToman ? new Intl.NumberFormat('en-US').format(parseNumberInput(purchasePriceToman)) : ''}
               onChange={(e) => setPurchasePriceToman(e.target.value)}
               placeholder="مثال: ۱۰,۰۰۰,۰۰۰,۰۰۰"
-              className="w-full pl-20 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600 placeholder:text-right placeholder:dir-rtl"
+              className="w-full pl-20 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 focus:bg-white text-slate-900 dark:text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 placeholder:text-right placeholder:dir-rtl"
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 font-bold pointer-events-none">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 font-bold pointer-events-none">
               تومان
             </div>
           </div>
@@ -250,11 +259,11 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
         {/* 5. Current Estimated Valuation (Toman) */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-300 block">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
               ارزش روز برآورد شده (تومان)
             </label>
             {numCurrentToman > 0 && (
-              <span className="text-[11px] font-bold text-emerald-400 dir-rtl">
+              <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 dir-rtl">
                 {formatToman(numCurrentToman)} تومان
               </span>
             )}
@@ -266,9 +275,9 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
               value={currentValuationToman ? new Intl.NumberFormat('en-US').format(parseNumberInput(currentValuationToman)) : ''}
               onChange={(e) => setCurrentValuationToman(e.target.value)}
               placeholder="در صورت خالی بودن، معادل قیمت خرید"
-              className="w-full pl-20 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600 placeholder:text-right placeholder:dir-rtl text-xs sm:text-base"
+              className="w-full pl-20 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 focus:bg-white text-slate-900 dark:text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 placeholder:text-right placeholder:dir-rtl text-xs sm:text-base"
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 font-bold pointer-events-none">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 font-bold pointer-events-none">
               تومان
             </div>
           </div>
@@ -276,35 +285,35 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
 
         {/* Live Calculation Preview Card */}
         {numCurrentToman > 0 && (
-          <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-emerald-500/30 space-y-2.5 animate-fadeIn">
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/90 border border-emerald-200 dark:border-emerald-500/30 space-y-2.5 animate-fadeIn">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">قیمت هر متر مربع:</span>
-              <span className="font-bold text-slate-200 dir-ltr">
+              <span className="text-slate-500 dark:text-slate-400">قیمت هر متر مربع:</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200 dir-ltr">
                 {pricePerSqmToman > 0 ? `${formatToman(pricePerSqmToman)} تومان/متر` : '—'}
               </span>
             </div>
 
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">معادل دلاری روز (تتر):</span>
-              <span className="font-bold text-emerald-400 dir-ltr">
+              <span className="text-slate-500 dark:text-slate-400">معادل دلاری روز (تتر):</span>
+              <span className="font-bold text-emerald-700 dark:text-emerald-400 dir-ltr">
                 $ {new Intl.NumberFormat('en-US').format(valuationUsd)}
               </span>
             </div>
 
             {numPurchaseToman > 0 && gainToman !== 0 && (
-              <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-800/80">
-                <span className="text-slate-400">میزان رشد و سود سرمایه:</span>
+              <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-200 dark:border-slate-800/80">
+                <span className="text-slate-500 dark:text-slate-400">میزان رشد و سود سرمایه:</span>
                 <div className="flex items-center gap-1.5 dir-ltr">
                   <span
                     className={`font-black ${
-                      gainToman >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                      gainToman >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
                     }`}
                   >
                     {gainToman >= 0 ? '+' : ''}{formatToman(gainToman)} تومان
                   </span>
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold ${
-                      gainToman >= 0 ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'
+                      gainToman >= 0 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300'
                     }`}
                   >
                     {gainToman >= 0 ? '+' : ''}{toPersianDigits(gainPercent.toFixed(1))}%
@@ -317,38 +326,84 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
 
         {/* 6. Purchase Date */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-300 block">تاریخ خرید یا ثبت</label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">تاریخ خرید یا ثبت</label>
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic('light');
+                setPurchaseDate(getTodayPersianDate());
+              }}
+              className="text-[10px] text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-500/20 transition-colors"
+            >
+              امروز
+            </button>
+          </div>
           <div className="relative flex items-center">
             <input
               type="text"
               value={purchaseDate}
               onChange={(e) => setPurchaseDate(e.target.value)}
-              placeholder="مثال: ۱۴۰۲/۰۸/۱۵"
-              className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-slate-100 text-right font-medium text-xs outline-none transition-all placeholder:text-slate-600"
+              placeholder="مثال: ۱۴۰۳/۰۶/۰۹"
+              className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 focus:bg-white text-slate-900 dark:text-slate-100 text-right font-medium text-xs outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 pl-11"
             />
-            <Calendar className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            {/* Hidden native date picker to support calendar picker popup */}
+            <input
+              type="date"
+              ref={datePickerRef}
+              onChange={(e) => {
+                if (e.target.value) {
+                  triggerHaptic('light');
+                  setPurchaseDate(gregorianToPersianDate(e.target.value));
+                }
+              }}
+              className="sr-only"
+              tabIndex={-1}
+              aria-hidden="true"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic('light');
+                try {
+                  if (datePickerRef.current) {
+                    if (typeof datePickerRef.current.showPicker === 'function') {
+                      datePickerRef.current.showPicker();
+                    } else {
+                      datePickerRef.current.focus();
+                    }
+                  }
+                } catch {
+                  setPurchaseDate(getTodayPersianDate());
+                }
+              }}
+              className="p-2 absolute left-1.5 top-1/2 -translate-y-1/2 rounded-xl text-slate-500 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all touch-target"
+              title="انتخاب از تقویم"
+            >
+              <Calendar className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
         {/* 7. Notes */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-300 block">یادداشت‌ها و مشخصات سند</label>
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">یادداشت‌ها و مشخصات سند</label>
           <textarea
             rows={2}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="مثال: سند ۶ دانگ تک‌برگ، دارای پارکینگ و انباری، در رهن مستاجر..."
-            className="w-full px-4 py-2.5 rounded-2xl bg-slate-950 border border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-slate-100 text-right font-normal text-xs outline-none transition-all placeholder:text-slate-600 resize-none"
+            className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 focus:bg-white text-slate-900 dark:text-slate-100 text-right font-normal text-xs outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 resize-none"
           />
         </div>
 
         {/* 8. Include in Total Net Worth Toggle */}
-        <label className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between cursor-pointer interactive-tap">
+        <label className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between cursor-pointer interactive-tap">
           <div className="space-y-0.5">
-            <span className="text-xs font-bold text-slate-200 block">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
               محاسبه در دارایی کل (Net Worth)
             </span>
-            <span className="text-[10px] text-slate-400 block">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
               در صورت فعال بودن، ارزش این ملک در نمودار و سرجمع دارایی‌های کل نمایش داده می‌شود.
             </span>
           </div>
@@ -356,7 +411,7 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
             type="checkbox"
             checked={includeInTotalNetWorth}
             onChange={(e) => setIncludeInTotalNetWorth(e.target.checked)}
-            className="w-5 h-5 rounded-lg text-emerald-500 bg-slate-900 border-slate-700 focus:ring-0 cursor-pointer shrink-0 mr-3"
+            className="w-5 h-5 rounded-lg text-emerald-600 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 focus:ring-0 cursor-pointer shrink-0 mr-3"
           />
         </label>
 

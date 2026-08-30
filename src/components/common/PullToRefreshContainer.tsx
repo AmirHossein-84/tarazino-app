@@ -99,9 +99,9 @@ export const PullToRefreshContainer: React.FC<PullToRefreshContainerProps> = ({
           opacity: pullDistance > 10 ? Math.min(pullDistance / pullThreshold, 1) : 0,
         }}
       >
-        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/80 text-xs font-bold text-slate-300 shadow-md">
+        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/95 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 text-xs font-bold text-slate-700 dark:text-slate-300 shadow-md">
           <RefreshCw
-            className={`w-3.5 h-3.5 text-gold-400 ${
+            className={`w-3.5 h-3.5 text-amber-600 dark:text-gold-400 ${
               isRefreshing ? 'animate-spin' : ''
             }`}
             style={{

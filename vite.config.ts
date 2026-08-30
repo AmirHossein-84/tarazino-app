@@ -11,8 +11,8 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['icon.svg', 'manifest.json'],
       manifest: {
-        short_name: 'مدیریت سرمایه',
-        name: 'مدیریت سبد سرمایه‌گذاری طلا و کریپتو',
+        short_name: 'ترازینو',
+        name: 'ترازینو (Tarazino) | مدیریت هوشمند سبد سرمایه‌گذاری',
         icons: [
           {
             src: '/icon.svg',

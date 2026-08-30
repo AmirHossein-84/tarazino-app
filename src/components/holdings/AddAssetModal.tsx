@@ -56,7 +56,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({
       <button
         type="button"
         onClick={onClose}
-        className="py-3 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-all interactive-tap touch-target text-xs"
+        className="py-3 px-5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold transition-all interactive-tap touch-target text-xs border border-slate-200 dark:border-slate-700"
       >
         انصراف
       </button>
@@ -77,15 +77,15 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({
       onClose={onClose}
       title="افزودن ارز دیجیتال جدید"
       subtitle="تعریف نماد، نام و درصد هدف در سبد سرمایه‌گذاری"
-      icon={<Plus className="w-4 h-4 text-indigo-400" />}
+      icon={<Plus className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
       footer={footerActions}
       maxWidth="max-w-md"
     >
       <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
         {/* Symbol */}
         <div>
-          <label className="block text-slate-300 font-bold mb-1.5">
-            نماد ارز (Symbol) <span className="text-rose-400">*</span>
+          <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">
+            نماد ارز (Symbol) <span className="text-rose-500 dark:text-rose-400">*</span>
           </label>
           <input
             type="text"
@@ -94,13 +94,13 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({
             placeholder="مثلاً SOL, TON, AVAX"
             value={symbol}
             onChange={(e) => setSymbol(e.target.value.toUpperCase())}
-            className="w-full bg-slate-950 border border-slate-700/80 rounded-2xl px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 uppercase dir-ltr font-black text-base"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:bg-white uppercase dir-ltr font-black text-base"
           />
         </div>
 
         {/* Name */}
         <div>
-          <label className="block text-slate-300 font-bold mb-1.5">
+          <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">
             نام کامل ارز (اختیاری)
           </label>
           <input
@@ -108,14 +108,14 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({
             placeholder="مثلاً سولانا (Solana)"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-700/80 rounded-2xl px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-medium"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           {/* Target Percentage */}
           <div>
-            <label className="block text-slate-300 font-bold mb-1.5">
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">
               درصد هدف از سبد (٪)
             </label>
             <input
@@ -125,13 +125,13 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({
               step="0.5"
               value={targetPercent}
               onChange={(e) => setTargetPercent(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700/80 rounded-2xl px-4 py-3 text-slate-100 dir-ltr font-black text-sm"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-indigo-500 focus:bg-white dir-ltr font-black text-sm"
             />
           </div>
 
           {/* Initial Holding Value */}
           <div>
-            <label className="block text-slate-300 font-bold mb-1.5">
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">
               موجودی فعلی (تومان)
             </label>
             <input
@@ -139,14 +139,14 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({
               placeholder="مثلاً ۵۰۰,۰۰۰"
               value={currentHoldingValue}
               onChange={(e) => setCurrentHoldingValue(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700/80 rounded-2xl px-4 py-3 text-slate-100 placeholder-slate-600 dir-ltr font-bold text-sm"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:bg-white dir-ltr font-bold text-sm"
             />
           </div>
         </div>
 
         {/* Color Selection */}
         <div>
-          <label className="block text-slate-300 font-bold mb-1.5">
+          <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">
             رنگ شناسه ارز
           </label>
           <div className="flex flex-wrap gap-2 pt-1">
@@ -159,7 +159,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({
                   setColor(c);
                 }}
                 className={`w-7 h-7 rounded-full transition-transform cursor-pointer ${
-                  color === c ? 'scale-125 ring-2 ring-white shadow-lg' : 'opacity-70 hover:opacity-100'
+                  color === c ? 'scale-125 ring-2 ring-indigo-500 shadow-lg' : 'opacity-70 hover:opacity-100'
                 }`}
                 style={{ backgroundColor: c }}
               />

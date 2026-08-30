@@ -68,7 +68,7 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
       <button
         type="button"
         onClick={onClose}
-        className="py-3 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all interactive-tap touch-target"
+        className="py-3 px-5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-all interactive-tap touch-target border border-slate-200 dark:border-slate-700"
       >
         انصراف
       </button>
@@ -97,11 +97,11 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
         {/* Quantity / Weight Input */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-300 block">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
               مقدار موجودی ({item.unit})
             </label>
             {numQty > 0 && (
-              <span className="text-[11px] font-bold text-gold-400">
+              <span className="text-[11px] font-bold text-amber-700 dark:text-gold-400">
                 {toPersianDigits(numQty)} {item.unit}
               </span>
             )}
@@ -115,10 +115,10 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               placeholder={item.unit === 'گرم' ? 'مثلاً ۱۲.۵' : 'مثلاً ۲'}
-              className="w-full pl-16 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-gold-500/80 focus:ring-1 focus:ring-gold-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-full pl-16 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/80 focus:bg-white text-slate-900 dark:text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               autoFocus
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-gold-400 font-bold pointer-events-none">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs text-amber-700 dark:text-gold-400 font-bold pointer-events-none">
               {item.unit}
             </div>
           </div>
@@ -127,11 +127,11 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
         {/* Average Buy Price (Cost Basis) */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-300 block">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
               میانگین قیمت خرید هر {item.unit} (تومان) - اختیاری
             </label>
             {numAvgCost > 0 && (
-              <span className="text-[11px] font-bold text-slate-400 dir-rtl">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 dir-rtl">
                 {formatToman(numAvgCost)} تومان
               </span>
             )}
@@ -144,9 +144,9 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
               value={averageBuyPrice ? new Intl.NumberFormat('en-US').format(parseNumberInput(averageBuyPrice)) : ''}
               onChange={(e) => setAverageBuyPrice(e.target.value)}
               placeholder="جهت محاسبه سود/زیان لحظه‌ای"
-              className="w-full pl-16 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-gold-500/80 focus:ring-1 focus:ring-gold-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600"
+              className="w-full pl-16 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/80 focus:bg-white text-slate-900 dark:text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 font-bold pointer-events-none">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 font-bold pointer-events-none">
               تومان
             </div>
           </div>
@@ -155,14 +155,14 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
         {/* Unit Price Input */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-300 block">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
               نرخ روز هر {item.unit} (تومان)
             </label>
             {isCustomPrice && (
               <button
                 type="button"
                 onClick={handleResetToLive}
-                className="text-[11px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-bold transition-colors"
+                className="text-[11px] text-amber-700 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300 flex items-center gap-1 font-bold transition-colors"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>بازگشت به نرخ زنده بازار</span>
@@ -180,9 +180,9 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
                 setIsCustomPrice(true);
               }}
               placeholder="در انتظار دریافت نرخ زنده..."
-              className="w-full pl-16 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 focus:border-gold-500/80 focus:ring-1 focus:ring-gold-500/80 text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-full pl-16 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/80 focus:bg-white text-slate-900 dark:text-slate-100 text-left dir-ltr font-bold text-base outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 font-bold pointer-events-none">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 font-bold pointer-events-none">
               تومان
             </div>
           </div>
@@ -197,7 +197,7 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
                 : '⏳ در انتظار دریافت نرخ زنده...'}
             </span>
             {numPrice > 0 && (
-              <span className="text-slate-300 font-bold dir-rtl">
+              <span className="text-slate-800 dark:text-slate-300 font-bold dir-rtl">
                 {formatToman(numPrice)} تومان
               </span>
             )}
@@ -205,28 +205,28 @@ export const EditPhysicalGoldModal: React.FC<EditPhysicalGoldModalProps> = ({
         </div>
 
         {/* Value & PnL Preview Box */}
-        <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-gold-500/30 space-y-2">
+        <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-amber-200 dark:border-gold-500/30 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400">ارزش روز این دارایی:</span>
-            <div className="text-sm font-black text-gold-400">
-              {formatToman(totalVal)} <span className="text-xs text-slate-400 font-normal">تومان</span>
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">ارزش روز این دارایی:</span>
+            <div className="text-sm font-black text-amber-700 dark:text-gold-400">
+              {formatToman(totalVal)} <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">تومان</span>
             </div>
           </div>
 
           {numAvgCost > 0 && numQty > 0 && (
-            <div className="flex items-center justify-between text-xs pt-1.5 border-t border-slate-800">
-              <span className="text-slate-400">سود/زیان برآورد شده:</span>
+            <div className="flex items-center justify-between text-xs pt-1.5 border-t border-slate-200 dark:border-slate-800">
+              <span className="text-slate-500 dark:text-slate-400">سود/زیان برآورد شده:</span>
               <div className="flex items-center gap-1.5 dir-ltr">
                 <span
                   className={`font-black ${
-                    unrealizedProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                    unrealizedProfit >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
                   }`}
                 >
                   {unrealizedProfit >= 0 ? '+' : ''}{formatToman(unrealizedProfit)} تومان
                 </span>
                 <span
                   className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
-                    unrealizedProfit >= 0 ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'
+                    unrealizedProfit >= 0 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300'
                   }`}
                 >
                   {unrealizedProfit >= 0 ? '+' : ''}{toPersianDigits(unrealizedProfitPercent.toFixed(1))}%

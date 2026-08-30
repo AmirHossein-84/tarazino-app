@@ -38,23 +38,20 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="relative w-10 h-10 rounded-2xl flex items-center justify-center">
             <img
               src="/favicon.png"
-              alt="لوگوی مدیریت سرمایه"
+              alt="لوگوی ترازینو"
               className="w-full h-full object-cover rounded-2xl"
             />
-            <span className="absolute -top-1 -right-1 flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-            </span>
           </div>
 
           <div>
             <div className="flex items-center gap-1.5">
               <h1 className="text-base font-black tracking-tight text-slate-900 dark:text-slate-100">
-                مدیریت سبد <span className="gold-gradient-text">طلا و کریپتو</span>
+                <span className="gold-gradient-text font-black text-lg">ترازینو</span>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 font-mono tracking-wider">(Tarazino)</span>
               </h1>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              {todayPersian}
+              مدیریت سبد طلا و کریپتو • {todayPersian}
             </p>
           </div>
         </div>
@@ -68,8 +65,8 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={handleToggleCurrency}
               className={`px-3 py-2 rounded-2xl border text-xs font-black transition-all flex items-center gap-1.5 interactive-tap touch-target shadow-sm ${
                 currencyMode === 'usd'
-                  ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/50 hover:bg-emerald-900/80 shadow-emerald-500/10'
-                  : 'bg-slate-100 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-800 hover:text-gold-500 dark:hover:text-gold-300 hover:border-gold-500/40'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-950/90 dark:text-emerald-300 dark:border-emerald-500/50 dark:hover:bg-emerald-900/80 shadow-emerald-500/10'
+                  : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:text-gold-600 dark:hover:text-gold-300 hover:border-gold-500/40'
               }`}
               title={currencyMode === 'usd' ? 'تغییر نمایش کل اپلیکیشن به تومان' : 'تغییر نمایش کل اپلیکیشن به دلار ($)'}
             >
@@ -80,7 +77,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </>
               ) : (
                 <>
-                  <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                  <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>دلار ($)</span>
                 </>
               )}
@@ -90,13 +87,13 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Theme Toggle Button */}
           <button
             onClick={handleToggleTheme}
-            className="p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-gold-500 dark:hover:text-gold-400 transition-all interactive-tap touch-target"
+            className="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-gold-600 dark:hover:text-gold-400 transition-all interactive-tap touch-target shadow-sm"
             aria-label="تغییر تم"
           >
             {isDark ? (
               <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform" />
             ) : (
-              <Moon className="w-4 h-4 text-indigo-600" />
+              <Moon className="w-4 h-4 text-indigo-600 hover:-rotate-12 transition-transform" />
             )}
           </button>
 

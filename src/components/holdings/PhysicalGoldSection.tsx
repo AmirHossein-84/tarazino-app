@@ -94,20 +94,20 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
     : items.slice(0, 2);
 
   return (
-    <div className="p-4 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-950/30 via-slate-900 to-slate-950 border border-gold-500/40 shadow-xl space-y-4">
+    <div className="p-4 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/40 dark:from-amber-950/30 dark:via-slate-900 dark:to-slate-950 border border-amber-200 dark:border-gold-500/40 shadow-sm dark:shadow-xl space-y-4">
       
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-gold-400 flex items-center justify-center font-bold text-lg border border-gold-500/30">
+          <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-gold-400 flex items-center justify-center font-bold text-lg border border-amber-200 dark:border-gold-500/30">
             🥇
           </div>
           <div>
-            <h3 className="text-base font-black text-slate-100">
-              طلای فیزیکی و مسکوکات <span className="text-xs text-gold-400 font-bold">(نرخ زنده)</span>
+            <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
+              طلای فیزیکی و مسکوکات <span className="text-xs text-amber-700 dark:text-gold-400 font-bold">(نرخ زنده)</span>
             </h3>
-            <p className="text-[11px] text-slate-400">
-              ارزش کل: <span className="text-gold-300 font-black dir-ltr">{formatCurrency(totalValueTomans)}</span> (محاسبه در سهم ۸۰٪ طلا)
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              ارزش کل: <span className="text-amber-700 dark:text-gold-300 font-black dir-ltr">{formatCurrency(totalValueTomans)}</span> (محاسبه در سهم ۸۰٪ طلا)
             </p>
           </div>
         </div>
@@ -121,13 +121,13 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
               triggerHaptic('light');
               setIsHistoryOpen(true);
             }}
-            className="py-2 px-3 rounded-2xl bg-slate-900/90 hover:bg-slate-850 border border-slate-700/80 text-slate-300 hover:text-amber-300 text-xs font-bold transition-all flex items-center gap-1.5 interactive-tap touch-target"
+            className="py-2 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-700/80 text-slate-700 hover:text-amber-800 dark:text-slate-300 dark:hover:text-amber-300 text-xs font-bold transition-all flex items-center gap-1.5 interactive-tap touch-target"
             title="دفتر کل سوابق و سود/زیان فروش طلا"
           >
-            <History className="w-3.5 h-3.5 text-amber-400" />
+            <History className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
             <span>سوابق فروش</span>
             {physicalGoldSales.length > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-gold-300 text-[10px] font-bold">
+              <span className="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-gold-300 text-[10px] font-bold">
                 {toPersianDigits(physicalGoldSales.length)}
               </span>
             )}
@@ -153,30 +153,30 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="p-2.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-gold-300 border border-slate-700/80 transition-all touch-target"
+            className="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/80 dark:hover:bg-slate-800 text-slate-700 hover:text-amber-800 dark:text-slate-300 dark:hover:text-gold-300 border border-slate-200 dark:border-slate-700/80 transition-all touch-target"
             title="به‌روزرسانی قیمت‌های طلا و سکه"
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-gold-400' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-amber-700 dark:text-gold-400' : ''}`} />
           </button>
         </div>
       </div>
 
       {/* Aggregate Physical Gold P&L Banner (if cost basis exists) */}
       {totalPnl.hasAnyCostBasis && (
-        <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-amber-500/30 flex items-center justify-between gap-2 text-xs">
+        <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-amber-200 dark:border-amber-500/30 flex items-center justify-between gap-2 text-xs">
           <div className="space-y-0.5">
-            <span className="text-[10px] text-slate-400 block">بهای تمام‌شده کل طلا:</span>
-            <span className="font-bold text-slate-200 dir-ltr text-right block">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block">بهای تمام‌شده کل طلا:</span>
+            <span className="font-bold text-slate-900 dark:text-slate-200 dir-ltr text-right block">
               {formatCurrency(totalPnl.totalCostBasisTomans)}
             </span>
           </div>
 
           <div className="text-left space-y-0.5">
-            <span className="text-[10px] text-slate-400 block">سود/زیان برآوردشده لحظه‌ای:</span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block">سود/زیان برآوردشده لحظه‌ای:</span>
             <div className="flex items-center gap-1.5 dir-ltr justify-end">
               <span
                 className={`font-black ${
-                  totalPnl.totalUnrealizedProfitTomans >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                  totalPnl.totalUnrealizedProfitTomans >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
                 }`}
               >
                 {totalPnl.totalUnrealizedProfitTomans >= 0 ? '+' : ''}
@@ -185,8 +185,8 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
               <span
                 className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
                   totalPnl.totalUnrealizedProfitTomans >= 0
-                    ? 'bg-emerald-500/15 text-emerald-300'
-                    : 'bg-rose-500/15 text-rose-300'
+                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
+                    : 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300'
                 }`}
               >
                 {totalPnl.totalUnrealizedProfitTomans >= 0 ? '+' : ''}
@@ -199,13 +199,13 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
 
       {/* Smart Warning Banner: Network / VPN Issue */}
       {(isGoldFetchError || !hasAnyPrice) && (
-        <div className="p-3.5 rounded-2xl bg-amber-950/60 border border-amber-500/40 flex items-start gap-3 text-xs text-amber-200 animate-fadeIn">
-          <WifiOff className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+        <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-500/40 flex items-start gap-3 text-xs text-amber-900 dark:text-amber-200 animate-fadeIn">
+          <WifiOff className="w-5 h-5 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <span className="font-black block text-amber-300">
+            <span className="font-black block text-amber-950 dark:text-amber-300">
               عدم امکان استعلام قیمت‌های روز طلا و سکه
             </span>
-            <p className="text-[11px] text-amber-200/90 leading-relaxed">
+            <p className="text-[11px] text-amber-800/90 dark:text-amber-200/90 leading-relaxed">
               لطفاً اتصال اینترنت خود را بررسی نمایید. وب‌سرویس‌های شبکه اطلاع‌رسانی طلا (TGJU) سرورهای داخلی هستند؛ بنابراین در صورت روشن بودن <strong>فیلترشکن (VPN)</strong>، آن را خاموش کرده و دکمه به‌روزرسانی 🔄 را بزنید.
             </p>
           </div>
@@ -227,8 +227,8 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
               key={item.id}
               className={`p-3.5 rounded-2xl border transition-all space-y-2.5 ${
                 hasHolding
-                  ? 'bg-slate-950/90 border-gold-500/40 hover:border-gold-500/70 shadow-lg'
-                  : 'bg-slate-950/50 border-slate-800/80 hover:border-slate-700 opacity-85 hover:opacity-100'
+                  ? 'bg-white dark:bg-slate-950/90 border-amber-300 dark:border-gold-500/40 hover:border-amber-400 dark:hover:border-gold-500/70 shadow-xs dark:shadow-lg'
+                  : 'bg-slate-50/80 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 opacity-90 hover:opacity-100'
               }`}
             >
               {/* Card Header: Title + Price Change */}
@@ -240,23 +240,23 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
                   }}
                   className="cursor-pointer flex-1"
                 >
-                  <h4 className="text-xs sm:text-sm font-black text-slate-100 flex items-center gap-1.5">
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                     <span>{item.id.startsWith('coin_') ? '🪙' : '✨'}</span>
                     <span>{item.title}</span>
                     {itemPnl.lotsCount > 0 && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-amber-500/15 text-gold-400 font-bold">
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-500/15 dark:text-gold-400 font-bold">
                         {toPersianDigits(itemPnl.lotsCount)} پله خرید
                       </span>
                     )}
                   </h4>
-                  <div className="text-[11px] text-slate-400 mt-0.5">
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     نرخ هر {item.unit}:{' '}
                     {hasPrice ? (
-                      <span className="font-bold text-slate-200 dir-ltr">
+                      <span className="font-bold text-slate-800 dark:text-slate-200 dir-ltr">
                         {formatCurrency(item.unitPriceTomans, { isUnitPrice: true, isTomanSuffix: true })}
                       </span>
                     ) : (
-                      <span className="text-amber-400 font-medium text-[10px]">در انتظار دریافت نرخ...</span>
+                      <span className="text-amber-700 dark:text-amber-400 font-medium text-[10px]">در انتظار دریافت نرخ...</span>
                     )}
                   </div>
                 </div>
@@ -266,8 +266,8 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
                     <span
                       className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md inline-flex items-center gap-0.5 dir-ltr ${
                         isPositive
-                          ? 'bg-emerald-500/15 text-emerald-400'
-                          : 'bg-rose-500/15 text-rose-400'
+                          ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400'
+                          : 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400'
                       }`}
                     >
                       {isPositive ? (
@@ -285,7 +285,7 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
                       triggerHaptic('light');
                       setSelectedItem(item);
                     }}
-                    className="p-1.5 rounded-xl text-slate-500 hover:text-gold-400 hover:bg-slate-900 transition-all touch-target"
+                    className="p-1.5 rounded-xl text-slate-400 hover:text-amber-700 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-gold-400 dark:hover:bg-slate-900 transition-all touch-target"
                     title="ویرایش موجودی"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
@@ -294,17 +294,17 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
               </div>
 
               {/* Card Bottom: Quantity & Total Value */}
-              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800/80 flex items-center justify-between text-xs">
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-[10px] text-slate-400 block">موجودی:</span>
-                  <span className="font-black text-slate-200">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 block">موجودی:</span>
+                  <span className="font-black text-slate-900 dark:text-slate-200">
                     {hasHolding ? `${toPersianDigits(item.quantity)} ${item.unit}` : 'صفر'}
                   </span>
                 </div>
 
                 <div className="text-left">
-                  <span className="text-[10px] text-slate-400 block">ارزش کل:</span>
-                  <span className="font-black text-gold-400 dir-ltr">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 block">ارزش کل:</span>
+                  <span className="font-black text-amber-700 dark:text-gold-400 dir-ltr">
                     {hasPrice ? formatCurrency(itemTotalVal, { isTomanSuffix: true }) : '—'}
                   </span>
                 </div>
@@ -312,20 +312,20 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
 
               {/* P&L & Cost Basis Row if Available */}
               {hasHolding && itemPnl.hasCostBasis && (
-                <div className="p-2 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-between text-[11px]">
+                <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-[11px]">
                   <div>
-                    <span className="text-[10px] text-slate-400 block">بهای خرید:</span>
-                    <span className="font-bold text-slate-300 dir-ltr">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block">بهای خرید:</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-300 dir-ltr">
                       {formatCurrency(itemPnl.totalCostBasisTomans, { isTomanSuffix: true })}
                     </span>
                   </div>
 
                   <div className="text-left">
-                    <span className="text-[10px] text-slate-400 block">سود/زیان برآورد:</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block">سود/زیان برآورد:</span>
                     <div className="flex items-center gap-1 dir-ltr justify-end">
                       <span
                         className={`font-black ${
-                          itemPnl.unrealizedProfitTomans >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                          itemPnl.unrealizedProfitTomans >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
                         }`}
                       >
                         {itemPnl.unrealizedProfitTomans >= 0 ? '+' : ''}
@@ -334,8 +334,8 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
                       <span
                         className={`text-[9px] px-1 py-0.5 rounded font-bold ${
                           itemPnl.unrealizedProfitTomans >= 0
-                            ? 'bg-emerald-500/15 text-emerald-300'
-                            : 'bg-rose-500/15 text-rose-300'
+                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
+                            : 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300'
                         }`}
                       >
                         {itemPnl.unrealizedProfitTomans >= 0 ? '+' : ''}
@@ -356,7 +356,7 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
                       setSelectedLotGoldType(item.id);
                       setIsAddLotOpen(true);
                     }}
-                    className="text-[10px] font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-slate-900 transition-colors"
+                    className="text-[10px] font-bold text-amber-700 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300 flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
                   >
                     <Plus className="w-3 h-3" />
                     <span>ثبت خرید جدید</span>
@@ -377,7 +377,7 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
             triggerHaptic('light');
             setShowAllItems(true);
           }}
-          className="w-full py-2.5 px-3 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-xs font-bold text-gold-400 hover:text-gold-300 transition-all flex items-center justify-center gap-1.5 interactive-tap"
+          className="w-full py-2.5 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-xs font-bold text-amber-700 hover:text-amber-800 dark:text-gold-400 dark:hover:text-gold-300 transition-all flex items-center justify-center gap-1.5 interactive-tap"
         >
           <ChevronDown className="w-4 h-4" />
           <span>
@@ -394,7 +394,7 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
             triggerHaptic('light');
             setShowAllItems(false);
           }}
-          className="w-full py-2 px-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800 text-[11px] font-medium transition-all flex items-center justify-center gap-1 interactive-tap"
+          className="w-full py-2 px-3 rounded-2xl bg-slate-100/60 hover:bg-slate-100 dark:bg-slate-900/40 dark:hover:bg-slate-900 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800 text-[11px] font-medium transition-all flex items-center justify-center gap-1 interactive-tap"
         >
           <ChevronUp className="w-3.5 h-3.5" />
           <span>نمایش فشرده</span>

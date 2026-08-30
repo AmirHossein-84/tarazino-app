@@ -153,22 +153,22 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
     <div className="space-y-4 pb-24">
       
       {/* 1. TOP-LEVEL SAVINGS PERCENTAGE (30% DEFAULT) */}
-      <div className="glass-card p-4 sm:p-5 border border-slate-800 space-y-3.5">
+      <div className="glass-card p-4 sm:p-5 border border-slate-200 dark:border-slate-800 space-y-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold text-sm">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold text-sm">
               <Percent className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-slate-100">
+              <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">
                 درصد کل پس‌انداز از سرمایه ورودی
               </h3>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 سهم کل پس‌انداز ماهانه (پیش‌فرض: ۳۰٪)
               </p>
             </div>
           </div>
-          <span className="text-lg font-black text-emerald-400">
+          <span className="text-lg font-black text-emerald-700 dark:text-emerald-400">
             {formatPercent(settings.savingsPercent)}
           </span>
         </div>
@@ -185,8 +185,8 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
               }}
               className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 settings.savingsPercent === pct
-                  ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
-                  : 'bg-slate-900/90 text-slate-400 hover:text-slate-200 border border-slate-800'
+                  ? 'bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 shadow-xs font-black'
+                  : 'bg-slate-100 dark:bg-slate-900/90 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800'
               }`}
             >
               {toPersianDigits(pct)}٪
@@ -206,26 +206,26 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
             className="custom-range-slider"
             style={{ accentColor: '#10B981' }}
           />
-          <div className="flex justify-between text-[10px] text-slate-500 font-medium">
+          <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 font-medium">
             <span>۵٪ (حداقل)</span>
-            <span className="text-emerald-400 font-bold">۳۰٪ (پیشنهادی)</span>
+            <span className="text-emerald-700 dark:text-emerald-400 font-bold">۳۰٪ (پیشنهادی)</span>
             <span>۱۰۰٪ (کل مبلغ)</span>
           </div>
         </div>
       </div>
 
       {/* 2. GOLD VS CRYPTO SPLIT (80% / 20% DEFAULT) */}
-      <div className="glass-card p-4 sm:p-5 border border-slate-800 space-y-3.5">
+      <div className="glass-card p-4 sm:p-5 border border-slate-200 dark:border-slate-800 space-y-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-gold-400 flex items-center justify-center font-bold text-sm">
+            <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-gold-400 flex items-center justify-center font-bold text-sm">
               <Scale className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-slate-100">
+              <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">
                 نسبت تقسیم پس‌انداز بین طلا و کریپتو
               </h3>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 تقسیم مبلغ پس‌انداز (پیش‌فرض: ۸۰٪ طلا و ۲۰٪ رمزارزها)
               </p>
             </div>
@@ -234,15 +234,15 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
 
         {/* Ratio Badges */}
         <div className="grid grid-cols-2 gap-2.5">
-          <div className="p-3 rounded-2xl bg-amber-500/10 border border-gold-500/30 flex items-center justify-between">
-            <span className="text-xs text-slate-300 font-bold">سهم طلا:</span>
-            <span className="text-sm font-black text-gold-400">
+          <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-gold-500/30 flex items-center justify-between">
+            <span className="text-xs text-slate-700 dark:text-slate-300 font-bold">سهم طلا:</span>
+            <span className="text-sm font-black text-amber-700 dark:text-gold-400">
               {formatPercent(settings.goldPercent)}
             </span>
           </div>
-          <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-between">
-            <span className="text-xs text-slate-300 font-bold">سهم رمزارزها:</span>
-            <span className="text-sm font-black text-indigo-400">
+          <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-between">
+            <span className="text-xs text-slate-700 dark:text-slate-300 font-bold">سهم رمزارزها:</span>
+            <span className="text-sm font-black text-indigo-700 dark:text-indigo-400">
               {formatPercent(settings.cryptoPercent)}
             </span>
           </div>
@@ -265,15 +265,15 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
               }}
               className={`py-2 px-1 rounded-2xl text-center transition-all interactive-tap touch-target border ${
                 settings.goldPercent === preset.gold
-                  ? 'bg-gradient-to-r from-amber-500 to-gold-400 text-slate-950 border-gold-400 shadow-md font-black'
-                  : 'bg-slate-900/90 text-slate-300 hover:text-slate-100 border-slate-800 hover:border-slate-700'
+                  ? 'bg-gradient-to-r from-amber-400 to-amber-500 dark:from-amber-500 dark:to-gold-400 text-slate-950 border-amber-500 dark:border-gold-400 shadow-xs font-black'
+                  : 'bg-slate-100 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
               }`}
             >
               <div className="text-xs font-black dir-ltr text-center">
                 {preset.label}
               </div>
               <div className={`text-[9px] mt-0.5 font-medium ${
-                settings.goldPercent === preset.gold ? 'text-slate-950' : 'text-slate-400'
+                settings.goldPercent === preset.gold ? 'text-slate-950' : 'text-slate-500 dark:text-slate-400'
               }`}>
                 {preset.sub}
               </div>
@@ -293,9 +293,9 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
             className="custom-range-slider"
             style={{ accentColor: '#D4AF37' }}
           />
-          <div className="flex justify-between text-[10px] text-slate-500 font-medium">
+          <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 font-medium">
             <span>۰٪ طلا / ۱۰۰٪ کریپتو</span>
-            <span className="text-gold-400 font-bold">۸۰٪ طلا / ۲۰٪ کریپتو</span>
+            <span className="text-amber-700 dark:text-gold-400 font-bold">۸۰٪ طلا / ۲۰٪ کریپتو</span>
             <span>۱۰۰٪ طلا / ۰٪ کریپتو</span>
           </div>
         </div>
@@ -309,12 +309,12 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
       />
 
       {/* 4. CALCULATION ENGINE MODE */}
-      <div className="glass-card p-4 sm:p-5 border border-slate-800 space-y-3.5">
+      <div className="glass-card p-4 sm:p-5 border border-slate-200 dark:border-slate-800 space-y-3.5">
         <div>
-          <h3 className="text-sm font-black text-slate-100 mb-0.5">
+          <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 mb-0.5">
             الگوریتم و نحوه محاسبه خرید
           </h3>
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
             انتخاب نحوه تخصیص سرمایه جدید بر اساس سبد فعلی شما
           </p>
         </div>
@@ -328,22 +328,22 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
             }}
             className={`p-3.5 rounded-2xl border transition-all interactive-tap ${
               settings.calculationMode === 'rebalance'
-                ? 'bg-amber-500/15 border-gold-500/50'
-                : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                ? 'bg-amber-50 dark:bg-amber-500/15 border-amber-300 dark:border-gold-500/50'
+                : 'bg-slate-50 dark:bg-slate-950/70 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
             }`}
           >
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-2">
-                <RefreshCw className="w-4 h-4 text-gold-400" />
-                <span className="font-black text-xs text-slate-100">
+                <RefreshCw className="w-4 h-4 text-amber-700 dark:text-gold-400" />
+                <span className="font-black text-xs text-slate-900 dark:text-slate-100">
                   توازن هوشمند سبد (پیشنهادی)
                 </span>
               </div>
               {settings.calculationMode === 'rebalance' && (
-                <CheckCircle2 className="w-4 h-4 text-gold-400" />
+                <CheckCircle2 className="w-4 h-4 text-amber-700 dark:text-gold-400" />
               )}
             </div>
-            <p className="text-[10px] text-slate-400 leading-relaxed">
+            <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
               خریدهای جدید طوری تقسیم می‌شوند که کل سبد (دارایی قبلی + خرید جدید) دقیقاً به نسبت ۸۰ به ۲۰ برسد.
             </p>
           </div>
@@ -356,22 +356,22 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
             }}
             className={`p-3.5 rounded-2xl border transition-all interactive-tap ${
               settings.calculationMode === 'direct'
-                ? 'bg-indigo-500/15 border-indigo-500/50'
-                : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                ? 'bg-indigo-50 dark:bg-indigo-500/15 border-indigo-300 dark:border-indigo-500/50'
+                : 'bg-slate-50 dark:bg-slate-950/70 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
             }`}
           >
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-indigo-400" />
-                <span className="font-black text-xs text-slate-100">
+                <Layers className="w-4 h-4 text-indigo-700 dark:text-indigo-400" />
+                <span className="font-black text-xs text-slate-900 dark:text-slate-100">
                   تقسیم مستقیم درصدی
                 </span>
               </div>
               {settings.calculationMode === 'direct' && (
-                <CheckCircle2 className="w-4 h-4 text-indigo-400" />
+                <CheckCircle2 className="w-4 h-4 text-indigo-700 dark:text-indigo-400" />
               )}
             </div>
-            <p className="text-[10px] text-slate-400 leading-relaxed">
+            <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
               مبلغ پس‌انداز جدید مستقیماً به نسبت ۸۰٪ طلا و ۲۰٪ رمزارز تقسیم می‌شود بدون بررسی مانده قبلی.
             </p>
           </div>
@@ -379,18 +379,18 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
       </div>
 
       {/* 5. INDIVIDUAL CRYPTO WEIGHTS CONFIG */}
-      <div className="glass-card p-4 sm:p-5 border border-slate-800 space-y-4">
+      <div className="glass-card p-4 sm:p-5 border border-slate-200 dark:border-slate-800 space-y-4">
         
         {/* Header & Status */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
           <div>
             <div className="flex items-center gap-2">
-              <PieChart className="w-4 h-4 text-indigo-400" />
-              <h3 className="text-sm font-black text-slate-100">
+              <PieChart className="w-4 h-4 text-indigo-700 dark:text-indigo-400" />
+              <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">
                 درصدهای هدف هر رمزارز
               </h3>
             </div>
-            <p className="text-[11px] text-slate-400 mt-0.5">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
               مجموع درصدهای هدف باید برابر ۱۰۰٪ باشد
             </p>
           </div>
@@ -400,11 +400,11 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
             <span
               className={`text-xs px-3 py-1.5 rounded-2xl font-black border flex items-center gap-1.5 ${
                 isCryptoSum100
-                  ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/40'
-                  : 'bg-amber-500/15 text-amber-400 border-amber-500/40'
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/40'
+                  : 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/40'
               }`}
             >
-              <span className={`w-2 h-2 rounded-full ${isCryptoSum100 ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'}`} />
+              <span className={`w-2 h-2 rounded-full ${isCryptoSum100 ? 'bg-emerald-600 dark:bg-emerald-400' : 'bg-amber-600 dark:bg-amber-400 animate-pulse'}`} />
               <span>مجموع: {toPersianDigits(totalCryptoTargetSum.toFixed(1))}٪</span>
             </span>
 
@@ -412,7 +412,7 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
               <button
                 type="button"
                 onClick={handleNormalizeCryptoPercents}
-                className="px-3 py-1.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black flex items-center gap-1.5 transition-all interactive-tap touch-target shadow-sm"
+                className="px-3 py-1.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black flex items-center gap-1.5 transition-all interactive-tap touch-target shadow-xs"
                 title="تراز خودکار همه درصدها روی ۱۰۰٪"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -428,9 +428,9 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
           <button
             type="button"
             onClick={handleSuggestedStrategyBalance}
-            className="py-2.5 px-3 rounded-2xl bg-gradient-to-r from-gold-500/20 via-indigo-500/20 to-gold-500/20 hover:from-gold-500/30 hover:to-indigo-500/30 text-gold-300 border border-gold-500/40 text-xs font-black flex items-center justify-center gap-1.5 transition-all interactive-tap touch-target shadow-sm"
+            className="py-2.5 px-3 rounded-2xl bg-amber-50/80 hover:bg-amber-100/80 dark:bg-gradient-to-r dark:from-gold-500/20 dark:via-indigo-500/20 dark:to-gold-500/20 dark:hover:from-gold-500/30 dark:hover:to-indigo-500/30 text-amber-800 dark:text-gold-300 border border-amber-200 dark:border-gold-500/40 text-xs font-black flex items-center justify-center gap-1.5 transition-all interactive-tap touch-target shadow-xs"
           >
-            <Sparkles className="w-4 h-4 text-gold-400" />
+            <Sparkles className="w-4 h-4 text-amber-700 dark:text-gold-400" />
             <span>تراز پیشنهادی (استراتژی اولیه)</span>
           </button>
 
@@ -438,9 +438,9 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
           <button
             type="button"
             onClick={handleEqualSplit}
-            className="py-2.5 px-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-all interactive-tap touch-target"
+            className="py-2.5 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-all interactive-tap touch-target"
           >
-            <Sliders className="w-3.5 h-3.5 text-slate-400" />
+            <Sliders className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
             <span>تقسیم مساوی ({toPersianDigits(cryptoAssets.length > 0 ? (100 / cryptoAssets.length).toFixed(0) : '0')}٪)</span>
           </button>
 
@@ -449,18 +449,18 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
             <button
               type="button"
               onClick={handleNormalizeCryptoPercents}
-              className="py-2.5 px-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-indigo-300 border border-indigo-500/30 text-xs font-bold flex items-center justify-center gap-1.5 transition-all interactive-tap touch-target"
+              className="py-2.5 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-xs font-bold flex items-center justify-center gap-1.5 transition-all interactive-tap touch-target"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-indigo-400" />
+              <RotateCcw className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />
               <span>تراز خودکار فعلی</span>
             </button>
           )}
         </div>
 
         {/* Strategy Breakdown Tooltip / Explanation */}
-        <div className="p-3 rounded-2xl bg-slate-950/90 border border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between gap-2">
+        <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800/80 text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between gap-2">
           <span>ترکیب استراتژی پیشنهادی:</span>
-          <span className="text-slate-300 font-bold text-[10px] dir-ltr text-right">
+          <span className="text-slate-800 dark:text-slate-300 font-bold text-[10px] dir-ltr text-right">
             ETH 25% • BTC 19% • BNB 15% • ADA 9% • DOT 9% • TRX 8% • XRP 8% • DOGE 5% • POL 2%
           </span>
         </div>
@@ -473,7 +473,7 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
             return (
               <div
                 key={asset.id}
-                className="p-3 sm:p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 transition-all space-y-2.5"
+                className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 transition-all space-y-2.5 shadow-xs"
               >
                 {/* Row Header: Coin Info + Stepper + Direct Input */}
                 <div className="flex items-center justify-between gap-2">
@@ -488,10 +488,10 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-black text-slate-100 text-xs truncate">
+                        <span className="font-black text-slate-900 dark:text-slate-100 text-xs truncate">
                           {faName}
                         </span>
-                        <span className="text-[10px] text-slate-500 font-mono">
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                           {asset.symbol.toUpperCase()}
                         </span>
                       </div>
@@ -504,7 +504,7 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
                     <button
                       type="button"
                       onClick={() => handleStepCryptoPercent(asset.id, -1)}
-                      className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 active:bg-slate-700 text-slate-300 border border-slate-800 flex items-center justify-center interactive-tap touch-target"
+                      className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:active:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 flex items-center justify-center interactive-tap touch-target"
                       title="کاهش ۱ درصد"
                     >
                       <Minus className="w-4 h-4" />
@@ -521,16 +521,16 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
                         onChange={(e) =>
                           handleCryptoPercentChange(asset.id, parseFloat(e.target.value) || 0)
                         }
-                        className="w-12 bg-slate-900 border border-slate-700 rounded-xl py-1.5 text-center dir-ltr text-xs font-black text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
+                        className="w-12 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl py-1.5 text-center dir-ltr text-xs font-black text-slate-900 dark:text-slate-100 focus:outline-none focus:border-indigo-500 font-mono"
                       />
-                      <span className="text-[10px] text-slate-500 font-bold pr-1">٪</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold pr-1">٪</span>
                     </div>
 
                     {/* Plus Button */}
                     <button
                       type="button"
                       onClick={() => handleStepCryptoPercent(asset.id, 1)}
-                      className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 active:bg-slate-700 text-slate-300 border border-slate-800 flex items-center justify-center interactive-tap touch-target"
+                      className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:active:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 flex items-center justify-center interactive-tap touch-target"
                       title="افزایش ۱ درصد"
                     >
                       <Plus className="w-4 h-4" />

@@ -175,16 +175,16 @@ export const SellView: React.FC<SellViewProps> = ({
     <div className="space-y-5 pb-24 animate-fadeIn">
       
       {/* 1. Header Card */}
-      <div className="p-4 sm:p-6 rounded-3xl bg-gradient-to-br from-rose-950/40 via-slate-900 to-slate-950 border border-rose-500/30 shadow-xl space-y-3">
+      <div className="p-4 sm:p-6 rounded-3xl bg-gradient-to-br from-rose-50/80 via-white to-orange-50/40 dark:from-rose-950/40 dark:via-slate-900 dark:to-slate-950 border border-rose-200 dark:border-rose-500/30 shadow-sm dark:shadow-xl space-y-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-lg border border-rose-500/30 shrink-0">
-            <ArrowDownCircle className="w-5 h-5 text-rose-400" />
+          <div className="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 flex items-center justify-center font-bold text-lg border border-rose-200 dark:border-rose-500/30 shrink-0">
+            <ArrowDownCircle className="w-5 h-5 text-rose-700 dark:text-rose-400" />
           </div>
           <div>
-            <h2 className="text-base font-black text-slate-100">
-              فروش و نقد کردن هوشمند <span className="text-rose-400 text-xs">(Sell & Rebalance)</span>
+            <h2 className="text-base font-black text-slate-900 dark:text-slate-100">
+              فروش و نقد کردن هوشمند <span className="text-rose-700 dark:text-rose-400 text-xs">(Sell & Rebalance)</span>
             </h2>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
               مبلغ مورد نیاز برای نقد کردن را وارد کنید تا بهترین ترکیب فروش با حفظ توازن سبد محاسبه شود.
             </p>
           </div>
@@ -192,13 +192,13 @@ export const SellView: React.FC<SellViewProps> = ({
       </div>
 
       {/* 2. Amount Input Card */}
-      <div className="glass-card p-4 sm:p-5 border border-slate-800 space-y-4">
+      <div className="glass-card p-4 sm:p-5 border border-slate-200 dark:border-slate-800 space-y-4">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-bold text-slate-200">
+          <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
             مبلغ مورد نیاز برای فروش ({currencyMode === 'usd' ? 'دلار $' : 'تومان'}):
           </label>
-          <span className="text-[11px] text-slate-400">
-            کل دارایی سبد: <strong className="text-gold-300 dir-ltr">{formatCurrency(totalPortfolioValue)}</strong>
+          <span className="text-[11px] text-slate-500 dark:text-slate-400">
+            کل دارایی سبد: <strong className="text-amber-700 dark:text-gold-300 dir-ltr">{formatCurrency(totalPortfolioValue)}</strong>
           </span>
         </div>
 
@@ -209,9 +209,9 @@ export const SellView: React.FC<SellViewProps> = ({
             value={displayInput}
             onChange={(e) => handleInputChange(e.target.value)}
             placeholder={currencyMode === 'usd' ? 'مثال: 500' : 'مثال: ۵۰,۰۰۰,۰۰۰'}
-            className="w-full bg-slate-950/90 border border-slate-700/80 rounded-2xl px-4 py-3 text-base sm:text-lg font-black text-slate-100 placeholder-slate-600 focus:outline-none focus:border-rose-500 transition-all dir-ltr text-right pl-20"
+            className="w-full bg-slate-50 dark:bg-slate-950/90 border border-slate-300 dark:border-slate-700/80 rounded-2xl px-4 py-3 text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-rose-500 focus:bg-white transition-all dir-ltr text-right pl-20"
           />
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-slate-300">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-xl bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
             {currencyMode === 'usd' ? 'USD $' : 'تومان'}
           </div>
         </div>
@@ -223,7 +223,7 @@ export const SellView: React.FC<SellViewProps> = ({
               key={pct}
               type="button"
               onClick={() => handleQuickPercent(pct)}
-              className="py-2 px-1 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-rose-500/40 text-xs font-bold text-slate-300 hover:text-rose-300 transition-all interactive-tap touch-target"
+              className="py-2 px-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 hover:border-rose-300 dark:hover:border-rose-500/40 text-xs font-bold text-slate-700 hover:text-rose-700 dark:text-slate-300 dark:hover:text-rose-300 transition-all interactive-tap touch-target"
             >
               {pct === 100 ? 'کل سبد' : `${toPersianDigits(pct)}%`}
             </button>
@@ -232,10 +232,10 @@ export const SellView: React.FC<SellViewProps> = ({
       </div>
 
       {/* 3. Selling Mode Selector */}
-      <div className="glass-card p-4 sm:p-5 border border-slate-800 space-y-3">
-        <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
-          <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-            <Sliders className="w-3.5 h-3.5 text-rose-400" />
+      <div className="glass-card p-4 sm:p-5 border border-slate-200 dark:border-slate-800 space-y-3">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-2.5">
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+            <Sliders className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
             <span>استراتژی انتخاب دارایی‌ها برای فروش:</span>
           </span>
         </div>
@@ -249,20 +249,20 @@ export const SellView: React.FC<SellViewProps> = ({
             }}
             className={`p-3.5 rounded-2xl border cursor-pointer transition-all space-y-1 ${
               sellMode === 'balanced'
-                ? 'bg-rose-950/30 border-rose-500/50 shadow-md'
-                : 'bg-slate-950/60 border-slate-800/80 hover:border-slate-700 opacity-80'
+                ? 'bg-rose-50/80 dark:bg-rose-950/30 border-rose-300 dark:border-rose-500/50 shadow-xs dark:shadow-md'
+                : 'bg-slate-50/80 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 opacity-90'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-slate-100 flex items-center gap-1.5">
+              <span className="text-xs font-black text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                 <span>⚡</span>
                 <span>فروش هوشمند متعادل (پیش‌فرض)</span>
               </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-rose-500/20 text-rose-300 font-bold">
+              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300 font-bold">
                 پیشنهادی
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
+            <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
               فروش همزمان از <strong>صندوق‌های طلای بورس</strong> و <strong>رمزارزها</strong> جهت حفظ نسبت {toPersianDigits(settings.goldPercent)}/{toPersianDigits(settings.cryptoPercent)}. طلای فیزیکی حفظ می‌شود.
             </p>
           </div>
@@ -275,17 +275,17 @@ export const SellView: React.FC<SellViewProps> = ({
             }}
             className={`p-3.5 rounded-2xl border cursor-pointer transition-all space-y-1 ${
               sellMode === 'custom'
-                ? 'bg-rose-950/30 border-rose-500/50 shadow-md'
-                : 'bg-slate-950/60 border-slate-800/80 hover:border-slate-700 opacity-80'
+                ? 'bg-rose-50/80 dark:bg-rose-950/30 border-rose-300 dark:border-rose-500/50 shadow-xs dark:shadow-md'
+                : 'bg-slate-50/80 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 opacity-90'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-slate-100 flex items-center gap-1.5">
+              <span className="text-xs font-black text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                 <span>🎯</span>
                 <span>انتخاب دستی بخش‌های فروش</span>
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
+            <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
               تعیین دستی اینکه فروش از طلای فیزیکی، صندوق‌های بورس یا کریپتو انجام شود.
             </p>
           </div>
@@ -294,32 +294,32 @@ export const SellView: React.FC<SellViewProps> = ({
         {/* Custom Mode Checkboxes */}
         {sellMode === 'custom' && (
           <div className="pt-2 grid grid-cols-3 gap-2 animate-fadeIn">
-            <label className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2 cursor-pointer text-xs text-slate-200">
+            <label className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center gap-2 cursor-pointer text-xs text-slate-800 dark:text-slate-200">
               <input
                 type="checkbox"
                 checked={includeBourseGold}
                 onChange={(e) => setIncludeBourseGold(e.target.checked)}
-                className="w-4 h-4 rounded text-rose-500 bg-slate-950 border-slate-700 focus:ring-0"
+                className="w-4 h-4 rounded text-rose-600 bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-0"
               />
               <span>صندوق‌های بورس</span>
             </label>
 
-            <label className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2 cursor-pointer text-xs text-slate-200">
+            <label className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center gap-2 cursor-pointer text-xs text-slate-800 dark:text-slate-200">
               <input
                 type="checkbox"
                 checked={includeCrypto}
                 onChange={(e) => setIncludeCrypto(e.target.checked)}
-                className="w-4 h-4 rounded text-rose-500 bg-slate-950 border-slate-700 focus:ring-0"
+                className="w-4 h-4 rounded text-rose-600 bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-0"
               />
               <span>ارزهای دیجیتال</span>
             </label>
 
-            <label className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2 cursor-pointer text-xs text-slate-200">
+            <label className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center gap-2 cursor-pointer text-xs text-slate-800 dark:text-slate-200">
               <input
                 type="checkbox"
                 checked={includePhysicalGold}
                 onChange={(e) => setIncludePhysicalGold(e.target.checked)}
-                className="w-4 h-4 rounded text-rose-500 bg-slate-950 border-slate-700 focus:ring-0"
+                className="w-4 h-4 rounded text-rose-600 bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-0"
               />
               <span>طلای فیزیکی</span>
             </label>
@@ -332,35 +332,35 @@ export const SellView: React.FC<SellViewProps> = ({
         <div className="space-y-4 animate-fadeIn">
           
           {/* Resulting Portfolio Simulation Bar */}
-          <div className="p-4 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-lg space-y-3">
+          <div className="p-4 rounded-3xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-lg space-y-3">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-300 flex items-center gap-1.5">
-                <PieChart className="w-4 h-4 text-gold-400" />
+              <span className="font-bold text-slate-800 dark:text-slate-300 flex items-center gap-1.5">
+                <PieChart className="w-4 h-4 text-amber-700 dark:text-gold-400" />
                 <span>شبیه‌سازی وضعیت سبد پس از فروش:</span>
               </span>
-              <span className="text-rose-400 font-black dir-ltr">
+              <span className="text-rose-700 dark:text-rose-400 font-black dir-ltr">
                 مجموع فروش: {formatCurrency(calculationResult.actualTotalSaleTomans)}
               </span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
-              <div className="p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800/80">
-                <span className="text-[10px] text-slate-400 block">ارزش باقی‌مانده سبد:</span>
-                <span className="font-black text-slate-100 dir-ltr block text-right mt-0.5">
+              <div className="p-2.5 rounded-2xl bg-white dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block">ارزش باقی‌مانده سبد:</span>
+                <span className="font-black text-slate-900 dark:text-slate-100 dir-ltr block text-right mt-0.5">
                   {formatCurrency(calculationResult.resultingPortfolioValue)}
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-2xl bg-slate-950/80 border border-gold-500/30">
-                <span className="text-[10px] text-slate-400 block">سهم طلا بعد از فروش:</span>
-                <span className="font-black text-gold-300 block text-right mt-0.5">
+              <div className="p-2.5 rounded-2xl bg-white dark:bg-slate-950/80 border border-amber-200 dark:border-gold-500/30">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block">سهم طلا بعد از فروش:</span>
+                <span className="font-black text-amber-700 dark:text-gold-300 block text-right mt-0.5">
                   {formatPercent(calculationResult.resultingGoldPercent)} (هدف: {toPersianDigits(settings.goldPercent)}%)
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-2xl bg-slate-950/80 border border-indigo-500/30 col-span-2 sm:col-span-1">
-                <span className="text-[10px] text-slate-400 block">سهم کریپتو بعد از فروش:</span>
-                <span className="font-black text-indigo-300 block text-right mt-0.5">
+              <div className="p-2.5 rounded-2xl bg-white dark:bg-slate-950/80 border border-indigo-200 dark:border-indigo-500/30 col-span-2 sm:col-span-1">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block">سهم کریپتو بعد از فروش:</span>
+                <span className="font-black text-indigo-700 dark:text-indigo-300 block text-right mt-0.5">
                   {formatPercent(calculationResult.resultingCryptoPercent)} (هدف: {toPersianDigits(settings.cryptoPercent)}%)
                 </span>
               </div>
@@ -374,12 +374,12 @@ export const SellView: React.FC<SellViewProps> = ({
               {/* 4.1 Bourse Gold Items */}
               {calculationResult.bourseGoldSales.length > 0 && (
                 <div className="space-y-2.5">
-                  <div className="flex items-center justify-between text-xs font-bold text-gold-400">
+                  <div className="flex items-center justify-between text-xs font-bold text-amber-800 dark:text-gold-400">
                     <span className="flex items-center gap-1.5">
                       <TrendingUp className="w-4 h-4" />
                       <span>صندوق‌های بورس برای فروش:</span>
                     </span>
-                    <span className="dir-ltr text-gold-300 font-black">
+                    <span className="dir-ltr text-amber-700 dark:text-gold-300 font-black">
                       جمع: {formatCurrency(calculationResult.bourseGoldSales.reduce((s, i) => s + i.totalTomans, 0))}
                     </span>
                   </div>
@@ -390,41 +390,41 @@ export const SellView: React.FC<SellViewProps> = ({
                       return (
                         <div
                           key={item.id}
-                          className="p-3.5 rounded-2xl bg-slate-900 border border-gold-500/40 shadow-md space-y-2.5"
+                          className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-amber-200 dark:border-gold-500/40 shadow-xs dark:shadow-md space-y-2.5"
                         >
                           <div className="flex items-center justify-between">
                             <div>
                               <div className="flex items-center gap-1.5">
-                                <span className="font-black text-slate-100 text-sm">{item.symbol}</span>
-                                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/10 text-gold-400 font-bold border border-gold-500/30">
+                                <span className="font-black text-slate-900 dark:text-slate-100 text-sm">{item.symbol}</span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-800 font-bold border border-amber-200 dark:bg-amber-500/10 dark:text-gold-400 dark:border-gold-500/30">
                                   صندوق طلا
                                 </span>
                               </div>
-                              <span className="text-[11px] text-slate-400 block mt-0.5 truncate max-w-[180px]">
+                              <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5 truncate max-w-[180px]">
                                 {item.name}
                               </span>
                             </div>
 
                             <button
                               onClick={() => handleCopy(`bourse_${item.id}`, String(item.unitsToSell), `تعداد ${toPersianDigits(item.unitsToSell)} واحد ${item.symbol} کپی شد`)}
-                              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-gold-300 border border-slate-700 transition-all touch-target"
+                              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 hover:text-amber-800 dark:text-slate-300 dark:hover:text-gold-300 border border-slate-200 dark:border-slate-700 transition-all touch-target"
                               title="کپی تعداد واحد"
                             >
-                              {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                              {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                             </button>
                           </div>
 
-                          <div className="p-2 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-between text-xs">
+                          <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs">
                             <div>
-                              <span className="text-[10px] text-slate-400 block">تعداد واحد برای فروش:</span>
-                              <span className="text-sm font-black text-rose-400">
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 block">تعداد واحد برای فروش:</span>
+                              <span className="text-sm font-black text-rose-700 dark:text-rose-400">
                                 {toPersianDigits(item.unitsToSell)} واحد
                               </span>
                             </div>
 
                             <div className="text-left">
-                              <span className="text-[10px] text-slate-400 block">مبلغ معادل:</span>
-                              <span className="text-xs font-black text-slate-200 dir-ltr text-right">
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 block">مبلغ معادل:</span>
+                              <span className="text-xs font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
                                 {formatCurrency(item.totalTomans)}
                               </span>
                             </div>
@@ -439,12 +439,12 @@ export const SellView: React.FC<SellViewProps> = ({
               {/* 4.2 Crypto Items */}
               {calculationResult.cryptoSales.length > 0 && (
                 <div className="space-y-2.5">
-                  <div className="flex items-center justify-between text-xs font-bold text-indigo-400">
+                  <div className="flex items-center justify-between text-xs font-bold text-indigo-700 dark:text-indigo-400">
                     <span className="flex items-center gap-1.5">
                       <Coins className="w-4 h-4" />
                       <span>ارزهای دیجیتال برای فروش (نوبیتکس):</span>
                     </span>
-                    <span className="dir-ltr text-indigo-300 font-black">
+                    <span className="dir-ltr text-indigo-700 dark:text-indigo-300 font-black">
                       جمع: {formatCurrency(calculationResult.cryptoSaleTomans)}
                     </span>
                   </div>
@@ -456,7 +456,7 @@ export const SellView: React.FC<SellViewProps> = ({
                       return (
                         <div
                           key={item.id}
-                          className="p-3.5 rounded-2xl bg-slate-900 border border-indigo-500/40 shadow-md space-y-2.5"
+                          className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-500/40 shadow-xs dark:shadow-md space-y-2.5"
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -466,10 +466,10 @@ export const SellView: React.FC<SellViewProps> = ({
                               />
                               <div>
                                 <div className="flex items-center gap-1.5">
-                                  <span className="font-black text-slate-100 text-sm">{item.symbol}</span>
-                                  <span className="text-[10px] text-slate-400">{item.name}</span>
+                                  <span className="font-black text-slate-900 dark:text-slate-100 text-sm">{item.symbol}</span>
+                                  <span className="text-[10px] text-slate-500 dark:text-slate-400">{item.name}</span>
                                 </div>
-                                <span className="text-[10px] text-indigo-300 font-bold block">
+                                <span className="text-[10px] text-indigo-700 dark:text-indigo-400 font-bold block">
                                   وزن هدف: {toPersianDigits(item.targetPercent)}%
                                 </span>
                               </div>
@@ -477,24 +477,24 @@ export const SellView: React.FC<SellViewProps> = ({
 
                             <button
                               onClick={() => handleCopy(`crypto_${item.id}`, copyText, `مقدار فروش ${item.symbol} کپی شد`)}
-                              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-indigo-300 border border-slate-700 transition-all touch-target"
+                              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 hover:text-indigo-700 dark:text-slate-300 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 transition-all touch-target"
                               title="کپی مقدار کوین"
                             >
-                              {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                              {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                             </button>
                           </div>
 
-                          <div className="p-2 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-between text-xs">
+                          <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs">
                             <div>
-                              <span className="text-[10px] text-slate-400 block">مقدار کوین برای فروش:</span>
-                              <span className="text-xs font-black text-rose-400 dir-ltr text-right">
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 block">مقدار کوین برای فروش:</span>
+                              <span className="text-xs font-black text-rose-700 dark:text-rose-400 dir-ltr text-right">
                                 {toPersianDigits(item.amountToSell)} {item.symbol}
                               </span>
                             </div>
 
                             <div className="text-left">
-                              <span className="text-[10px] text-slate-400 block">مبلغ فروش:</span>
-                              <span className="text-xs font-black text-slate-200 dir-ltr text-right">
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 block">مبلغ فروش:</span>
+                              <span className="text-xs font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
                                 {formatCurrency(item.totalTomans)}
                               </span>
                             </div>
@@ -509,12 +509,12 @@ export const SellView: React.FC<SellViewProps> = ({
               {/* 4.3 Physical Gold Items (if any) */}
               {calculationResult.physicalGoldSales.length > 0 && (
                 <div className="space-y-2.5">
-                  <div className="flex items-center justify-between text-xs font-bold text-amber-400">
+                  <div className="flex items-center justify-between text-xs font-bold text-amber-800 dark:text-amber-400">
                     <span className="flex items-center gap-1.5">
                       <span>🥇</span>
                       <span>طلای فیزیکی و سکه برای فروش:</span>
                     </span>
-                    <span className="dir-ltr text-amber-300 font-black">
+                    <span className="dir-ltr text-amber-700 dark:text-amber-300 font-black">
                       جمع: {formatCurrency(calculationResult.physicalGoldSaleTomans)}
                     </span>
                   </div>
@@ -525,34 +525,34 @@ export const SellView: React.FC<SellViewProps> = ({
                       return (
                         <div
                           key={item.id}
-                          className="p-3.5 rounded-2xl bg-slate-900 border border-amber-500/40 shadow-md space-y-2.5"
+                          className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-500/40 shadow-xs dark:shadow-md space-y-2.5"
                         >
                           <div className="flex items-center justify-between">
-                            <h4 className="text-xs font-black text-slate-100 flex items-center gap-1.5">
+                            <h4 className="text-xs font-black text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                               <span>🪙</span>
                               <span>{item.title}</span>
                             </h4>
 
                             <button
                               onClick={() => handleCopy(`phys_${item.id}`, String(item.quantityToSell), `مقدار ${item.title} کپی شد`)}
-                              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-300 border border-slate-700 transition-all touch-target"
+                              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 hover:text-amber-800 dark:text-slate-300 dark:hover:text-amber-300 border border-slate-200 dark:border-slate-700 transition-all touch-target"
                               title="کپی مقدار"
                             >
-                              {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                              {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                             </button>
                           </div>
 
-                          <div className="p-2 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-between text-xs">
+                          <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs">
                             <div>
-                              <span className="text-[10px] text-slate-400 block">مقدار فروش:</span>
-                              <span className="text-xs font-black text-rose-400">
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 block">مقدار فروش:</span>
+                              <span className="text-xs font-black text-rose-700 dark:text-rose-400">
                                 {toPersianDigits(item.quantityToSell)} {item.unit}
                               </span>
                             </div>
 
                             <div className="text-left">
-                              <span className="text-[10px] text-slate-400 block">مبلغ معادل:</span>
-                              <span className="text-xs font-black text-slate-200 dir-ltr text-right">
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 block">مبلغ معادل:</span>
+                              <span className="text-xs font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
                                 {formatCurrency(item.totalTomans)}
                               </span>
                             </div>
@@ -577,7 +577,7 @@ export const SellView: React.FC<SellViewProps> = ({
                     <CheckCircle2 className="w-4 h-4" />
                     <span>ثبت و اعمال کسر از موجودی طلا و بورس</span>
                   </button>
-                  <p className="text-[10px] text-slate-400 text-center mt-1.5">
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 text-center mt-1.5">
                     💡 توجه: موجودی رمزارزها از طریق ارتباط با نوبیتکس به‌روز می‌شود و نیازی به کسر دستی ندارد.
                   </p>
                 </div>
@@ -585,7 +585,7 @@ export const SellView: React.FC<SellViewProps> = ({
 
             </div>
           ) : (
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-center text-xs text-slate-400">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
               با این مبلغ، نیازی به فروش اقلام فوق نیست یا موجودی کافی انتخاب نشده است.
             </div>
           )}
@@ -599,14 +599,14 @@ export const SellView: React.FC<SellViewProps> = ({
         onClose={() => setIsConfirmModalOpen(false)}
         title="تایید کسر از موجودی طلا و بورس"
         subtitle="کسر مستقیم واحدهای فروخته‌شده از موجودی سبد سرمایه‌گذاری"
-        icon={<AlertTriangle className="w-4 h-4 text-rose-400" />}
+        icon={<AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />}
         maxWidth="max-w-sm"
         footer={
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setIsConfirmModalOpen(false)}
-              className="flex-1 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all interactive-tap touch-target"
+              className="flex-1 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-all interactive-tap touch-target border border-slate-200 dark:border-slate-700"
             >
               انصراف
             </button>
@@ -621,21 +621,21 @@ export const SellView: React.FC<SellViewProps> = ({
         }
       >
         <div className="space-y-3 text-xs">
-          <p className="text-slate-300 leading-relaxed">
+          <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
             آیا از کسر مقادیر محاسبه‌شده از موجودی صندوق‌های طلای بورس و طلای فیزیکی خود اطمینان دارید؟
           </p>
 
-          <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-2">
             {calculationResult.bourseGoldSales.map((item) => (
-              <div key={item.id} className="flex items-center justify-between text-slate-300">
+              <div key={item.id} className="flex items-center justify-between text-slate-700 dark:text-slate-300">
                 <span>{item.symbol}:</span>
-                <span className="font-bold text-rose-400">کسر {toPersianDigits(item.unitsToSell)} واحد</span>
+                <span className="font-bold text-rose-700 dark:text-rose-400">کسر {toPersianDigits(item.unitsToSell)} واحد</span>
               </div>
             ))}
             {calculationResult.physicalGoldSales.map((item) => (
-              <div key={item.id} className="flex items-center justify-between text-slate-300">
+              <div key={item.id} className="flex items-center justify-between text-slate-700 dark:text-slate-300">
                 <span>{item.title}:</span>
-                <span className="font-bold text-rose-400">کسر {toPersianDigits(item.quantityToSell)} {item.unit}</span>
+                <span className="font-bold text-rose-700 dark:text-rose-400">کسر {toPersianDigits(item.quantityToSell)} {item.unit}</span>
               </div>
             ))}
           </div>

@@ -39,13 +39,27 @@ export default {
           cardHover: '#1B263B',
           border: '#1F2E45',
           surface: '#0F172A',
+        },
+        light: {
+          bg: '#F1F5F9',
+          card: '#FFFFFF',
+          cardWell: '#F8FAFC',
+          border: '#E2E8F0',
+          surface: '#F8FAFC',
         }
       },
       fontFamily: {
         vazir: ['Vazirmatn', 'sans-serif'],
       },
+      keyframes: {
+        toastSlideUp: {
+          '0%': { opacity: '0', transform: 'translateY(1rem) scale(0.96)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+      },
       animation: {
         'pulse-subtle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'toast-slide-up': 'toastSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
       }
     },
   },

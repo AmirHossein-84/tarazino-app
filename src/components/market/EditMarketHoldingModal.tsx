@@ -59,13 +59,14 @@ export const EditMarketHoldingModal: React.FC<EditMarketHoldingModalProps> = ({
 
   const avgPriceNumber = parseNumberInput(averageBuyPrice);
   const avgPriceWords = avgPriceNumber > 0 ? numberToPersianWords(avgPriceNumber, 'تومان') : '';
+  const totalCost = (parseFloat(quantity) || 0) * (avgPriceNumber || 0);
 
   const footerActions = (
     <div className="flex items-center justify-between gap-3">
       <button
         type="button"
         onClick={handleDelete}
-        className="p-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all interactive-tap touch-target"
+        className="p-3 rounded-2xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 transition-all interactive-tap touch-target"
         title="حذف دارایی"
       >
         <Trash2 className="w-4 h-4" />
@@ -75,7 +76,7 @@ export const EditMarketHoldingModal: React.FC<EditMarketHoldingModalProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all interactive-tap touch-target"
+          className="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all interactive-tap touch-target border border-slate-200 dark:border-slate-700"
         >
           انصراف
         </button>
@@ -94,9 +95,9 @@ export const EditMarketHoldingModal: React.FC<EditMarketHoldingModalProps> = ({
     <BottomSheetModal
       isOpen={isOpen}
       onClose={onClose}
-      title={`ویرایش دارایی: ${item.instrument.symbol}`}
+      title={`ویرایش دارایی بورسی: ${item.instrument.symbol}`}
       subtitle={item.instrument.name}
-      icon={<Edit3 className="w-4 h-4 text-gold-400" />}
+      icon={<Edit3 className="w-4 h-4 text-amber-700 dark:text-gold-400" />}
       footer={footerActions}
       maxWidth="max-w-md"
     >
@@ -104,8 +105,8 @@ export const EditMarketHoldingModal: React.FC<EditMarketHoldingModalProps> = ({
         
         {/* Quantity */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-slate-300 block">
-            تعداد واحد / برگه دارایی <span className="text-rose-400">*</span>
+          <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
+            تعداد واحد / برگه دارایی <span className="text-rose-500 dark:text-rose-400">*</span>
           </label>
           <input
             type="number"
@@ -114,13 +115,13 @@ export const EditMarketHoldingModal: React.FC<EditMarketHoldingModalProps> = ({
             required
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-sm font-black text-slate-100 focus:outline-none focus:border-gold-500 dir-ltr text-right font-mono"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm font-black text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 dark:focus:border-gold-500 focus:bg-white dir-ltr text-right font-mono"
           />
         </div>
 
         {/* Average Buy Price */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-slate-300 block">
+          <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
             میانگین قیمت خرید هر واحد به تومان (اختیاری)
           </label>
           <input
@@ -128,10 +129,10 @@ export const EditMarketHoldingModal: React.FC<EditMarketHoldingModalProps> = ({
             value={averageBuyPrice}
             onChange={(e) => setAverageBuyPrice(e.target.value)}
             placeholder="مثال: ۳۵,۰۰۰"
-            className="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3 text-xs font-bold text-slate-100 placeholder-slate-600 focus:outline-none focus:border-gold-500 dir-ltr text-right font-mono"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-xs font-bold text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-amber-500 dark:focus:border-gold-500 focus:bg-white dir-ltr text-right font-mono"
           />
           {avgPriceWords && (
-            <div className="px-3 py-1 rounded-xl bg-gold-500/10 text-[10px] font-bold text-gold-300">
+            <div className="px-3 py-1 rounded-xl bg-amber-50 dark:bg-gold-500/10 text-[10px] font-bold text-amber-900 dark:text-gold-300 border border-amber-200 dark:border-gold-500/20">
               {avgPriceWords}
             </div>
           )}
@@ -139,9 +140,9 @@ export const EditMarketHoldingModal: React.FC<EditMarketHoldingModalProps> = ({
 
         {/* Live quote snippet */}
         {item.quote && (
-          <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
-            <span className="text-slate-400">آخرین قیمت تابلو TSETMC:</span>
-            <span className="font-black text-gold-400 dir-ltr">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+            <span className="text-slate-500 dark:text-slate-400">آخرین قیمت تابلو TSETMC:</span>
+            <span className="font-black text-amber-700 dark:text-gold-400 dir-ltr">
               {formatToman(item.quote.lastPriceTomans)} تومان
             </span>
           </div>

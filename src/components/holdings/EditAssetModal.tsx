@@ -78,7 +78,7 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
       <button
         type="button"
         onClick={handleDelete}
-        className="p-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all interactive-tap touch-target"
+        className="p-3 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 dark:border-rose-500/30 transition-all interactive-tap touch-target"
         title="حذف ارز"
       >
         <Trash2 className="w-4 h-4" />
@@ -88,7 +88,7 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="py-3 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-all interactive-tap touch-target text-xs"
+          className="py-3 px-5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold transition-all interactive-tap touch-target text-xs border border-slate-200 dark:border-slate-700"
         >
           انصراف
         </button>
@@ -121,21 +121,21 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
       <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
         {/* Name */}
         <div>
-          <label className="block text-slate-300 font-bold mb-1.5">
+          <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">
             نام نمایشی
           </label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-700/80 rounded-2xl px-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 font-medium"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-indigo-500 focus:bg-white font-medium"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           {/* Target Percentage */}
           <div>
-            <label className="block text-slate-300 font-bold mb-1.5">
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">
               درصد هدف از سبد (٪)
             </label>
             <input
@@ -145,13 +145,13 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
               step="0.5"
               value={targetPercent}
               onChange={(e) => setTargetPercent(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700/80 rounded-2xl px-4 py-3 text-slate-100 dir-ltr font-black text-sm"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-indigo-500 focus:bg-white dir-ltr font-black text-sm"
             />
           </div>
 
           {/* Holding Value in Tomans */}
           <div>
-            <label className="block text-slate-300 font-bold mb-1.5">
+            <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">
               موجودی فعلی (تومان)
             </label>
             <input
@@ -159,14 +159,14 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
               placeholder="مبلغ به تومان"
               value={currentHoldingValue}
               onChange={(e) => setCurrentHoldingValue(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700/80 rounded-2xl px-4 py-3 text-slate-100 dir-ltr font-bold text-sm"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:bg-white dir-ltr font-bold text-sm"
             />
           </div>
         </div>
 
         {/* Average Purchase Price (Optional for Manual P&L) */}
         <div>
-          <label className="block text-slate-300 font-bold mb-1.5">
+          <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1.5">
             میانگین قیمت خرید به تومان (اختیاری — جهت محاسبه سود/زیان)
           </label>
           <input
@@ -174,10 +174,10 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
             placeholder="مثال: ۴,۲۰۰,۰۰۰,۰۰۰"
             value={averageBuyPrice}
             onChange={(e) => setAverageBuyPrice(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-700/80 rounded-2xl px-4 py-3 text-slate-100 dir-ltr font-bold text-sm"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:bg-white dir-ltr font-bold text-sm"
           />
           {asset.unitPrice && asset.unitPrice > 0 && (
-            <span className="text-[10px] text-slate-400 block mt-1">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-1">
               نرخ فعلی بازار: {formatToman(asset.unitPrice)} تومان
             </span>
           )}

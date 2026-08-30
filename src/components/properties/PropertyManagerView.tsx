@@ -41,11 +41,11 @@ const PROPERTY_TYPE_CONFIG: Record<
   PropertyType,
   { label: string; icon: React.ComponentType<{ className?: string }>; color: string; bg: string }
 > = {
-  residential: { label: 'مسکونی', icon: Home, color: 'text-emerald-400', bg: 'bg-emerald-500/15 border-emerald-500/30' },
-  commercial: { label: 'تجاری', icon: Store, color: 'text-amber-400', bg: 'bg-amber-500/15 border-amber-500/30' },
-  office: { label: 'اداری', icon: Briefcase, color: 'text-blue-400', bg: 'bg-blue-500/15 border-blue-500/30' },
-  land: { label: 'زمین/کلنگی', icon: Trees, color: 'text-teal-400', bg: 'bg-teal-500/15 border-teal-500/30' },
-  other: { label: 'متفرقه', icon: Layers, color: 'text-purple-400', bg: 'bg-purple-500/15 border-purple-500/30' },
+  residential: { label: 'مسکونی', icon: Home, color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30' },
+  commercial: { label: 'تجاری', icon: Store, color: 'text-amber-800 dark:text-amber-400', bg: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/30' },
+  office: { label: 'اداری', icon: Briefcase, color: 'text-blue-700 dark:text-blue-400', bg: 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/30' },
+  land: { label: 'زمین/کلنگی', icon: Trees, color: 'text-teal-700 dark:text-teal-400', bg: 'bg-teal-50 text-teal-800 border-teal-200 dark:bg-teal-500/15 dark:text-teal-400 dark:border-teal-500/30' },
+  other: { label: 'متفرقه', icon: Layers, color: 'text-purple-700 dark:text-purple-400', bg: 'bg-purple-50 text-purple-800 border-purple-200 dark:bg-purple-500/15 dark:text-purple-400 dark:border-purple-500/30' },
 };
 
 export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
@@ -143,21 +143,21 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
     <div className="space-y-5 pb-24 animate-fadeIn">
       
       {/* 1. Real Estate Summary Hero Card */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-emerald-950/40 via-slate-900 to-slate-950 border border-emerald-500/40 shadow-2xl relative overflow-hidden space-y-4">
+      <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/40 dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-950 border border-emerald-200 dark:border-emerald-500/40 shadow-sm dark:shadow-2xl relative overflow-hidden space-y-4">
         <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xl border border-emerald-500/30 shrink-0">
-              <Building2 className="w-6 h-6 text-emerald-400" />
+            <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold text-xl border border-emerald-200 dark:border-emerald-500/30 shrink-0">
+              <Building2 className="w-6 h-6 text-emerald-700 dark:text-emerald-400" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-black text-slate-100">
-                  مدیریت املاک و مستغلات <span className="text-emerald-400 text-xs">(Real Estate)</span>
+                <h2 className="text-base font-black text-slate-900 dark:text-slate-100">
+                  مدیریت املاک و مستغلات <span className="text-emerald-700 dark:text-emerald-400 text-xs">(Real Estate)</span>
                 </h2>
               </div>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 ثبت، ارزش‌گذاری دوگانه (ریال/دلار) و محاسبه بازدهی سرمایه‌گذاری ملکی
               </p>
             </div>
@@ -173,25 +173,25 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
         </div>
 
         {/* Aggregate Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 border-t border-slate-800/80">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 border-t border-slate-200 dark:border-slate-800/80">
           
           {/* Total Valuation */}
-          <div className="p-3 rounded-2xl bg-slate-950/80 border border-emerald-500/30 space-y-1">
-            <span className="text-[10px] text-slate-400 block font-medium">ارزش کل روز املاک:</span>
-            <div className="text-sm sm:text-base font-black text-emerald-400 dir-ltr text-right">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-emerald-200 dark:border-emerald-500/30 space-y-1">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">ارزش کل روز املاک:</span>
+            <div className="text-sm sm:text-base font-black text-emerald-700 dark:text-emerald-400 dir-ltr text-right">
               {formatCurrency(totalValuationToman)}
             </div>
-            <span className="text-[10px] text-slate-400 block dir-ltr text-right">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block dir-ltr text-right">
               ≈ $ {new Intl.NumberFormat('en-US').format(totalValuationUsd)}
             </span>
           </div>
 
           {/* Capital Gain / ROI */}
-          <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-1">
-            <span className="text-[10px] text-slate-400 block font-medium">سود و رشد سرمایه:</span>
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-1">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">سود و رشد سرمایه:</span>
             <div
               className={`text-sm sm:text-base font-black dir-ltr text-right ${
-                totalGainToman >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                totalGainToman >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
               }`}
             >
               {totalGainToman >= 0 ? '+' : ''}{formatCurrency(totalGainToman)}
@@ -199,7 +199,7 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
             {totalPurchaseCostToman > 0 && (
               <span
                 className={`text-[10px] font-bold block ${
-                  totalGainToman >= 0 ? 'text-emerald-300' : 'text-rose-300'
+                  totalGainToman >= 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'
                 }`}
               >
                 {totalGainToman >= 0 ? '+' : ''}{toPersianDigits(totalGainPercent.toFixed(1))}٪ بازدهی کل
@@ -208,23 +208,23 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
           </div>
 
           {/* Total Area */}
-          <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-1">
-            <span className="text-[10px] text-slate-400 block font-medium">مجموع متراژ املاک:</span>
-            <div className="text-sm sm:text-base font-black text-slate-100">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-1">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">مجموع متراژ املاک:</span>
+            <div className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100">
               {totalAreaSqm > 0 ? `${toPersianDigits(totalAreaSqm)} متر مربع` : '—'}
             </div>
-            <span className="text-[10px] text-slate-400 block">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
               تعداد: {toPersianDigits(properties.length)} ملک ثبت‌شده
             </span>
           </div>
 
           {/* Net Worth Portion */}
-          <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-1">
-            <span className="text-[10px] text-slate-400 block font-medium">محاسبه در دارایی کل:</span>
-            <div className="text-sm sm:text-base font-black text-slate-200 dir-ltr text-right">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-1">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">محاسبه در دارایی کل:</span>
+            <div className="text-sm sm:text-base font-black text-slate-800 dark:text-slate-200 dir-ltr text-right">
               {formatCurrency(netWorthIncludedValuationToman)}
             </div>
-            <span className="text-[10px] text-emerald-400 block">
+            <span className="text-[10px] text-emerald-700 dark:text-emerald-400 block font-bold">
               {toPersianDigits(properties.filter((p) => p.includeInTotalNetWorth !== false).length)} ملک فعال در سبد
             </span>
           </div>
@@ -242,8 +242,8 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
             }}
             className={`py-2 px-3.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all interactive-tap touch-target ${
               selectedType === 'all'
-                ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
-                : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800'
+                ? 'bg-emerald-600 text-white shadow-md font-black'
+                : 'bg-white dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800 shadow-sm'
             }`}
           >
             همه کاربری‌ها ({toPersianDigits(properties.length)})
@@ -266,8 +266,8 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
                 }}
                 className={`py-2 px-3 rounded-2xl text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all interactive-tap touch-target ${
                   isSelected
-                    ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
-                    : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800'
+                    ? 'bg-emerald-600 text-white shadow-md font-black'
+                    : 'bg-white dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800 shadow-sm'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -303,18 +303,18 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
             return (
               <div
                 key={property.id}
-                className="p-4 sm:p-5 rounded-3xl bg-slate-900/90 border border-slate-800/90 hover:border-emerald-500/40 shadow-xl transition-all space-y-3.5 relative overflow-hidden"
+                className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/90 hover:border-emerald-400 dark:hover:border-emerald-500/40 shadow-sm dark:shadow-xl transition-all space-y-3.5 relative overflow-hidden"
               >
                 {/* Top Row: Title + Type Badge + Actions */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <div className={`p-2 rounded-xl border ${typeConfig.bg} ${typeConfig.color}`}>
+                      <div className={`p-2 rounded-xl border ${typeConfig.bg}`}>
                         <TypeIcon className="w-4 h-4" />
                       </div>
                       <div>
-                        <h3 className="text-sm sm:text-base font-black text-slate-100">{property.title}</h3>
-                        <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                        <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100">{property.title}</h3>
+                        <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                           <span className={`font-bold ${typeConfig.color}`}>{typeConfig.label}</span>
                           {property.areaSquareMeters > 0 && (
                             <>
@@ -334,8 +334,8 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
                       onClick={() => handleToggleNetWorth(property)}
                       className={`p-2 rounded-xl border transition-all touch-target ${
                         isIncluded
-                          ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-400 hover:bg-emerald-900/60'
-                          : 'bg-slate-950 border-slate-800 text-slate-500 hover:text-slate-300'
+                          ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:border-emerald-500/50 dark:text-emerald-400 dark:hover:bg-emerald-900/60'
+                          : 'bg-slate-100 border-slate-200 text-slate-400 hover:text-slate-600 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-500 dark:hover:text-slate-300'
                       }`}
                       title={isIncluded ? 'لحاظ شده در کل دارایی (کلیک برای غیرفعال‌سازی)' : 'مستثنی از کل دارایی (کلیک برای فعال‌سازی)'}
                     >
@@ -345,7 +345,7 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
                     <button
                       type="button"
                       onClick={() => handleOpenEdit(property)}
-                      className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-emerald-300 border border-slate-700 transition-all touch-target"
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 hover:text-emerald-700 dark:text-slate-300 dark:hover:text-emerald-300 border border-slate-200 dark:border-slate-700 transition-all touch-target"
                       title="ویرایش ملک"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
@@ -354,7 +354,7 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
                     <button
                       type="button"
                       onClick={() => handleDelete(property.id, property.title)}
-                      className="p-2 rounded-xl bg-slate-800/80 hover:bg-rose-950 text-slate-400 hover:text-rose-400 border border-slate-700 hover:border-rose-500/50 transition-all touch-target"
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-rose-50 dark:bg-slate-800/80 dark:hover:bg-rose-950 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 border border-slate-200 hover:border-rose-200 dark:border-slate-700 dark:hover:border-rose-500/50 transition-all touch-target"
                       title="حذف ملک"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -363,47 +363,47 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
                 </div>
 
                 {/* Valuation & Pricing Details */}
-                <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2 text-xs">
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">ارزش روز برآورد شده:</span>
-                    <span className="text-sm font-black text-emerald-400 dir-ltr">
+                    <span className="text-slate-500 dark:text-slate-400">ارزش روز برآورد شده:</span>
+                    <span className="text-sm font-black text-emerald-700 dark:text-emerald-400 dir-ltr">
                       {formatCurrency(currentToman)}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400">قیمت خرید اولیه:</span>
-                    <span className="font-bold text-slate-300 dir-ltr">
+                    <span className="text-slate-500 dark:text-slate-400">قیمت خرید اولیه:</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-300 dir-ltr">
                       {formatCurrency(purchaseToman)}
                     </span>
                   </div>
 
                   {pricePerSqm > 0 && (
                     <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-slate-400">قیمت هر متر مربع:</span>
-                      <span className="font-bold text-slate-300 dir-ltr">
+                      <span className="text-slate-500 dark:text-slate-400">قیمت هر متر مربع:</span>
+                      <span className="font-bold text-slate-700 dark:text-slate-300 dir-ltr">
                         {formatToman(pricePerSqm)} تومان
                       </span>
                     </div>
                   )}
 
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400">معادل دلاری (USDT):</span>
-                    <span className="font-bold text-slate-300 dir-ltr">
+                    <span className="text-slate-500 dark:text-slate-400">معادل دلاری (USDT):</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-300 dir-ltr">
                       $ {new Intl.NumberFormat('en-US').format(valuationUsd)}
                     </span>
                   </div>
                 </div>
 
                 {/* Profit/Loss & Details Footer */}
-                <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-800/80">
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100 dark:border-slate-800/80">
                   <div>
                     {gainToman !== 0 ? (
                       <div className="flex items-center gap-1.5">
-                        <span className="text-slate-400 text-[11px]">سود سرمایه:</span>
+                        <span className="text-slate-500 dark:text-slate-400 text-[11px]">سود سرمایه:</span>
                         <span
                           className={`font-black dir-ltr ${
-                            gainToman >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                            gainToman >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
                           }`}
                         >
                           {gainToman >= 0 ? '+' : ''}{formatCurrency(gainToman)}
@@ -411,21 +411,21 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
                         <span
                           className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold dir-ltr ${
                             gainToman >= 0
-                              ? 'bg-emerald-500/15 text-emerald-300'
-                              : 'bg-rose-500/15 text-rose-300'
+                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
+                              : 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300'
                           }`}
                         >
                           {gainToman >= 0 ? '+' : ''}{toPersianDigits(gainPercent.toFixed(1))}%
                         </span>
                       </div>
                     ) : (
-                      <span className="text-slate-500 text-[11px]">ارزش برابر با قیمت خرید</span>
+                      <span className="text-slate-400 dark:text-slate-500 text-[11px]">ارزش برابر با قیمت خرید</span>
                     )}
                   </div>
 
                   {property.purchaseDate && (
-                    <span className="text-[11px] text-slate-400 flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-slate-500" />
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                       <span>{property.purchaseDate}</span>
                     </span>
                   )}
@@ -433,7 +433,7 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
 
                 {/* Notes preview if available */}
                 {property.notes && (
-                  <p className="text-[11px] text-slate-400 bg-slate-950/60 p-2 rounded-xl border border-slate-800/60 line-clamp-2 leading-relaxed">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/60 p-2 rounded-xl border border-slate-200 dark:border-slate-800/60 line-clamp-2 leading-relaxed">
                     📝 {property.notes}
                   </p>
                 )}
@@ -444,15 +444,15 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
         </div>
       ) : (
         /* Empty State */
-        <div className="p-8 sm:p-12 rounded-3xl bg-slate-900/50 border border-slate-800/80 text-center space-y-4">
-          <div className="w-14 h-14 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center">
+        <div className="p-8 sm:p-12 rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 text-center space-y-4 shadow-sm">
+          <div className="w-14 h-14 rounded-3xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 mx-auto flex items-center justify-center">
             <Building2 className="w-7 h-7" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-sm sm:text-base font-black text-slate-200">
+            <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-200">
               هنوز ملکی ثبت نشده است
             </h3>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
               با ثبت املاک و مستغلات خود (آپارتمان، زمین، مغازه، دفتر کار)، ارزش روز آن‌ها را به ریال و دلار رصد کرده و در سرجمع دارایی‌های کل لحاظ نمایید.
             </p>
           </div>

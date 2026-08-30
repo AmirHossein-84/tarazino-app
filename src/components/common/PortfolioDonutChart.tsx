@@ -40,12 +40,12 @@ export const PortfolioDonutChart: React.FC<PortfolioDonutChartProps> = React.mem
 
   if (totalValue <= 0 || validItems.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 text-center rounded-3xl bg-slate-950/60 border border-slate-800/80">
+      <div className="flex flex-col items-center justify-center p-6 text-center rounded-3xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80">
         <div
           style={{ width: size, height: size }}
-          className="relative flex items-center justify-center rounded-full border-4 border-dashed border-slate-800"
+          className="relative flex items-center justify-center rounded-full border-4 border-dashed border-slate-300 dark:border-slate-800"
         >
-          <span className="text-xs text-slate-500 font-medium px-4">{emptyLabel}</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium px-4">{emptyLabel}</span>
         </div>
       </div>
     );
@@ -85,7 +85,7 @@ export const PortfolioDonutChart: React.FC<PortfolioDonutChartProps> = React.mem
             cy={center}
             r={radius}
             fill="transparent"
-            stroke="rgba(30, 41, 59, 0.5)"
+            stroke="var(--donut-track, rgba(226, 232, 240, 0.9))"
             strokeWidth={strokeWidth}
           />
 
@@ -122,26 +122,26 @@ export const PortfolioDonutChart: React.FC<PortfolioDonutChartProps> = React.mem
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-4">
           {activeItem ? (
             <div className="animate-fadeIn space-y-0.5">
-              <span className="text-[11px] font-bold text-slate-400 block truncate max-w-[120px]">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block truncate max-w-[120px]">
                 {activeItem.label}
               </span>
-              <span className="text-lg font-black text-slate-100 block dir-ltr">
+              <span className="text-lg font-black text-slate-900 dark:text-slate-100 block dir-ltr">
                 {formatPercent(activeItem.percent, 1)}
               </span>
-              <span className="text-[10px] text-gold-400 font-bold block dir-ltr">
+              <span className="text-[10px] text-amber-700 dark:text-gold-400 font-bold block dir-ltr">
                 {formatToman(activeItem.value)} ت
               </span>
             </div>
           ) : (
             <div className="space-y-0.5">
-              <span className="text-[11px] font-bold text-slate-400 block">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block">
                 {centerTitle}
               </span>
-              <span className="text-sm sm:text-base font-black text-slate-100 block dir-ltr">
+              <span className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 block dir-ltr">
                 {formattedTotalValue || `${formatToman(totalValue)} ت`}
               </span>
               {centerSubtitle && (
-                <span className="text-[10px] text-slate-400 block font-medium">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">
                   {centerSubtitle}
                 </span>
               )}
@@ -152,7 +152,7 @@ export const PortfolioDonutChart: React.FC<PortfolioDonutChartProps> = React.mem
 
       {/* Legend & Target Comparison */}
       {showLegend && (
-        <div className="w-full grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-800/80">
+        <div className="w-full grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800/80">
           {slices.map((slice) => {
             const isSelected = activeItemId === slice.id;
 
@@ -165,8 +165,8 @@ export const PortfolioDonutChart: React.FC<PortfolioDonutChartProps> = React.mem
                 }}
                 className={`p-2.5 rounded-2xl border transition-all cursor-pointer space-y-1 interactive-tap ${
                   isSelected
-                    ? 'bg-slate-900 border-gold-500/80 shadow-md'
-                    : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
+                    ? 'bg-amber-50 dark:bg-slate-900 border-gold-500/80 shadow-md'
+                    : 'bg-slate-50 dark:bg-slate-950/70 border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
                 <div className="flex items-center gap-1.5 min-w-0">
@@ -174,24 +174,24 @@ export const PortfolioDonutChart: React.FC<PortfolioDonutChartProps> = React.mem
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: slice.color }}
                   />
-                  <span className="text-[11px] font-black text-slate-200 truncate">
+                  <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 truncate">
                     {slice.label}
                   </span>
                 </div>
 
                 <div className="flex items-baseline justify-between gap-1 text-[11px] pt-0.5">
-                  <span className="font-black text-slate-100 dir-ltr">
+                  <span className="font-black text-slate-900 dark:text-slate-100 dir-ltr">
                     {formatPercent(slice.percent, 1)}
                   </span>
                   {slice.targetPercent !== undefined && (
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
                       هدف: {toPersianDigits(slice.targetPercent)}%
                     </span>
                   )}
                 </div>
 
                 {slice.sublabel && (
-                  <div className="text-[9px] text-slate-400 truncate">
+                  <div className="text-[9px] text-slate-500 dark:text-slate-400 truncate">
                     {slice.sublabel}
                   </div>
                 )}

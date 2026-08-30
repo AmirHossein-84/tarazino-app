@@ -193,29 +193,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     <PullToRefreshContainer onRefresh={onRefreshAll} isRefreshing={isRefreshing} className="space-y-5 pb-24">
       
       {/* 1. HERO NET WORTH CARD */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-700/80 shadow-2xl relative overflow-hidden space-y-4">
+      <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 border border-slate-200/90 dark:border-slate-700/80 shadow-sm dark:shadow-2xl relative overflow-hidden space-y-4">
         <div className="absolute top-0 right-0 w-48 h-48 bg-gold-500/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-gold-500/20 text-gold-400 flex items-center justify-center font-bold text-lg border border-gold-500/30 shrink-0">
-              <ShieldCheck className="w-5 h-5 text-gold-400" />
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/15 dark:bg-gold-500/20 text-amber-700 dark:text-gold-400 flex items-center justify-center font-bold text-lg border border-amber-500/30 dark:border-gold-500/30 shrink-0">
+              <ShieldCheck className="w-5 h-5 text-amber-600 dark:text-gold-400" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold text-slate-400 block">ارزش کل دارایی‌ها (سبد سرمایه)</span>
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block">ارزش کل دارایی‌ها (سبد سرمایه)</span>
                 {currencyMode === 'usd' && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-500/30">
                     USD ($)
                   </span>
                 )}
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-100 mt-0.5 dir-ltr text-right sm:text-right">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 mt-0.5 dir-ltr text-right sm:text-right">
                 {formatCurrency(totalPortfolioWithCash)}
               </h2>
               {currencyMode === 'usd' && (
-                <span className="text-[10px] text-slate-400 block mt-0.5">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
                   نرخ مبنا: ۱ تتر = {formatToman(usdtRateTomans)} تومان
                 </span>
               )}
@@ -231,8 +231,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               }}
               className={`px-3 py-2 rounded-2xl border text-xs font-black transition-all flex items-center gap-1.5 interactive-tap shadow-sm touch-target ${
                 currencyMode === 'usd'
-                  ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50 hover:bg-emerald-900/80 shadow-emerald-500/10'
-                  : 'bg-slate-800/90 text-slate-200 border-slate-700 hover:text-gold-300 hover:border-gold-500/50'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500/50 dark:hover:bg-emerald-900/80 shadow-emerald-500/10'
+                  : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:text-amber-700 dark:hover:text-gold-300 hover:border-amber-400/50 dark:hover:border-gold-500/50'
               }`}
               title={currencyMode === 'usd' ? 'تغییر نمایش به تومان' : 'تغییر نمایش به دلار (بر مبنای نرخ تتر)'}
             >
@@ -243,7 +243,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </>
               ) : (
                 <>
-                  <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                  <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>نمایش به دلار ($)</span>
                 </>
               )}
@@ -253,33 +253,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               onClick={onRefreshAll}
               disabled={isRefreshing}
-              className="p-2.5 rounded-2xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-gold-300 border border-slate-700 transition-all touch-target"
+              className="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-600 hover:text-amber-700 dark:text-slate-300 dark:hover:text-gold-300 border border-slate-200 dark:border-slate-700 transition-all touch-target"
               title="به‌روزرسانی قیمت‌ها و دارایی‌ها"
             >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-gold-400' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-amber-600 dark:text-gold-400' : ''}`} />
             </button>
           </div>
         </div>
 
         {/* Breakdown chips */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2 border-t border-slate-800/80">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2 border-t border-slate-200 dark:border-slate-800/80">
           
           {/* Physical Gold Chip (if present) */}
           {physicalGoldValue > 0 && (
             <div
               onClick={() => onNavigateToTab('holdings')}
-              className="p-3 rounded-2xl bg-slate-950/80 border border-amber-400/40 hover:border-amber-400/70 transition-all cursor-pointer space-y-1"
+              className="p-3 rounded-2xl bg-amber-50/70 dark:bg-slate-950/80 border border-amber-300/80 dark:border-amber-400/40 hover:border-amber-400 dark:hover:border-amber-400/70 transition-all cursor-pointer space-y-1"
             >
-              <div className="flex items-center justify-between text-[11px] text-slate-400">
-                <span className="flex items-center gap-1 font-bold text-amber-300">
-                  <Coins className="w-3.5 h-3.5 text-amber-400" />
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1 font-bold text-amber-800 dark:text-amber-300">
+                  <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                   <span>طلای فیزیکی</span>
                 </span>
-                <span className="text-amber-300 font-bold">
+                <span className="text-amber-700 dark:text-amber-300 font-bold">
                   {totalPortfolioValue > 0 ? formatPercent((physicalGoldValue / totalPortfolioValue) * 100) : '۰٪'}
                 </span>
               </div>
-              <div className="text-sm font-black text-slate-100 dir-ltr text-right">
+              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
                 {formatCurrency(physicalGoldValue)}
               </div>
             </div>
@@ -289,18 +289,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {bourseGoldValue > 0 && (
             <div
               onClick={() => onNavigateToTab('gold')}
-              className="p-3 rounded-2xl bg-slate-950/80 border border-amber-600/40 hover:border-amber-500/70 transition-all cursor-pointer space-y-1"
+              className="p-3 rounded-2xl bg-amber-50/70 dark:bg-slate-950/80 border border-amber-300/80 dark:border-amber-600/40 hover:border-amber-400 dark:hover:border-amber-500/70 transition-all cursor-pointer space-y-1"
             >
-              <div className="flex items-center justify-between text-[11px] text-slate-400">
-                <span className="flex items-center gap-1 font-bold text-amber-500">
-                  <TrendingUp className="w-3.5 h-3.5 text-amber-500" />
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1 font-bold text-amber-800 dark:text-amber-500">
+                  <TrendingUp className="w-3.5 h-3.5 text-amber-600 dark:text-amber-500" />
                   <span>طلای بورس</span>
                 </span>
-                <span className="text-amber-400 font-bold">
+                <span className="text-amber-700 dark:text-amber-400 font-bold">
                   {totalPortfolioValue > 0 ? formatPercent((bourseGoldValue / totalPortfolioValue) * 100) : '۰٪'}
                 </span>
               </div>
-              <div className="text-sm font-black text-slate-100 dir-ltr text-right">
+              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
                 {formatCurrency(bourseGoldValue)}
               </div>
             </div>
@@ -310,16 +310,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {physicalGoldValue === 0 && bourseGoldValue === 0 && (
             <div
               onClick={() => onNavigateToTab('gold')}
-              className="p-3 rounded-2xl bg-slate-950/80 border border-gold-500/30 hover:border-gold-500/60 transition-all cursor-pointer space-y-1"
+              className="p-3 rounded-2xl bg-amber-50/70 dark:bg-slate-950/80 border border-amber-300/80 dark:border-gold-500/30 hover:border-amber-400 dark:hover:border-gold-500/60 transition-all cursor-pointer space-y-1"
             >
-              <div className="flex items-center justify-between text-[11px] text-slate-400">
-                <span className="flex items-center gap-1 font-bold text-gold-400">
-                  <Coins className="w-3.5 h-3.5" />
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1 font-bold text-amber-800 dark:text-gold-400">
+                  <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400" />
                   <span>مجموع طلا ({toPersianDigits(settings.goldPercent)}%)</span>
                 </span>
-                <span className="text-gold-300 font-bold">{formatPercent(goldPercentActual)}</span>
+                <span className="text-amber-700 dark:text-gold-300 font-bold">{formatPercent(goldPercentActual)}</span>
               </div>
-              <div className="text-sm font-black text-slate-100 dir-ltr text-right">
+              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
                 {formatCurrency(goldHoldingValue)}
               </div>
             </div>
@@ -328,25 +328,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Crypto Chip */}
           <div
             onClick={() => onNavigateToTab('crypto')}
-            className="p-3 rounded-2xl bg-slate-950/80 border border-indigo-500/30 hover:border-indigo-500/60 transition-all cursor-pointer space-y-1"
+            className="p-3 rounded-2xl bg-indigo-50/70 dark:bg-slate-950/80 border border-indigo-200 dark:border-indigo-500/30 hover:border-indigo-300 dark:hover:border-indigo-500/60 transition-all cursor-pointer space-y-1"
           >
-            <div className="flex items-center justify-between text-[11px] text-slate-400">
-              <span className="flex items-center gap-1 font-bold text-indigo-400">
-                <TrendingUp className="w-3.5 h-3.5" />
+            <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+              <span className="flex items-center gap-1 font-bold text-indigo-700 dark:text-indigo-400">
+                <TrendingUp className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                 <span>کریپتو ({toPersianDigits(settings.cryptoPercent)}%)</span>
               </span>
-              <span className="text-indigo-300 font-bold">{formatPercent(cryptoPercentActual)}</span>
+              <span className="text-indigo-700 dark:text-indigo-300 font-bold">{formatPercent(cryptoPercentActual)}</span>
             </div>
             <div className="flex items-baseline justify-between gap-1">
-              <div className="text-sm font-black text-slate-100 dir-ltr text-right">
+              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
                 {formatCurrency(totalCryptoValue)}
               </div>
               {totalCryptoProfitTomans !== undefined && (
                 <span
                   className={`text-[10px] font-black px-1.5 py-0.5 rounded-md dir-ltr inline-flex items-center gap-0.5 ${
                     totalCryptoProfitTomans >= 0
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                      : 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                      ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30'
+                      : 'bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30'
                   }`}
                 >
                   {totalCryptoProfitTomans >= 0 ? '+' : ''}
@@ -355,11 +355,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               )}
             </div>
             {totalCryptoProfitTomans !== undefined && (
-              <div className="flex items-center justify-between text-[10px] pt-1 border-t border-slate-800/80">
-                <span className="text-slate-400">سود/زیان خالص:</span>
+              <div className="flex items-center justify-between text-[10px] pt-1 border-t border-indigo-100 dark:border-slate-800/80">
+                <span className="text-slate-500 dark:text-slate-400">سود/زیان خالص:</span>
                 <span
                   className={`font-bold dir-ltr ${
-                    totalCryptoProfitTomans >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                    totalCryptoProfitTomans >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
                   }`}
                 >
                   {totalCryptoProfitTomans >= 0 ? '+' : ''}
@@ -373,20 +373,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {propertiesValue > 0 && (
             <div
               onClick={() => onNavigateToTab('properties')}
-              className="p-3 rounded-2xl bg-slate-950/80 border border-teal-500/30 hover:border-teal-500/60 transition-all cursor-pointer space-y-1 col-span-2 sm:col-span-1"
+              className="p-3 rounded-2xl bg-teal-50/70 dark:bg-slate-950/80 border border-teal-200 dark:border-teal-500/30 hover:border-teal-300 dark:hover:border-teal-500/60 transition-all cursor-pointer space-y-1 col-span-2 sm:col-span-1"
             >
-              <div className="flex items-center justify-between text-[11px] text-slate-400">
-                <span className="flex items-center gap-1 font-bold text-teal-400">
-                  <Building2 className="w-3.5 h-3.5" />
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1 font-bold text-teal-700 dark:text-teal-400">
+                  <Building2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                   <span>املاک و مستغلات</span>
                 </span>
-                <span className="text-teal-300 font-bold">
+                <span className="text-teal-700 dark:text-teal-300 font-bold">
                   {totalPortfolioValue + propertiesValue > 0
                     ? formatPercent((propertiesValue / (totalPortfolioValue + propertiesValue)) * 100)
                     : '۰٪'}
                 </span>
               </div>
-              <div className="text-sm font-black text-slate-100 dir-ltr text-right">
+              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
                 {formatCurrency(propertiesValue)}
               </div>
             </div>
@@ -396,16 +396,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {tomanCashBalance > 0 && (
             <div
               onClick={() => onNavigateToTab('crypto')}
-              className="p-3 rounded-2xl bg-slate-950/80 border border-emerald-500/30 hover:border-emerald-500/60 transition-all cursor-pointer space-y-1 col-span-2 sm:col-span-1"
+              className="p-3 rounded-2xl bg-emerald-50/70 dark:bg-slate-950/80 border border-emerald-200 dark:border-emerald-500/30 hover:border-emerald-300 dark:hover:border-emerald-500/60 transition-all cursor-pointer space-y-1 col-span-2 sm:col-span-1"
             >
-              <div className="flex items-center justify-between text-[11px] text-slate-400">
-                <span className="flex items-center gap-1 font-bold text-emerald-400">
-                  <Wallet className="w-3.5 h-3.5" />
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1 font-bold text-emerald-700 dark:text-emerald-400">
+                  <Wallet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>نقد نوبیتکس</span>
                 </span>
-                <span className="text-emerald-300 font-bold">{formatPercent(cashPercentActual)}</span>
+                <span className="text-emerald-700 dark:text-emerald-300 font-bold">{formatPercent(cashPercentActual)}</span>
               </div>
-              <div className="text-sm font-black text-slate-100 dir-ltr text-right">
+              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
                 {formatCurrency(tomanCashBalance)}
               </div>
             </div>
@@ -415,15 +415,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* 2. PORTFOLIO 80/20 ALLOCATION DONUT CHART */}
-      <div className="glass-card p-5 border border-slate-800 shadow-xl space-y-4">
+      <div className="glass-card p-5 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-xl space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center font-bold text-sm">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/15 dark:bg-gold-500/20 text-amber-700 dark:text-gold-400 flex items-center justify-center font-bold text-sm">
               <PieChart className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-slate-100">ترکیب سبد دارایی و وضعیت تعادل</h3>
-              <p className="text-[11px] text-slate-400">
+              <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">ترکیب سبد دارایی و وضعیت تعادل</h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 هدف: {toPersianDigits(settings.goldPercent)}% طلا و مسکوکات / {toPersianDigits(settings.cryptoPercent)}% ارزهای دیجیتال
               </p>
             </div>
@@ -431,7 +431,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <button
             onClick={() => onNavigateToTab('settings')}
-            className="text-[11px] text-slate-400 hover:text-gold-400 font-bold transition-colors"
+            className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-gold-400 font-bold transition-colors"
           >
             تغییر نسبت‌ها
           </button>
@@ -451,13 +451,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         />
 
         {/* Health status banner */}
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800 text-xs">
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-xs">
           <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
             isGoldUnderweight
-              ? 'bg-amber-950/30 border-gold-500/40 text-gold-300'
-              : 'bg-slate-900/60 border-slate-800 text-slate-300'
+              ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-gold-500/40 text-amber-800 dark:text-gold-300'
+              : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
           }`}>
-            <span className={`w-2 h-2 rounded-full ${isGoldUnderweight ? 'bg-gold-400 animate-pulse' : 'bg-emerald-400'}`} />
+            <span className={`w-2 h-2 rounded-full ${isGoldUnderweight ? 'bg-amber-500 dark:bg-gold-400 animate-pulse' : 'bg-emerald-500'}`} />
             <span>
               طلا: {formatPercent(goldPercentActual)} {isGoldUnderweight && '📉 نیاز به خرید'}
             </span>
@@ -465,10 +465,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
             isCryptoUnderweight
-              ? 'bg-indigo-950/30 border-indigo-500/40 text-indigo-300'
-              : 'bg-slate-900/60 border-slate-800 text-slate-300'
+              ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-500/40 text-indigo-800 dark:text-indigo-300'
+              : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
           }`}>
-            <span className={`w-2 h-2 rounded-full ${isCryptoUnderweight ? 'bg-indigo-400 animate-pulse' : 'bg-emerald-400'}`} />
+            <span className={`w-2 h-2 rounded-full ${isCryptoUnderweight ? 'bg-indigo-500 dark:bg-indigo-400 animate-pulse' : 'bg-emerald-500'}`} />
             <span>
               کریپتو: {formatPercent(cryptoPercentActual)} {isCryptoUnderweight && '📉 نیاز به خرید'}
             </span>
@@ -493,12 +493,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div>
-              <h3 className="text-sm font-black text-slate-100 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-gold-400" />
-                <span>پیشنهاد هوشمند خرید دارایی‌ها</span>
+              <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-600 dark:text-gold-400" />
+                <span>محاسبه و خرید هوشمند دارایی‌ها</span>
               </h3>
-              <p className="text-[11px] text-slate-400">
-                بر اساس فرمول بازتعادل جهت رسیدن سبد به نسبت {toPersianDigits(settings.goldPercent)} / {toPersianDigits(settings.cryptoPercent)}
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                بر اساس سهم پس‌انداز و فرمول بازتعادل جهت رسیدن سبد به نسبت {toPersianDigits(settings.goldPercent)} / {toPersianDigits(settings.cryptoPercent)}
               </p>
             </div>
 
@@ -507,7 +507,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 triggerHaptic('medium');
                 onApplyPurchases();
               }}
-              className="self-start sm:self-auto px-3.5 py-2 rounded-2xl bg-gradient-to-r from-amber-400 to-gold-500 hover:from-amber-300 hover:to-gold-400 text-slate-950 font-black text-xs transition-all shadow-gold-glow interactive-tap shrink-0"
+              className="self-start sm:self-auto px-3.5 py-2 rounded-2xl bg-gradient-to-r from-amber-400 via-gold-400 to-yellow-500 hover:from-amber-300 hover:to-gold-400 text-slate-950 font-black text-xs transition-all shadow-gold-glow interactive-tap shrink-0"
             >
               ثبت همه خریدها
             </button>
@@ -522,7 +522,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Crypto Buy Cards */}
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-indigo-500" />
                 <span>ارزهای دیجیتال پیشنهادی برای خرید:</span>
               </h4>
@@ -530,8 +530,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span
                   className={`text-[10px] font-black px-2 py-0.5 rounded-lg dir-ltr inline-flex items-center gap-1 ${
                     totalCryptoProfitTomans >= 0
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                      : 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                      ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30'
+                      : 'bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30'
                   }`}
                 >
                   <span>سود کل کریپتو:</span>
@@ -549,8 +549,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     key={buy.id}
                     className={`p-4 rounded-3xl border transition-all ${
                       buy.suggestedBuy > 0
-                        ? 'bg-slate-900 border-indigo-500/40 shadow-lg'
-                        : 'bg-slate-950/60 border-slate-800 opacity-60'
+                        ? 'bg-white dark:bg-slate-900 border-indigo-200 dark:border-indigo-500/40 shadow-sm dark:shadow-lg'
+                        : 'bg-slate-50/70 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 opacity-70'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -559,19 +559,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           className="w-3 h-3 rounded-full shrink-0"
                           style={{ backgroundColor: buy.color }}
                         />
-                        <span className="font-black text-sm text-slate-100">{buy.symbol}</span>
-                        <span className="text-[10px] text-slate-400">{buy.name}</span>
+                        <span className="font-black text-sm text-slate-900 dark:text-slate-100">{buy.symbol}</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400">{buy.name}</span>
                       </div>
 
-                      <span className="text-[11px] font-bold text-indigo-400">
+                      <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-400">
                         وزن هدف: {toPersianDigits(buy.targetPercent)}%
                       </span>
                     </div>
 
-                    <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                    <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between">
                       <div>
-                        <span className="text-[10px] text-slate-400 block">مبلغ خرید پیشنهادی:</span>
-                        <span className={`text-sm font-black dir-ltr text-right ${buy.suggestedBuy > 0 ? 'text-indigo-300' : 'text-slate-500'}`}>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block">مبلغ خرید پیشنهادی:</span>
+                        <span className={`text-sm font-black dir-ltr text-right ${buy.suggestedBuy > 0 ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-400 dark:text-slate-500'}`}>
                           {formatCurrency(buy.suggestedBuy)}
                         </span>
                       </div>
@@ -579,10 +579,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {buy.suggestedBuy > 0 && (
                         <button
                           onClick={() => handleCopy(buy.id, String(buy.suggestedBuy), `مبلغ ${buy.symbol} کپی شد`)}
-                          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-indigo-300 border border-slate-700 transition-all touch-target"
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 hover:text-indigo-700 dark:text-slate-300 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-700 transition-all touch-target"
                           title="کپی مبلغ"
                         >
-                          {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                          {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
                       )}
                     </div>
