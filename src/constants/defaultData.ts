@@ -91,6 +91,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   calculationMode: 'rebalance', // Smart Rebalancing to reach target weights
   currencyUnit: 'toman',
   goldPricePerGram: 5200000, // Approximate gold price per gram in Tomans
+  capitalInputMode: 'income',
 };
 
 export const DEFAULT_GOLD_HOLDING: GoldHolding = {

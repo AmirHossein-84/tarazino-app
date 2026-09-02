@@ -174,8 +174,9 @@ export function calculatePortfolioAllocation(
   goldHolding: GoldHolding
 ): CalculationResult {
   const totalInputAmount = Math.max(0, inputAmount || 0);
-  const savingsPct = Math.min(100, Math.max(0, settings.savingsPercent ?? 30));
-  const totalSavingsAmount = Math.round(totalInputAmount * (savingsPct / 100));
+  const isDirect = settings.capitalInputMode === 'direct';
+  const savingsPct = isDirect ? 100 : Math.min(100, Math.max(0, settings.savingsPercent ?? 30));
+  const totalSavingsAmount = isDirect ? totalInputAmount : Math.round(totalInputAmount * (savingsPct / 100));
 
   let goldBuyAmount = 0;
   let cryptoBuyAmount = 0;

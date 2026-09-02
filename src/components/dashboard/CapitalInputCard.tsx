@@ -28,6 +28,13 @@ export const CapitalInputCard: React.FC<CapitalInputCardProps> = ({
     inputAmount > 0 ? new Intl.NumberFormat('en-US').format(inputAmount) : ''
   );
 
+  const isDirect = settings.capitalInputMode === 'direct';
+
+  const handleModeChange = (mode: 'direct' | 'income') => {
+    triggerHaptic('light');
+    updateSettings({ capitalInputMode: mode });
+  };
+
   useEffect(() => {
     setDisplayValue(inputAmount > 0 ? new Intl.NumberFormat('en-US').format(inputAmount) : '');
   }, [inputAmount]);
@@ -66,7 +73,9 @@ export const CapitalInputCard: React.FC<CapitalInputCardProps> = ({
               سرمایه ورودی جدید (محاسبه تخصیص پس‌انداز)
             </h3>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              محاسبه هوشمند سهم طلا ({toPersianDigits(settings.goldPercent)}%) و کریپتو ({toPersianDigits(settings.cryptoPercent)}%)
+              {isDirect
+                ? `تخصیص ۱۰۰٪ مستقیم مبلغ ورودی بین طلا (${toPersianDigits(settings.goldPercent)}%) و کریپتو (${toPersianDigits(settings.cryptoPercent)}%)`
+                : `محاسبه هوشمند سهم طلا (${toPersianDigits(settings.goldPercent)}%) و کریپتو (${toPersianDigits(settings.cryptoPercent)}%)`}
             </p>
           </div>
         </div>
@@ -81,6 +90,35 @@ export const CapitalInputCard: React.FC<CapitalInputCardProps> = ({
             <span className="hidden sm:inline">پاک کردن</span>
           </button>
         )}
+      </div>
+
+      {/* Allocation Mode Switcher (100% Direct vs Savings Percent from Income) */}
+      <div className="p-1 rounded-2xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex items-center gap-1 text-xs select-none">
+        <button
+          type="button"
+          onClick={() => handleModeChange('direct')}
+          className={`flex-1 py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 interactive-tap ${
+            isDirect
+              ? 'bg-white dark:bg-slate-800 text-amber-700 dark:text-gold-300 shadow-sm border border-amber-500/30 font-black'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-bold'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+          <span>سرمایه‌گذاری مستقیم (۱۰۰٪)</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleModeChange('income')}
+          className={`flex-1 py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 interactive-tap ${
+            !isDirect
+              ? 'bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 shadow-sm border border-indigo-500/30 font-black'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-bold'
+          }`}
+        >
+          <Wallet className="w-3.5 h-3.5 text-indigo-500" />
+          <span>سهم پس‌انداز از درآمد ({toPersianDigits(settings.savingsPercent)}%)</span>
+        </button>
       </div>
 
       {/* Numeric Amount Input */}
@@ -132,12 +170,16 @@ export const CapitalInputCard: React.FC<CapitalInputCardProps> = ({
       {totalSavingsAmount > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-3 border-t border-slate-200 dark:border-slate-800/80 animate-fadeIn">
           
-          {/* 30% Savings */}
+          {/* 100% Direct or 30% Savings */}
           <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/90 space-y-1">
             <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
               <span className="flex items-center gap-1 font-bold text-slate-700 dark:text-slate-300">
                 <Wallet className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                <span>سهم پس‌انداز ({toPersianDigits(settings.savingsPercent)}%)</span>
+                <span>
+                  {isDirect
+                    ? 'بودجه کل (۱۰۰٪ مستقیم)'
+                    : `سهم پس‌انداز (${toPersianDigits(settings.savingsPercent)}%)`}
+                </span>
               </span>
             </div>
             <div className="text-sm font-black text-slate-900 dark:text-slate-100">

@@ -123,4 +123,20 @@ describe('Portfolio Calculations & Allocation Engine', () => {
     const cryptoSum = result.cryptoBuys.reduce((sum, c) => sum + c.suggestedBuy, 0);
     assert.equal(cryptoSum, 1200000);
   });
+
+  it('allocates 100% of input directly between Gold and Crypto when capitalInputMode is direct', () => {
+    const directSettings = {
+      ...DEFAULT_SETTINGS,
+      capitalInputMode: 'direct' as const,
+    };
+    // 5M Tomans input directly
+    const result = calculatePortfolioAllocation(5000000, directSettings, DEFAULT_CRYPTO_ASSETS, emptyGold);
+    // 100% of 5M = 5M savings
+    assert.equal(result.totalSavingsAmount, 5000000);
+    // 80% = 4M Gold, 20% = 1M Crypto
+    assert.equal(result.goldBuyAmount, 4000000);
+    assert.equal(result.cryptoBuyAmount, 1000000);
+    assert.equal(result.totalCryptoBuySuggested, 1000000);
+    assert.equal(result.goldBuyAmount + result.cryptoBuyAmount, 5000000);
+  });
 });

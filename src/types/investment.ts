@@ -116,6 +116,7 @@ export interface AppSettings {
   calculationMode: 'rebalance' | 'direct'; // rebalance vs direct split
   currencyUnit: 'toman' | 'rial';
   goldPricePerGram: number; // e.g. 5,000,000 Tomans
+  capitalInputMode?: 'direct' | 'income'; // 'direct' = 100% direct allocation, 'income' = apply savingsPercent
 }
 
 export interface CalculatedCryptoBuy {
