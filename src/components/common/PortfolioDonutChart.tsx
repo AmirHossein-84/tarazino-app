@@ -102,15 +102,6 @@ export const PortfolioDonutChart: React.FC<PortfolioDonutChartProps> = React.mem
     <div className="flex flex-col items-center gap-4">
       {/* SVG Donut Container */}
       <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
-        
-        {/* Soft Ambient Glow Halo Behind Chart */}
-        <div
-          className="absolute inset-4 rounded-full blur-2xl opacity-20 dark:opacity-30 pointer-events-none transition-colors duration-300"
-          style={{
-            backgroundColor: activeItem ? activeItem.color : '#EAB308',
-          }}
-        />
-
         <svg width={size} height={size} className="transform -rotate-90 overflow-visible">
           <defs>
             {slices.map((slice) => (
@@ -172,45 +163,36 @@ export const PortfolioDonutChart: React.FC<PortfolioDonutChartProps> = React.mem
           })}
         </svg>
 
-        {/* Center Glass Hub */}
-        <div
-          className="absolute inset-0 m-auto rounded-full flex flex-col items-center justify-center text-center px-4 pointer-events-none transition-all duration-200"
-          style={{
-            width: size - (strokeWidth * 2) - 16,
-            height: size - (strokeWidth * 2) - 16,
-          }}
-        >
-          <div className="w-full h-full rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 shadow-inner flex flex-col items-center justify-center p-3 select-none">
-            {activeItem ? (
-              <div className="animate-fadeIn space-y-0.5">
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block truncate max-w-[110px]">
-                  {activeItem.label}
+        {/* Center Text (Clean & Transparent) */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-4 select-none">
+          {activeItem ? (
+            <div className="animate-fadeIn space-y-0.5">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block truncate max-w-[120px]">
+                {activeItem.label}
+              </span>
+              <span className="text-lg font-black text-slate-900 dark:text-slate-100 block dir-ltr">
+                {formatPercent(activeItem.percent, 1)}
+              </span>
+              <span className="text-[10px] text-amber-700 dark:text-gold-400 font-bold block dir-ltr">
+                {formatToman(activeItem.value)} ت
+              </span>
+            </div>
+          ) : (
+            <div className="space-y-0.5">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block">
+                {centerTitle}
+              </span>
+              <span className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 block dir-ltr">
+                {formattedTotalValue || `${formatToman(totalValue)} ت`}
+              </span>
+              {centerSubtitle && (
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">
+                  {centerSubtitle}
                 </span>
-                <span className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 block dir-ltr">
-                  {formatPercent(activeItem.percent, 1)}
-                </span>
-                <span className="text-[10px] text-amber-700 dark:text-gold-400 font-bold block dir-ltr">
-                  {formatToman(activeItem.value)} ت
-                </span>
-              </div>
-            ) : (
-              <div className="space-y-0.5">
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block">
-                  {centerTitle}
-                </span>
-                <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 block dir-ltr">
-                  {formattedTotalValue || `${formatToman(totalValue)} ت`}
-                </span>
-                {centerSubtitle && (
-                  <span className="text-[9px] text-slate-500 dark:text-slate-400 block font-medium">
-                    {centerSubtitle}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
-
       </div>
 
       {/* Legend & Target Comparison */}
