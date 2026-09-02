@@ -23,7 +23,7 @@ interface PercentagesConfigProps {
   updateSettings: (settings: Partial<AppSettings>) => void;
   cryptoAssets: CryptoAsset[];
   updateCryptoAssets: (assets: CryptoAsset[]) => void;
-  onNotify?: (message: string, type?: 'success' | 'info' | 'error') => void;
+  onNotify?: (message: string, type?: 'success' | 'info' | 'error' | 'warning') => void;
 }
 
 // Initial strategy target percentages

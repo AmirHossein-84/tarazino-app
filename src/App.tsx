@@ -1,27 +1,44 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useInvestmentState } from './hooks/useInvestmentState';
 import { MarketDataProvider, useMarketData } from './hooks/useMarketData';
 import { useNobitex } from './hooks/useNobitex';
 import { useTheme } from './hooks/useTheme';
 import { useCurrencyDisplay } from './hooks/useCurrencyDisplay';
+import { useProfileState } from './hooks/useProfileState';
 import { Header } from './components/layout/Header';
 import { BottomNav } from './components/layout/BottomNav';
 import { DashboardView } from './components/dashboard/DashboardView';
-import { CryptoMarketView } from './components/crypto/CryptoMarketView';
-import { MarketInstrumentsView } from './components/market/MarketInstrumentsView';
+import { MarketsHubView } from './components/market/MarketsHubView';
 import { HoldingsManager } from './components/holdings/HoldingsManager';
-import { PropertyManagerView } from './components/properties/PropertyManagerView';
 import { SellView } from './components/sell/SellView';
 import { PercentagesConfig } from './components/settings/PercentagesConfig';
 import { BackupRestore } from './components/settings/BackupRestore';
+import { AccountSettingsView } from './components/settings/AccountSettingsView';
 import { TransactionHistory } from './components/history/TransactionHistory';
+import { WelcomeOnboardingModal } from './components/onboarding/WelcomeOnboardingModal';
+import { ProfileSwitcherModal } from './components/account/ProfileSwitcherModal';
 import { CheckCircle, Info, AlertCircle } from 'lucide-react';
-import { PhysicalGoldType } from './types/investment';
+import { PhysicalGoldType, ActiveTab } from './types/investment';
 
 const AppContent: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
   const [activeGoldFund, setActiveGoldFund] = useState<string>('عیار');
   const [isRefreshingAll, setIsRefreshingAll] = useState(false);
+
+  // Multi-User Profile State
+  const {
+    vault,
+    activeProfile,
+    activeProfileId,
+    needsOnboarding,
+    showProfileSwitcher,
+    setShowProfileSwitcher,
+    switchProfile,
+    createProfile,
+    completeOnboarding,
+    updateActiveProfileData,
+    deleteProfile,
+  } = useProfileState();
 
   const {
     currencyMode,
@@ -106,6 +123,12 @@ const AppContent: React.FC = () => {
     editProperty,
     removeProperty,
     updatePropertyValuation,
+    vehicles,
+    totalVehiclesValueTomans,
+    netWorthVehiclesValueTomans,
+    addVehicle,
+    editVehicle,
+    removeVehicle,
     transactions,
     deleteTransaction,
     clearAllHistory,
@@ -120,6 +143,35 @@ const AppContent: React.FC = () => {
     externalGoldValueTomans: totalGoldMarketValueTomans,
     onApplyGoldPurchase: handleApplyGoldPurchase,
   });
+
+  // Sync active profile data into device vault when local state changes
+  useEffect(() => {
+    if (activeProfileId) {
+      updateActiveProfileData({
+        settings,
+        cryptoAssets,
+        goldHolding,
+        physicalGold: physicalGoldItems,
+        properties,
+        vehicles,
+        goldBuyLots,
+        physicalGoldSales,
+        transactions,
+      });
+    }
+  }, [
+    activeProfileId,
+    settings,
+    cryptoAssets,
+    goldHolding,
+    physicalGoldItems,
+    properties,
+    vehicles,
+    goldBuyLots,
+    physicalGoldSales,
+    transactions,
+    updateActiveProfileData,
+  ]);
 
   // Handlers to deduct sold gold units from holdings
   const handleDeductBourseGold = useCallback(
@@ -193,7 +245,7 @@ const AppContent: React.FC = () => {
       {/* Main Container */}
       <main className="max-w-4xl mx-auto px-4 py-5 space-y-5">
         
-        {/* TAB 1: DASHBOARD (OVERVIEW, 80/20 DONUT & SMART BUY) */}
+        {/* TAB 1: DASHBOARD (OVERVIEW, 80/20 DONUT, SMART BUY & ASSET SUMMARY) */}
         {(activeTab === 'dashboard' || (activeTab as string) === 'calculator') && (
           <DashboardView
             totalInputAmount={inputAmount}
@@ -204,6 +256,7 @@ const AppContent: React.FC = () => {
             physicalGoldValue={totalPhysicalGoldValueTomans}
             bourseGoldValue={totalGoldMarketValueTomans}
             propertiesValue={netWorthPropertiesValueTomans}
+            vehiclesValue={netWorthVehiclesValueTomans}
             totalCryptoValue={totalCryptoValue}
             totalPortfolioValue={totalPortfolioValue}
             tomanCashBalance={tomanCashBalance}
@@ -226,53 +279,25 @@ const AppContent: React.FC = () => {
           />
         )}
 
-        {/* TAB 2: GOLD & STOCK MARKET (TSETMC) */}
-        {(activeTab === 'gold' || (activeTab as string) === 'market') && (
+        {/* TAB 2: MARKETS HUB (TSETMC GOLD FUNDS & NOBITEX CRYPTO) */}
+        {(activeTab === 'markets' || (activeTab as string) === 'gold' || (activeTab as string) === 'crypto') && (
           <div className="animate-fadeIn">
-            <MarketInstrumentsView
+            <MarketsHubView
+              cryptoAssets={cryptoAssets}
               physicalGoldItems={physicalGoldItems}
               totalPhysicalGoldValueTomans={totalPhysicalGoldValueTomans}
               currencyMode={currencyMode}
               formatCurrency={formatCurrency}
               toDisplayValue={toDisplayValue}
-              onNavigateToHoldings={() => setActiveTab('holdings')}
-            />
-          </div>
-        )}
-
-        {/* TAB 3: CRYPTO MARKET (NOBITEX) */}
-        {activeTab === 'crypto' && (
-          <div className="animate-fadeIn">
-            <CryptoMarketView
-              cryptoAssets={cryptoAssets}
-              currencyMode={currencyMode}
-              formatCurrency={formatCurrency}
-              toDisplayValue={toDisplayValue}
               onAssetsUpdated={updateCryptoAssets}
+              onNavigateToHoldings={() => setActiveTab('holdings')}
               onNotify={showNotification}
             />
           </div>
         )}
 
-        {/* TAB 4: REAL ESTATE & PROPERTY MANAGEMENT */}
-        {activeTab === 'properties' && (
-          <div className="animate-fadeIn">
-            <PropertyManagerView
-              properties={properties}
-              currencyMode={currencyMode}
-              usdtRateTomans={usdtRateTomans}
-              formatCurrency={formatCurrency}
-              toDisplayValue={toDisplayValue}
-              onAddProperty={addProperty}
-              onEditProperty={editProperty}
-              onRemoveProperty={removeProperty}
-              onNotify={showNotification}
-            />
-          </div>
-        )}
-
-        {/* TAB 5: HOLDINGS MANAGEMENT */}
-        {activeTab === 'holdings' && (
+        {/* TAB 3: HOLDINGS MANAGEMENT (GOLD, CRYPTO, PROPERTIES & VEHICLES) */}
+        {(activeTab === 'holdings' || (activeTab as string) === 'properties' || (activeTab as string) === 'vehicles') && (
           <div className="animate-fadeIn">
             <HoldingsManager
               cryptoAssets={cryptoAssets}
@@ -287,6 +312,7 @@ const AppContent: React.FC = () => {
               goldBuyLots={goldBuyLots}
               physicalGoldSales={physicalGoldSales}
               currencyMode={currencyMode}
+              usdtRateTomans={usdtRateTomans}
               formatCurrency={formatCurrency}
               toDisplayValue={toDisplayValue}
               onRefreshPhysicalGold={refreshPhysicalGoldPrices}
@@ -295,14 +321,22 @@ const AppContent: React.FC = () => {
               onAddGoldBuyLot={addGoldBuyLot}
               onDeleteGoldSale={deleteGoldSaleRecord}
               onClearGoldSales={clearGoldSaleHistory}
+              properties={properties}
+              onAddProperty={addProperty}
+              onEditProperty={editProperty}
+              onRemoveProperty={removeProperty}
+              vehicles={vehicles}
+              onAddVehicle={addVehicle}
+              onEditVehicle={editVehicle}
+              onRemoveVehicle={removeVehicle}
               onNavigateToCalculator={() => setActiveTab('dashboard')}
-              onNavigateToMarket={() => setActiveTab('gold')}
+              onNavigateToMarket={() => setActiveTab('markets')}
               onNotify={showNotification}
             />
           </div>
         )}
 
-        {/* TAB 5: SELL & REBALANCE */}
+        {/* TAB 4: SELL & REBALANCE */}
         {activeTab === 'sell' && (
           <div className="animate-fadeIn">
             <SellView
@@ -323,9 +357,21 @@ const AppContent: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 6: SETTINGS & HISTORY */}
+        {/* TAB 5: SETTINGS & ACCOUNT MANAGEMENT */}
         {activeTab === 'settings' && (
           <div className="space-y-5 animate-fadeIn">
+            {/* Account & Profile Management */}
+            <AccountSettingsView
+              activeProfile={activeProfile}
+              profiles={vault?.profiles || []}
+              onSelectProfile={switchProfile}
+              onCreateProfile={createProfile}
+              onDeleteProfile={deleteProfile}
+              cryptoAssets={cryptoAssets}
+              onAssetsUpdated={updateCryptoAssets}
+              onNotify={showNotification}
+            />
+
             <PercentagesConfig
               settings={settings}
               updateSettings={updateSettings}
@@ -348,21 +394,27 @@ const AppContent: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 6: HISTORY (IF ACCESSED DIRECTLY) */}
-        {activeTab === 'history' && (
-          <div className="animate-fadeIn">
-            <TransactionHistory
-              transactions={transactions}
-              onDeleteTransaction={deleteTransaction}
-              onClearAll={clearAllHistory}
-            />
-          </div>
-        )}
-
       </main>
 
       {/* Floating Bottom Navigation */}
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {/* Onboarding Modal for First Time Users */}
+      <WelcomeOnboardingModal
+        isOpen={needsOnboarding}
+        onComplete={completeOnboarding}
+      />
+
+      {/* Profile Switcher Modal */}
+      <ProfileSwitcherModal
+        isOpen={showProfileSwitcher}
+        onClose={() => setShowProfileSwitcher(false)}
+        profiles={vault?.profiles || []}
+        activeProfileId={activeProfileId}
+        onSelectProfile={switchProfile}
+        onCreateProfile={createProfile}
+        onDeleteProfile={deleteProfile}
+      />
 
       {/* Toast Notification Snackbar (Bottom-Floating above BottomNav) */}
       {notification && (
@@ -381,21 +433,20 @@ const AppContent: React.FC = () => {
                 <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               </div>
             )}
+            {notification.type === 'info' && (
+              <div className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center shrink-0">
+                <Info className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              </div>
+            )}
             {notification.type === 'error' && (
               <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center shrink-0">
                 <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
               </div>
             )}
-            {notification.type === 'info' && (
-              <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center shrink-0">
-                <Info className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-              </div>
-            )}
-            <span className="leading-snug">{notification.message}</span>
+            <span>{notification.message}</span>
           </div>
         </div>
       )}
-
     </div>
   );
 };

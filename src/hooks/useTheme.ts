@@ -13,16 +13,40 @@ export function useTheme() {
 
     if (isDark) {
       root.classList.add('dark');
-      localStorage.setItem('app_theme', 'dark');
       metaThemeColor?.setAttribute('content', '#0B0F17');
     } else {
       root.classList.remove('dark');
-      localStorage.setItem('app_theme', 'light');
       metaThemeColor?.setAttribute('content', '#F1F5F9');
     }
   }, [isDark]);
 
-  const toggleTheme = () => setIsDark((prev) => !prev);
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    
+    // Temporarily suppress transitions across the entire DOM
+    root.classList.add('disable-transitions');
+    
+    const nextDark = !isDark;
+    if (nextDark) {
+      root.classList.add('dark');
+      metaThemeColor?.setAttribute('content', '#0B0F17');
+      localStorage.setItem('app_theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      metaThemeColor?.setAttribute('content', '#F1F5F9');
+      localStorage.setItem('app_theme', 'light');
+    }
+    
+    setIsDark(nextDark);
+
+    // Re-enable transitions on next animation frame
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        root.classList.remove('disable-transitions');
+      });
+    });
+  };
 
   return { isDark, toggleTheme };
 }

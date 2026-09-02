@@ -23,7 +23,7 @@ interface NobitexSyncModalProps {
   onClose: () => void;
   cryptoAssets: CryptoAsset[];
   onAssetsUpdated: (assets: CryptoAsset[]) => void;
-  onNotify?: (message: string, type?: 'success' | 'info' | 'error') => void;
+  onNotify?: (message: string, type?: 'success' | 'info' | 'error' | 'warning') => void;
 }
 
 export const NobitexSyncModal: React.FC<NobitexSyncModalProps> = ({

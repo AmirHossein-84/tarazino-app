@@ -6,6 +6,7 @@ import {
   PhysicalGoldBuyLot,
   PhysicalGoldSaleRecord,
   PropertyItem,
+  VehicleItem,
   TransactionRecord,
   MarketInstrument,
   UserMarketHolding,
@@ -24,6 +25,7 @@ const STORAGE_KEYS = {
   GOLD_HOLDING: 'investment_app_gold_holding_v1',
   PHYSICAL_GOLD: 'investment_app_physical_gold_v1',
   PROPERTIES: 'investment_app_properties_v1',
+  VEHICLES: 'investment_app_vehicles_v1',
   GOLD_BUY_LOTS: 'investment_app_gold_buy_lots_v1',
   PHYSICAL_GOLD_SALES: 'investment_app_physical_gold_sales_v1',
   TRANSACTIONS: 'investment_app_transactions_v1',
@@ -41,6 +43,7 @@ export interface ExportedBackupData {
   goldHolding: GoldHolding;
   physicalGold?: PhysicalGoldItem[];
   properties?: PropertyItem[];
+  vehicles?: VehicleItem[];
   goldBuyLots?: PhysicalGoldBuyLot[];
   physicalGoldSales?: PhysicalGoldSaleRecord[];
   transactions: TransactionRecord[];
@@ -160,6 +163,30 @@ export function saveProperties(properties: PropertyItem[]): void {
     localStorage.setItem(STORAGE_KEYS.PROPERTIES, JSON.stringify(properties));
   } catch (e) {
     console.error('Failed to save properties:', e);
+  }
+}
+
+// -------------------------------------------------------------
+// VEHICLES (CARS & MOTORCYCLES) PERSISTENCE
+// -------------------------------------------------------------
+
+export function loadVehicles(): VehicleItem[] {
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.VEHICLES);
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.error('Failed to load vehicles:', e);
+    return [];
+  }
+}
+
+export function saveVehicles(vehicles: VehicleItem[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.VEHICLES, JSON.stringify(vehicles));
+  } catch (e) {
+    console.error('Failed to save vehicles:', e);
   }
 }
 
@@ -334,6 +361,7 @@ export function exportBackupData(): string {
     goldHolding: loadGoldHolding(),
     physicalGold: loadPhysicalGold(),
     properties: loadProperties(),
+    vehicles: loadVehicles(),
     goldBuyLots: loadGoldBuyLots(),
     physicalGoldSales: loadPhysicalGoldSales(),
     transactions: loadTransactions(),
@@ -366,6 +394,9 @@ export function importBackupData(jsonString: string): boolean {
     if (Array.isArray(parsed.properties)) {
       saveProperties(parsed.properties);
     }
+    if (Array.isArray(parsed.vehicles)) {
+      saveVehicles(parsed.vehicles);
+    }
     if (Array.isArray(parsed.goldBuyLots)) {
       saveGoldBuyLots(parsed.goldBuyLots);
     }
@@ -397,6 +428,7 @@ export function resetAllDataToDefault(): void {
   localStorage.removeItem(STORAGE_KEYS.GOLD_HOLDING);
   localStorage.removeItem(STORAGE_KEYS.PHYSICAL_GOLD);
   localStorage.removeItem(STORAGE_KEYS.PROPERTIES);
+  localStorage.removeItem(STORAGE_KEYS.VEHICLES);
   localStorage.removeItem(STORAGE_KEYS.GOLD_BUY_LOTS);
   localStorage.removeItem(STORAGE_KEYS.PHYSICAL_GOLD_SALES);
   localStorage.removeItem(STORAGE_KEYS.TRANSACTIONS);

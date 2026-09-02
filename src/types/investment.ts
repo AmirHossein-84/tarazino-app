@@ -1,4 +1,5 @@
 import { MarketInstrument, UserMarketHolding, MarketQuote, MarketStatus } from '../services/marketData/types';
+import { NobitexConfig } from '../services/nobitex/types';
 
 export * from '../services/marketData/types';
 
@@ -84,6 +85,24 @@ export interface PropertyItem {
   updatedAt?: number;
 }
 
+export type VehicleType = 'car' | 'motorcycle' | 'other';
+
+export interface VehicleItem {
+  id: string;
+  title: string;
+  vehicleType: VehicleType;
+  model: string;
+  year: string; // e.g. "1402" or "2023"
+  mileageKm?: number;
+  purchaseDate: string; // Persian date e.g. "1403/06/09"
+  purchasePriceTomans: number;
+  currentValuationTomans: number;
+  notes?: string;
+  includeInTotalNetWorth: boolean;
+  createdAt?: number;
+  updatedAt?: number;
+}
+
 export interface GoldHolding {
   currentHoldingValue: number; // in Tomans
   currentGrams?: number; // in grams
@@ -137,6 +156,34 @@ export interface TransactionRecord {
   appliedToHoldings: boolean;
 }
 
+export interface UserProfile {
+  id: string;
+  name: string;
+  avatarColor: string;
+  createdAt: number;
+  updatedAt: number;
+  cryptoAssets?: CryptoAsset[];
+  goldHolding?: GoldHolding;
+  physicalGold?: PhysicalGoldItem[];
+  properties?: PropertyItem[];
+  vehicles?: VehicleItem[];
+  goldBuyLots?: PhysicalGoldBuyLot[];
+  physicalGoldSales?: PhysicalGoldSaleRecord[];
+  transactions?: TransactionRecord[];
+  marketInstruments?: MarketInstrument[];
+  marketHoldings?: UserMarketHolding[];
+  settings?: AppSettings;
+  nobitexConfig?: NobitexConfig;
+}
+
+export interface ProfilesVault {
+  version: string;
+  activeProfileId: string;
+  profiles: UserProfile[];
+  hasCompletedOnboarding: boolean;
+  lastUpdated: string;
+}
+
 export interface AppBackupData {
   version: number | string;
   exportDate: string;
@@ -144,22 +191,26 @@ export interface AppBackupData {
   goldHolding: GoldHolding;
   physicalGold?: PhysicalGoldItem[];
   properties?: PropertyItem[];
+  vehicles?: VehicleItem[];
   goldBuyLots?: PhysicalGoldBuyLot[];
   physicalGoldSales?: PhysicalGoldSaleRecord[];
   settings: AppSettings;
   transactions: TransactionRecord[];
   marketInstruments?: MarketInstrument[];
   marketHoldings?: UserMarketHolding[];
+  profilesVault?: ProfilesVault;
 }
 
 export type ActiveTab =
   | 'dashboard'
-  | 'gold'
-  | 'crypto'
+  | 'markets'
   | 'holdings'
-  | 'properties'
   | 'sell'
   | 'settings'
+  | 'gold'
+  | 'crypto'
+  | 'properties'
+  | 'vehicles'
   | 'history'
   | 'calculator'
   | 'market';

@@ -8,15 +8,24 @@ interface BottomNavProps {
   setActiveTab: (tab: ActiveTab) => void;
 }
 
+// Registry of all application tab identifiers supported by navigation
+export const ALL_TAB_REGISTRY: { id: ActiveTab; label: string }[] = [
+  { id: 'dashboard', label: 'داشبورد' },
+  { id: 'gold', label: 'طلا' },
+  { id: 'crypto', label: 'کریپتو' },
+  { id: 'properties', label: 'املاک' },
+  { id: 'holdings', label: 'دارایی‌ها' },
+  { id: 'sell', label: 'فروش' },
+  { id: 'settings', label: 'تنظیمات' },
+];
+
 export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab }) => {
   const tabs: { id: ActiveTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'dashboard', label: 'داشبورد', icon: LayoutDashboard },
-    { id: 'gold', label: 'بورس و طلا', icon: Coins },
-    { id: 'crypto', label: 'ارز دیجیتال', icon: TrendingUp },
-    { id: 'properties', label: 'املاک', icon: Building2 },
+    { id: 'markets', label: 'بازارها', icon: TrendingUp },
     { id: 'holdings', label: 'دارایی‌ها', icon: Wallet },
     { id: 'sell', label: 'فروش', icon: ArrowDownCircle },
-    { id: 'settings', label: 'تنظیمات', icon: Sliders },
+    { id: 'settings', label: 'حساب و تنظیمات', icon: Sliders },
   ];
 
   const handleTabClick = (id: ActiveTab) => {
@@ -31,21 +40,24 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab })
           const Icon = tab.icon;
           const isActive =
             activeTab === tab.id ||
+            (tab.id === 'dashboard' && (activeTab as string) === 'calculator') ||
             (tab.id === 'gold' && (activeTab as string) === 'market') ||
-            (tab.id === 'dashboard' && (activeTab as string) === 'calculator');
+            (tab.id === 'markets' && (activeTab === 'gold' || activeTab === 'crypto' || (activeTab as string) === 'market')) ||
+            (tab.id === 'holdings' && (activeTab === 'properties' || (activeTab as string) === 'vehicles')) ||
+            (tab.id === 'settings' && (activeTab as string) === 'history');
 
           return (
             <button
               key={tab.id}
               onClick={() => handleTabClick(tab.id)}
-              className={`flex-1 py-2 px-0.5 sm:px-1 flex flex-col items-center justify-center gap-1 rounded-2xl transition-all interactive-tap touch-target ${
+              className={`flex-1 py-2 px-1 sm:px-2 flex flex-col items-center justify-center gap-1 rounded-2xl transition-colors interactive-tap touch-target ${
                 isActive
                   ? 'bg-gradient-to-b from-amber-500/15 to-gold-500/5 dark:from-amber-500/25 dark:to-gold-500/10 text-amber-700 dark:text-gold-300 font-bold border border-gold-400/40 dark:border-gold-500/40 shadow-sm'
                   : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-900/40'
               }`}
             >
               <Icon className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${isActive ? 'scale-110 text-amber-600 dark:text-gold-400' : ''}`} />
-              <span className="text-[9px] xs:text-[10px] sm:text-[11px] font-medium tracking-tight whitespace-nowrap">
+              <span className="text-[9px] xs:text-[10px] sm:text-[11px] font-bold tracking-tight whitespace-nowrap">
                 {tab.label}
               </span>
             </button>

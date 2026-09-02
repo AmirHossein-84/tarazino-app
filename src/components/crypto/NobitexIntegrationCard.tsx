@@ -17,7 +17,7 @@ import { NobitexSyncModal } from './NobitexSyncModal';
 interface NobitexIntegrationCardProps {
   cryptoAssets: CryptoAsset[];
   onAssetsUpdated: (assets: CryptoAsset[]) => void;
-  onNotify?: (message: string, type?: 'success' | 'info' | 'error') => void;
+  onNotify?: (message: string, type?: 'success' | 'info' | 'error' | 'warning') => void;
 }
 
 export const NobitexIntegrationCard: React.FC<NobitexIntegrationCardProps> = ({

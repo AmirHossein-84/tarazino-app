@@ -15,10 +15,10 @@ import {
   parseNumberInput,
   getPersianFormattedDate,
   getTodayPersianDate,
-  gregorianToPersianDate,
 } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { BottomSheetModal } from '../common/BottomSheetModal';
+import { PersianDatePickerModal } from '../common/PersianDatePickerModal';
 
 interface AddGoldLotModalProps {
   isOpen: boolean;
@@ -35,7 +35,7 @@ export const AddGoldLotModal: React.FC<AddGoldLotModalProps> = ({
   defaultSelectedType = 'gold_18k',
   onSaveLot,
 }) => {
-  const datePickerRef = useRef<HTMLInputElement>(null);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<PhysicalGoldType>(defaultSelectedType);
   const [quantity, setQuantity] = useState('');
   const [purchasePriceTomans, setPurchasePriceTomans] = useState('');
@@ -234,38 +234,14 @@ export const AddGoldLotModal: React.FC<AddGoldLotModalProps> = ({
               placeholder="مثال: ۱۴۰۳/۰۶/۰۹"
               className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/80 focus:bg-white text-slate-900 dark:text-slate-100 text-right font-medium text-xs outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 pl-11"
             />
-            {/* Hidden native date picker to support calendar picker popup */}
-            <input
-              type="date"
-              ref={datePickerRef}
-              onChange={(e) => {
-                if (e.target.value) {
-                  triggerHaptic('light');
-                  setPurchaseDate(gregorianToPersianDate(e.target.value));
-                }
-              }}
-              className="sr-only"
-              tabIndex={-1}
-              aria-hidden="true"
-            />
             <button
               type="button"
               onClick={() => {
                 triggerHaptic('light');
-                try {
-                  if (datePickerRef.current) {
-                    if (typeof datePickerRef.current.showPicker === 'function') {
-                      datePickerRef.current.showPicker();
-                    } else {
-                      datePickerRef.current.focus();
-                    }
-                  }
-                } catch {
-                  setPurchaseDate(getTodayPersianDate());
-                }
+                setIsDatePickerOpen(true);
               }}
-              className="p-2 absolute left-1.5 top-1/2 -translate-y-1/2 rounded-xl text-slate-500 hover:text-amber-700 dark:text-slate-400 dark:hover:text-gold-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all touch-target"
-              title="انتخاب از تقویم"
+              className="p-2 absolute left-1.5 top-1/2 -translate-y-1/2 rounded-xl text-amber-600 dark:text-gold-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors touch-target"
+              title="انتخاب از تقویم شمسی"
             >
               <Calendar className="w-4 h-4" />
             </button>
@@ -285,6 +261,14 @@ export const AddGoldLotModal: React.FC<AddGoldLotModalProps> = ({
         </div>
 
       </form>
+
+      <PersianDatePickerModal
+        isOpen={isDatePickerOpen}
+        onClose={() => setIsDatePickerOpen(false)}
+        selectedDate={purchaseDate}
+        onSelectDate={(d) => setPurchaseDate(d)}
+        title="انتخاب تاریخ خرید طلا"
+      />
     </BottomSheetModal>
   );
 };

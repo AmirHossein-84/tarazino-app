@@ -4,6 +4,7 @@ import {
   Wallet,
   Coins,
   Building2,
+  Car,
   ArrowUpRight,
   ArrowDownRight,
   Sparkles,
@@ -41,6 +42,7 @@ interface DashboardViewProps {
   physicalGoldValue?: number;
   bourseGoldValue?: number;
   propertiesValue?: number;
+  vehiclesValue?: number;
   totalCryptoValue: number;
   totalPortfolioValue: number;
   tomanCashBalance: number;
@@ -71,6 +73,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   physicalGoldValue = 0,
   bourseGoldValue = 0,
   propertiesValue = 0,
+  vehiclesValue = 0,
   totalCryptoValue,
   totalPortfolioValue,
   tomanCashBalance,
@@ -101,19 +104,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   let totalCryptoCostTomans = 0;
   let hasCryptoCostData = false;
 
-  for (const asset of cryptoAssets) {
-    if (asset.currentAmount && asset.currentAmount > 0) {
-      if (asset.totalCostTomans !== undefined && asset.totalCostTomans > 0) {
-        totalCryptoCostTomans += asset.totalCostTomans;
-        hasCryptoCostData = true;
-      } else if (asset.averageBuyPrice && asset.averageBuyPrice > 0) {
-        totalCryptoCostTomans += asset.currentAmount * asset.averageBuyPrice;
-        hasCryptoCostData = true;
-      }
+  cryptoAssets.forEach((asset) => {
+    if (asset.totalCostTomans && asset.totalCostTomans > 0) {
+      totalCryptoCostTomans += asset.totalCostTomans;
+      hasCryptoCostData = true;
+    } else if (asset.averageBuyPrice && asset.currentAmount && asset.currentAmount > 0) {
+      totalCryptoCostTomans += Math.round(asset.averageBuyPrice * asset.currentAmount);
+      hasCryptoCostData = true;
     }
-  }
+  });
 
-  const totalCryptoProfitTomans = hasCryptoCostData && totalCryptoCostTomans > 0
+  const totalCryptoProfitTomans = hasCryptoCostData
     ? totalCryptoValue - totalCryptoCostTomans
     : undefined;
 
@@ -165,6 +166,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     targetPercent: settings.cryptoPercent,
   });
 
+  if (propertiesValue > 0) {
+    chartItems.push({
+      id: 'properties',
+      label: 'املاک و مستغلات',
+      value: toDisplayValue(propertiesValue),
+      color: '#0D9488', // Teal
+      sublabel: 'املاک و زمین',
+    });
+  }
+
+  if (vehiclesValue > 0) {
+    chartItems.push({
+      id: 'vehicles',
+      label: 'وسایل نقلیه و خودرو',
+      value: toDisplayValue(vehiclesValue),
+      color: '#3B82F6', // Blue
+      sublabel: 'خودرو و موتور',
+    });
+  }
+
   if (tomanCashBalance > 0) {
     chartItems.push({
       id: 'cash',
@@ -188,6 +209,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const isCryptoUnderweight = cryptoPercentActual < settings.cryptoPercent - 2;
 
   const totalPortfolioWithCash = totalPortfolioValue + tomanCashBalance;
+  const totalNetWorth = totalPortfolioWithCash + propertiesValue + vehiclesValue;
 
   return (
     <PullToRefreshContainer onRefresh={onRefreshAll} isRefreshing={isRefreshing} className="space-y-5 pb-24">
@@ -214,6 +236,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 mt-0.5 dir-ltr text-right sm:text-right">
                 {formatCurrency(totalPortfolioWithCash)}
               </h2>
+              {(propertiesValue > 0 || vehiclesValue > 0) && (
+                <span className="text-[11px] text-slate-600 dark:text-slate-300 font-bold block mt-1">
+                  ارزش خالص کل (با املاک و خودرو): <span className="dir-ltr text-amber-700 dark:text-gold-400 font-black">{formatCurrency(totalNetWorth)}</span>
+                </span>
+              )}
               {currencyMode === 'usd' && (
                 <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
                   نرخ مبنا: ۱ تتر = {formatToman(usdtRateTomans)} تومان
@@ -372,7 +399,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Real Estate / Properties Chip */}
           {propertiesValue > 0 && (
             <div
-              onClick={() => onNavigateToTab('properties')}
+              onClick={() => onNavigateToTab('holdings')}
               className="p-3 rounded-2xl bg-teal-50/70 dark:bg-slate-950/80 border border-teal-200 dark:border-teal-500/30 hover:border-teal-300 dark:hover:border-teal-500/60 transition-all cursor-pointer space-y-1 col-span-2 sm:col-span-1"
             >
               <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
@@ -381,13 +408,36 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <span>املاک و مستغلات</span>
                 </span>
                 <span className="text-teal-700 dark:text-teal-300 font-bold">
-                  {totalPortfolioValue + propertiesValue > 0
-                    ? formatPercent((propertiesValue / (totalPortfolioValue + propertiesValue)) * 100)
+                  {totalPortfolioValue + propertiesValue + vehiclesValue > 0
+                    ? formatPercent((propertiesValue / (totalPortfolioValue + propertiesValue + vehiclesValue)) * 100)
                     : '۰٪'}
                 </span>
               </div>
               <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
                 {formatCurrency(propertiesValue)}
+              </div>
+            </div>
+          )}
+
+          {/* Vehicles Chip */}
+          {vehiclesValue > 0 && (
+            <div
+              onClick={() => onNavigateToTab('holdings')}
+              className="p-3 rounded-2xl bg-blue-50/70 dark:bg-slate-950/80 border border-blue-200 dark:border-blue-500/30 hover:border-blue-300 dark:hover:border-blue-500/60 transition-all cursor-pointer space-y-1 col-span-2 sm:col-span-1"
+            >
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1 font-bold text-blue-700 dark:text-blue-400">
+                  <Car className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  <span>خودرو و موتور</span>
+                </span>
+                <span className="text-blue-700 dark:text-blue-300 font-bold">
+                  {totalPortfolioValue + propertiesValue + vehiclesValue > 0
+                    ? formatPercent((vehiclesValue / (totalPortfolioValue + propertiesValue + vehiclesValue)) * 100)
+                    : '۰٪'}
+                </span>
+              </div>
+              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
+                {formatCurrency(vehiclesValue)}
               </div>
             </div>
           )}

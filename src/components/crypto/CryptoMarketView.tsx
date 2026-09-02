@@ -33,7 +33,7 @@ interface CryptoMarketViewProps {
   formatCurrency?: (amountTomans: number, options?: any) => string;
   toDisplayValue?: (amountTomans: number) => number;
   onAssetsUpdated: (assets: CryptoAsset[]) => void;
-  onNotify?: (message: string, type?: 'success' | 'info' | 'error') => void;
+  onNotify?: (message: string, type?: 'success' | 'info' | 'error' | 'warning') => void;
 }
 
 const POPULAR_TICKERS = [

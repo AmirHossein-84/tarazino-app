@@ -8,6 +8,7 @@ import {
   PhysicalGoldBuyLot,
   PhysicalGoldSaleRecord,
   PropertyItem,
+  VehicleItem,
   TransactionRecord,
   CalculationResult,
   ActiveTab,
@@ -24,6 +25,8 @@ import {
   savePhysicalGold,
   loadProperties,
   saveProperties,
+  loadVehicles,
+  saveVehicles,
   loadGoldBuyLots,
   saveGoldBuyLots,
   loadPhysicalGoldSales,
@@ -60,12 +63,13 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
   const [goldBuyLots, setGoldBuyLotsState] = useState<PhysicalGoldBuyLot[]>(() => loadGoldBuyLots());
   const [physicalGoldSales, setPhysicalGoldSalesState] = useState<PhysicalGoldSaleRecord[]>(() => loadPhysicalGoldSales());
   const [properties, setPropertiesState] = useState<PropertyItem[]>(() => loadProperties());
+  const [vehicles, setVehiclesState] = useState<VehicleItem[]>(() => loadVehicles());
   const [isRefreshingGold, setIsRefreshingGold] = useState<boolean>(false);
   const [isGoldFetchError, setIsGoldFetchError] = useState<boolean>(false);
   const [transactions, setTransactionsState] = useState<TransactionRecord[]>(() => loadTransactions());
-  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'error' | 'warning' } | null>(null);
 
-  const showNotification = useCallback((message: string, type: 'success' | 'info' | 'error' = 'success') => {
+  const showNotification = useCallback((message: string, type: 'success' | 'info' | 'error' | 'warning' = 'success') => {
     setNotification({ message, type });
     setTimeout(() => {
       setNotification(null);
@@ -571,6 +575,61 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     }, 0);
   }, [properties]);
 
+  // -------------------------------------------------------------
+  // VEHICLES (CARS & MOTORCYCLES) MANAGEMENT
+  // -------------------------------------------------------------
+
+  const addVehicle = useCallback((vehicleData: Omit<VehicleItem, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newVehicle: VehicleItem = {
+      ...vehicleData,
+      id: `veh_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    setVehiclesState((prev) => {
+      const updated = [newVehicle, ...prev];
+      saveVehicles(updated);
+      return updated;
+    });
+    showNotification(`وسیله نقلیه "${newVehicle.title}" با موفقیت اضافه شد`);
+  }, [showNotification]);
+
+  const editVehicle = useCallback((id: string, updates: Partial<VehicleItem>) => {
+    setVehiclesState((prev) => {
+      const updated = prev.map((v) => {
+        if (v.id !== id) return v;
+        return {
+          ...v,
+          ...updates,
+          updatedAt: Date.now(),
+        };
+      });
+      saveVehicles(updated);
+      return updated;
+    });
+  }, []);
+
+  const removeVehicle = useCallback((id: string) => {
+    setVehiclesState((prev) => {
+      const target = prev.find((v) => v.id === id);
+      const updated = prev.filter((v) => v.id !== id);
+      saveVehicles(updated);
+      showNotification(`وسیله نقلیه "${target?.title || ''}" حذف شد`, 'info');
+      return updated;
+    });
+  }, [showNotification]);
+
+  const totalVehiclesValueTomans = useMemo(() => {
+    return vehicles.reduce((sum, v) => sum + (v.currentValuationTomans || v.purchasePriceTomans || 0), 0);
+  }, [vehicles]);
+
+  const netWorthVehiclesValueTomans = useMemo(() => {
+    return vehicles.reduce((sum, v) => {
+      if (v.includeInTotalNetWorth === false) return sum;
+      return sum + (v.currentValuationTomans || v.purchasePriceTomans || 0);
+    }, 0);
+  }, [vehicles]);
+
   const deleteTransaction = useCallback((id: string) => {
     setTransactionsState((prev) => {
       const updated = prev.filter((tx) => tx.id !== id);
@@ -595,6 +654,7 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     setGoldBuyLotsState([]);
     setPhysicalGoldSalesState([]);
     setPropertiesState([]);
+    setVehiclesState([]);
     setTransactionsState([]);
     setInputAmountState(0);
     showNotification('تمامی اطلاعات به تنظیمات پیش‌فرض کارخانه بازنشانی شد', 'info');
@@ -628,6 +688,7 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
       setGoldBuyLotsState(loadGoldBuyLots());
       setPhysicalGoldSalesState(loadPhysicalGoldSales());
       setPropertiesState(loadProperties());
+      setVehiclesState(loadVehicles());
       setTransactionsState(loadTransactions());
       showNotification('اطلاعات با موفقیت از فایل پشتیبان بازیابی شدند');
     } else {
@@ -673,6 +734,12 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     editProperty,
     removeProperty,
     updatePropertyValuation,
+    vehicles,
+    totalVehiclesValueTomans,
+    netWorthVehiclesValueTomans,
+    addVehicle,
+    editVehicle,
+    removeVehicle,
     transactions,
     deleteTransaction,
     clearAllHistory,
