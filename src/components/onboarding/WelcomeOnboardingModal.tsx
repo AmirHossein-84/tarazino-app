@@ -231,8 +231,8 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
             </span>
           </div>
 
-          {/* Dots Indicator */}
-          <div className="flex items-center gap-1.5">
+          {/* Dots Indicator (LTR progression) */}
+          <div className="flex items-center gap-1.5" dir="ltr">
             {Array.from({ length: totalSlides }).map((_, i) => (
               <span
                 key={i}
@@ -253,7 +253,7 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
           
           {/* SLIDE 0: Welcome Intro */}
           {step === 0 && (
-            <div className="text-center space-y-4 py-2 animate-fadeIn">
+            <div className="text-center space-y-4 py-2 animate-slideInFromLeft">
               <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-amber-500 via-gold-400 to-amber-600 p-0.5 shadow-gold-glow flex items-center justify-center">
                 <div className="w-full h-full bg-white dark:bg-slate-950 rounded-[22px] flex items-center justify-center">
                   <Coins className="w-10 h-10 text-amber-500" />
@@ -295,7 +295,7 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
 
           {/* SLIDE 1: App Sections Tour */}
           {step === 1 && (
-            <div className="space-y-3.5 animate-fadeIn">
+            <div className="space-y-3.5 animate-slideInFromLeft">
               <div className="text-center space-y-1">
                 <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
                   بخش‌های اصلی ترازینو
@@ -351,7 +351,7 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
 
           {/* SLIDE 2: Create Profile & Avatar */}
           {step === 2 && (
-            <div className="space-y-4 animate-fadeIn">
+            <div className="space-y-4 animate-slideInFromLeft">
               <div className="text-center space-y-1">
                 <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
                   ایجاد حساب کاربری شما
@@ -414,7 +414,7 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
 
           {/* SLIDE 3: Strategy & Crypto Customization (NEW) */}
           {step === 3 && (
-            <div className="space-y-4 animate-fadeIn">
+            <div className="space-y-4 animate-slideInFromLeft">
               <div className="text-center space-y-1">
                 <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
                   استراتژی سبد و انتخاب دارایی‌ها
@@ -558,7 +558,7 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
 
           {/* SLIDE 4: Optional Property & Vehicle Setup */}
           {step === 4 && (
-            <div className="space-y-4 animate-fadeIn">
+            <div className="space-y-4 animate-slideInFromLeft">
               <div className="text-center space-y-1">
                 <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
                   ثبت اولیه املاک و خودروها (اختیاری)
@@ -618,7 +618,7 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
 
           {/* SLIDE 5: Optional Nobitex Sync Setup */}
           {step === 5 && (
-            <div className="space-y-4 animate-fadeIn">
+            <div className="space-y-4 animate-slideInFromLeft">
               <div className="text-center space-y-1">
                 <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
                   اتصال صرافی نوبیتکس (اختیاری)
@@ -675,7 +675,7 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
             className="py-2.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-gold-500 to-amber-600 hover:from-amber-400 hover:to-gold-400 text-slate-950 font-black text-xs transition-all shadow-gold-glow flex items-center gap-1.5 interactive-tap"
           >
             <span>{step === totalSlides - 1 ? 'ورود به ترازینو' : 'ادامه'}</span>
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4" />
           </button>
 
           {/* LEFT SIDE: Back & Skip Buttons */}
@@ -696,7 +696,7 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
                 onClick={handleBack}
                 className="py-2 px-3.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 font-bold text-xs flex items-center gap-1 transition-colors"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4" />
                 <span>قبلی</span>
               </button>
             )}
