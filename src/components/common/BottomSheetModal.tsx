@@ -12,6 +12,7 @@ interface BottomSheetModalProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   maxWidth?: string;
+  zIndex?: string;
 }
 
 export const BottomSheetModal: React.FC<BottomSheetModalProps> = ({
@@ -23,6 +24,7 @@ export const BottomSheetModal: React.FC<BottomSheetModalProps> = ({
   children,
   footer,
   maxWidth = 'max-w-lg',
+  zIndex = 'z-50',
 }) => {
   const sheetRef = useRef<HTMLDivElement>(null);
   const touchStartYRef = useRef(0);
@@ -75,7 +77,7 @@ export const BottomSheetModal: React.FC<BottomSheetModalProps> = ({
   const modalContent = (
     <div
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn"
+      className={`fixed inset-0 z-50 ${zIndex && zIndex !== 'z-50' ? zIndex : ''} bg-slate-900/60 dark:bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn`}
     >
       <div
         ref={sheetRef}
