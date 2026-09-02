@@ -24,7 +24,7 @@ import {
 } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { BottomSheetModal } from '../common/BottomSheetModal';
-import { PersianDatePickerModal } from '../common/PersianDatePickerModal';
+import { InlinePersianDatePicker } from '../common/InlinePersianDatePicker';
 
 interface AddEditPropertyModalProps {
   isOpen: boolean;
@@ -351,7 +351,7 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
               type="button"
               onClick={() => {
                 triggerHaptic('light');
-                setIsDatePickerOpen(true);
+                setIsDatePickerOpen((prev) => !prev);
               }}
               className="p-2 absolute left-1.5 top-1/2 -translate-y-1/2 rounded-xl text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors touch-target"
               title="انتخاب از تقویم شمسی"
@@ -359,6 +359,18 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
               <Calendar className="w-4 h-4" />
             </button>
           </div>
+
+          {isDatePickerOpen && (
+            <div className="mt-2">
+              <InlinePersianDatePicker
+                isOpen={isDatePickerOpen}
+                onClose={() => setIsDatePickerOpen(false)}
+                selectedDate={purchaseDate}
+                onSelectDate={(d) => setPurchaseDate(d)}
+                title="انتخاب تاریخ ثبت یا خرید ملک"
+              />
+            </div>
+          )}
         </div>
 
         {/* 7. Notes */}
@@ -392,14 +404,6 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
         </label>
 
       </form>
-
-      <PersianDatePickerModal
-        isOpen={isDatePickerOpen}
-        onClose={() => setIsDatePickerOpen(false)}
-        selectedDate={purchaseDate}
-        onSelectDate={(d) => setPurchaseDate(d)}
-        title="انتخاب تاریخ ثبت یا خرید ملک"
-      />
     </BottomSheetModal>
   );
 };

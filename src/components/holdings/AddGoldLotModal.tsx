@@ -18,7 +18,7 @@ import {
 } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { BottomSheetModal } from '../common/BottomSheetModal';
-import { PersianDatePickerModal } from '../common/PersianDatePickerModal';
+import { InlinePersianDatePicker } from '../common/InlinePersianDatePicker';
 
 interface AddGoldLotModalProps {
   isOpen: boolean;
@@ -238,7 +238,7 @@ export const AddGoldLotModal: React.FC<AddGoldLotModalProps> = ({
               type="button"
               onClick={() => {
                 triggerHaptic('light');
-                setIsDatePickerOpen(true);
+                setIsDatePickerOpen((prev) => !prev);
               }}
               className="p-2 absolute left-1.5 top-1/2 -translate-y-1/2 rounded-xl text-amber-600 dark:text-gold-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors touch-target"
               title="انتخاب از تقویم شمسی"
@@ -246,6 +246,18 @@ export const AddGoldLotModal: React.FC<AddGoldLotModalProps> = ({
               <Calendar className="w-4 h-4" />
             </button>
           </div>
+
+          {isDatePickerOpen && (
+            <div className="mt-2">
+              <InlinePersianDatePicker
+                isOpen={isDatePickerOpen}
+                onClose={() => setIsDatePickerOpen(false)}
+                selectedDate={purchaseDate}
+                onSelectDate={(d) => setPurchaseDate(d)}
+                title="انتخاب تاریخ خرید طلا"
+              />
+            </div>
+          )}
         </div>
 
         {/* 5. Notes */}
@@ -261,14 +273,6 @@ export const AddGoldLotModal: React.FC<AddGoldLotModalProps> = ({
         </div>
 
       </form>
-
-      <PersianDatePickerModal
-        isOpen={isDatePickerOpen}
-        onClose={() => setIsDatePickerOpen(false)}
-        selectedDate={purchaseDate}
-        onSelectDate={(d) => setPurchaseDate(d)}
-        title="انتخاب تاریخ خرید طلا"
-      />
     </BottomSheetModal>
   );
 };

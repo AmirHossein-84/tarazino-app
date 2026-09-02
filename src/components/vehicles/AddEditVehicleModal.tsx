@@ -16,7 +16,7 @@ import {
 } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { BottomSheetModal } from '../common/BottomSheetModal';
-import { PersianDatePickerModal } from '../common/PersianDatePickerModal';
+import { InlinePersianDatePicker } from '../common/InlinePersianDatePicker';
 
 interface AddEditVehicleModalProps {
   isOpen: boolean;
@@ -361,7 +361,7 @@ export const AddEditVehicleModal: React.FC<AddEditVehicleModalProps> = ({
               type="button"
               onClick={() => {
                 triggerHaptic('light');
-                setIsDatePickerOpen(true);
+                setIsDatePickerOpen((prev) => !prev);
               }}
               className="p-2 absolute left-1.5 top-1/2 -translate-y-1/2 rounded-xl text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors touch-target"
               title="انتخاب از تقویم شمسی"
@@ -369,6 +369,18 @@ export const AddEditVehicleModal: React.FC<AddEditVehicleModalProps> = ({
               <Calendar className="w-4 h-4" />
             </button>
           </div>
+
+          {isDatePickerOpen && (
+            <div className="mt-2">
+              <InlinePersianDatePicker
+                isOpen={isDatePickerOpen}
+                onClose={() => setIsDatePickerOpen(false)}
+                selectedDate={purchaseDate}
+                onSelectDate={(d) => setPurchaseDate(d)}
+                title="انتخاب تاریخ خرید خودرو"
+              />
+            </div>
+          )}
         </div>
 
         {/* 7. Notes */}
@@ -402,14 +414,6 @@ export const AddEditVehicleModal: React.FC<AddEditVehicleModalProps> = ({
         </label>
 
       </form>
-
-      <PersianDatePickerModal
-        isOpen={isDatePickerOpen}
-        onClose={() => setIsDatePickerOpen(false)}
-        selectedDate={purchaseDate}
-        onSelectDate={(d) => setPurchaseDate(d)}
-        title="انتخاب تاریخ خرید خودرو"
-      />
     </BottomSheetModal>
   );
 };
