@@ -48,6 +48,9 @@ export function useProfileState() {
   useEffect(() => {
     async function init() {
       try {
+        const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+        const forceOnboarding = urlParams?.has('onboarding') || urlParams?.has('new_user') || urlParams?.get('test') === 'onboarding';
+
         const loadedVault = await readDeviceVault();
         if (loadedVault && loadedVault.profiles && loadedVault.profiles.length > 0) {
           setVault(loadedVault);
@@ -61,11 +64,13 @@ export function useProfileState() {
             // Check if activeProfileId is valid; if so, default to it, but also allow switcher
             const targetId = loadedVault.activeProfileId || loadedVault.profiles[0].id;
             setActiveProfileId(targetId);
-            // Show switcher if multiple profiles exist on fresh startup
-            setShowProfileSwitcher(true);
+            // Show switcher if multiple profiles exist on fresh startup (unless forced to onboarding)
+            if (!forceOnboarding) {
+              setShowProfileSwitcher(true);
+            }
           }
 
-          setNeedsOnboarding(!loadedVault.hasCompletedOnboarding);
+          setNeedsOnboarding(forceOnboarding || !loadedVault.hasCompletedOnboarding);
         } else {
           // No vault on device: First time installation
           setNeedsOnboarding(true);
@@ -147,13 +152,33 @@ export function useProfileState() {
     [vault, saveVault]
   );
 
-  // Complete Onboarding with first profile
+  // Start onboarding for a new user explicitly
+  const startNewUserOnboarding = useCallback(() => {
+    setShowProfileSwitcher(false);
+    setNeedsOnboarding(true);
+  }, []);
+
+  // Complete Onboarding with profile
   const completeOnboarding = useCallback(
     (profileName: string, initialData?: Partial<UserProfile>) => {
-      const firstProfile = createProfile(profileName || 'حساب اصلی', initialData);
+      const newProfile = createProfile(profileName || 'حساب کاربری', initialData);
       setNeedsOnboarding(false);
       setShowProfileSwitcher(false);
-      return firstProfile;
+
+      // Clean up onboarding query parameter from URL without reload
+      if (typeof window !== 'undefined' && window.history?.replaceState) {
+        try {
+          const url = new URL(window.location.href);
+          if (url.searchParams.has('onboarding') || url.searchParams.has('new_user') || url.searchParams.has('test')) {
+            url.searchParams.delete('onboarding');
+            url.searchParams.delete('new_user');
+            url.searchParams.delete('test');
+            window.history.replaceState({}, '', url.pathname + (url.search ? '?' + url.search : ''));
+          }
+        } catch (_) {}
+      }
+
+      return newProfile;
     },
     [createProfile]
   );
@@ -222,6 +247,7 @@ export function useProfileState() {
     switchProfile,
     createProfile,
     completeOnboarding,
+    startNewUserOnboarding,
     updateActiveProfileData,
     deleteProfile,
   };

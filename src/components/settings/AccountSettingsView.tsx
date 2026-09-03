@@ -21,6 +21,7 @@ interface AccountSettingsViewProps {
   onSelectProfile: (profileId: string) => void;
   onCreateProfile: (name: string, color?: string) => void;
   onDeleteProfile: (profileId: string) => void;
+  onStartOnboarding?: () => void;
   cryptoAssets: CryptoAsset[];
   onAssetsUpdated: (assets: CryptoAsset[]) => void;
   onNotify?: (message: string, type?: 'success' | 'warning' | 'info' | 'error') => void;
@@ -32,6 +33,7 @@ export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({
   onSelectProfile,
   onCreateProfile,
   onDeleteProfile,
+  onStartOnboarding,
   cryptoAssets,
   onAssetsUpdated,
   onNotify,
@@ -174,6 +176,7 @@ export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({
         onSelectProfile={onSelectProfile}
         onCreateProfile={onCreateProfile}
         onDeleteProfile={onDeleteProfile}
+        onStartOnboarding={onStartOnboarding}
       />
 
       <NobitexSyncModal

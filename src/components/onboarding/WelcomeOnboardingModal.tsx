@@ -467,17 +467,26 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
                       <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">
                         تاریخ تولد (شمسی)
                       </label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          triggerHaptic('light');
-                          setIsDatePickerOpen(true);
-                        }}
-                        className="w-full py-2.5 px-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-amber-500 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 shadow-xs"
-                      >
-                        <span className="font-mono">{toPersianDigits(birthDate)}</span>
-                        <Calendar className="w-4 h-4 text-amber-500" />
-                      </button>
+                      <div className="relative flex items-center">
+                        <input
+                          type="text"
+                          value={birthDate}
+                          onChange={(e) => handleBirthDateSelect(e.target.value)}
+                          placeholder="مثال: ۱۳۷۵/۰۴/۱۵"
+                          className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-mono outline-none pl-9 focus:border-amber-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic('light');
+                            setIsDatePickerOpen((prev) => !prev);
+                          }}
+                          className="p-1.5 absolute left-1 top-1/2 -translate-y-1/2 rounded-lg text-amber-600 dark:text-gold-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors"
+                          title="انتخاب از تقویم شمسی"
+                        >
+                          <Calendar className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
 
                     <div>
@@ -497,6 +506,24 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
                       />
                     </div>
                   </div>
+
+                  {/* Accordion inline date picker right beneath the birthdate field */}
+                  {isDatePickerOpen && (
+                    <div className="pt-1 animate-fadeIn">
+                      <InlinePersianDatePicker
+                        isOpen={isDatePickerOpen}
+                        onClose={() => setIsDatePickerOpen(false)}
+                        selectedDate={birthDate}
+                        mode="birthDate"
+                        minYear={1310}
+                        onSelectDate={(d) => {
+                          handleBirthDateSelect(d);
+                          setIsDatePickerOpen(false);
+                        }}
+                        title="انتخاب تاریخ تولد شما (شمسی)"
+                      />
+                    </div>
+                  )}
 
                   <p className="text-[11px] text-slate-400 leading-relaxed">
                     💡 طبق فرمول تخصصی ثروت، درصد سبد کم‌ریسک برابر با سن شما ({toPersianDigits(age)}٪) در نظر گرفته می‌شود.
@@ -588,18 +615,6 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
                     </div>
                   </div>
                 </div>
-
-                {/* Inline Persian Date Picker */}
-                <InlinePersianDatePicker
-                  isOpen={isDatePickerOpen}
-                  onClose={() => setIsDatePickerOpen(false)}
-                  selectedDate={birthDate}
-                  onSelectDate={(d) => {
-                    handleBirthDateSelect(d);
-                    setIsDatePickerOpen(false);
-                  }}
-                  title="انتخاب تاریخ تولد شما"
-                />
               </div>
             );
           })()}

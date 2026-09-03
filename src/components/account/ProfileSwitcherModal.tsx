@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Plus, Check, Shield, Trash2, ArrowRight } from 'lucide-react';
+import { User, Plus, Check, Shield, Trash2, ArrowRight, Sparkles } from 'lucide-react';
 import { UserProfile } from '../../types/investment';
 import { triggerHaptic } from '../../utils/haptics';
 import { BottomSheetModal } from '../common/BottomSheetModal';
@@ -12,6 +12,7 @@ interface ProfileSwitcherModalProps {
   onSelectProfile: (profileId: string) => void;
   onCreateProfile: (name: string, color?: string) => void;
   onDeleteProfile?: (profileId: string) => void;
+  onStartOnboarding?: () => void;
   isClosable?: boolean;
 }
 
@@ -25,6 +26,7 @@ export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
   onSelectProfile,
   onCreateProfile,
   onDeleteProfile,
+  onStartOnboarding,
   isClosable = true,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
@@ -147,7 +149,28 @@ export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
             </div>
           </form>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {onStartOnboarding && (
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic('medium');
+                  onClose();
+                  onStartOnboarding();
+                }}
+                className="w-full p-3 rounded-2xl bg-gradient-to-r from-amber-500 via-gold-500 to-amber-600 hover:from-amber-400 hover:to-gold-400 text-slate-950 font-black text-xs shadow-gold-glow flex items-center justify-between gap-2 interactive-tap"
+              >
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  <span>ساخت حساب جدید با مراحل کامل (آنبوردینگ)</span>
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-lg bg-black/10 text-slate-950 font-black">
+                  تست سن و سبدها
+                </span>
+              </button>
+            )}
+
+            <div className="space-y-2">
             {profiles.map((profile) => {
               const isActive = profile.id === activeProfileId;
 
@@ -196,6 +219,7 @@ export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
                 </div>
               );
             })}
+            </div>
           </div>
         )}
       </div>

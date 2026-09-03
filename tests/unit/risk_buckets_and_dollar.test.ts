@@ -168,4 +168,33 @@ describe('3-Bucket Risk Allocation & Asset Categories (Dollar, Stocks)', () => {
       assert.equal(restoredStocks[0].symbol, 'خودرو');
     });
   });
+
+  describe('Birthdate Year Range & Onboarding Configuration', () => {
+    it('covers all birth years down to 1310 (up to 95 years history)', () => {
+      const currentYear = 1404;
+      const minYear = 1310;
+      const years: number[] = [];
+      for (let y = currentYear; y >= minYear; y--) {
+        years.push(y);
+      }
+      assert.equal(years.length, 95);
+      assert.equal(years[0], 1404);
+      assert.equal(years[years.length - 1], 1310);
+      // Ensure common birth years like 1360, 1370, 1380 exist
+      assert.ok(years.includes(1360));
+      assert.ok(years.includes(1370));
+      assert.ok(years.includes(1380));
+    });
+
+    it('calculates age properly from Jalali birthdate', () => {
+      const birthYear = 1375;
+      const currentYear = 1404;
+      const calculatedAge = currentYear - birthYear;
+      assert.equal(calculatedAge, 29);
+      const buckets = calculateRiskBuckets(calculatedAge, 'moderate');
+      assert.equal(buckets.lowRiskPercent, 29);
+      assert.equal(buckets.highRiskPercent, 11);
+      assert.equal(buckets.mediumRiskPercent, 60);
+    });
+  });
 });

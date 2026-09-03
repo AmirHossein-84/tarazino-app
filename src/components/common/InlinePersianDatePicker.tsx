@@ -3,12 +3,15 @@ import { ChevronRight, ChevronLeft, Calendar as CalendarIcon, Check, X } from 'l
 import { toPersianDigits, toEnglishDigits, getTodayPersianDate, gregorianToPersianDate } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 
-interface InlinePersianDatePickerProps {
+export interface InlinePersianDatePickerProps {
   isOpen: boolean;
   onClose: () => void;
   selectedDate?: string;
   onSelectDate: (persianDate: string) => void;
   title?: string;
+  mode?: 'purchase' | 'birthDate';
+  minYear?: number;
+  maxYear?: number;
 }
 
 const PERSIAN_MONTHS = [
@@ -134,6 +137,9 @@ export const InlinePersianDatePicker: React.FC<InlinePersianDatePickerProps> = (
   selectedDate,
   onSelectDate,
   title = 'انتخاب تاریخ شمسی',
+  mode = 'purchase',
+  minYear,
+  maxYear,
 }) => {
   const parsed = useMemo(() => parsePersianDateString(selectedDate), [selectedDate, isOpen]);
 
@@ -234,12 +240,14 @@ export const InlinePersianDatePicker: React.FC<InlinePersianDatePickerProps> = (
 
   const yearsRange = useMemo(() => {
     const list: number[] = [];
-    const currentYear = today.year || 1403;
-    for (let y = currentYear + 2; y >= currentYear - 35; y--) {
+    const currentYear = today.year || 1404;
+    const startYear = maxYear || (mode === 'birthDate' ? currentYear : currentYear + 2);
+    const endYear = minYear || (mode === 'birthDate' ? 1310 : currentYear - 35);
+    for (let y = startYear; y >= endYear; y--) {
       list.push(y);
     }
     return list;
-  }, [today.year]);
+  }, [today.year, mode, minYear, maxYear]);
 
   return (
     <div className="p-3.5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-3 animate-fadeIn select-none">
@@ -260,37 +268,39 @@ export const InlinePersianDatePicker: React.FC<InlinePersianDatePickerProps> = (
         </button>
       </div>
 
-      {/* Quick Shortcuts */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-        <button
-          type="button"
-          onClick={() => handleQuickSelect('today')}
-          className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold shrink-0 transition-colors"
-        >
-          امروز
-        </button>
-        <button
-          type="button"
-          onClick={() => handleQuickSelect('yesterday')}
-          className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold shrink-0 transition-colors"
-        >
-          دیروز
-        </button>
-        <button
-          type="button"
-          onClick={() => handleQuickSelect('month_ago')}
-          className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold shrink-0 transition-colors"
-        >
-          یک ماه قبل
-        </button>
-        <button
-          type="button"
-          onClick={() => handleQuickSelect('year_ago')}
-          className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold shrink-0 transition-colors"
-        >
-          یک سال قبل
-        </button>
-      </div>
+      {/* Quick Shortcuts (Only in purchase mode) */}
+      {mode !== 'birthDate' && (
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          <button
+            type="button"
+            onClick={() => handleQuickSelect('today')}
+            className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold shrink-0 transition-colors"
+          >
+            امروز
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickSelect('yesterday')}
+            className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold shrink-0 transition-colors"
+          >
+            دیروز
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickSelect('month_ago')}
+            className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold shrink-0 transition-colors"
+          >
+            یک ماه قبل
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickSelect('year_ago')}
+            className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold shrink-0 transition-colors"
+          >
+            یک سال قبل
+          </button>
+        </div>
+      )}
 
       {/* Month & Year Navigation */}
       <div className="flex items-center justify-between p-1.5 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80">
@@ -328,7 +338,7 @@ export const InlinePersianDatePicker: React.FC<InlinePersianDatePickerProps> = (
 
       {/* Year Picker or Days Grid */}
       {showYearPicker ? (
-        <div className="p-2 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 max-h-44 overflow-y-auto grid grid-cols-4 gap-1.5">
+        <div className="p-2 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 max-h-56 overflow-y-auto grid grid-cols-4 gap-1.5">
           {yearsRange.map((y) => {
             const isSelected = y === viewYear;
             return (

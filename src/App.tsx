@@ -36,6 +36,7 @@ const AppContent: React.FC = () => {
     switchProfile,
     createProfile,
     completeOnboarding,
+    startNewUserOnboarding,
     updateActiveProfileData,
     deleteProfile,
   } = useProfileState();
@@ -389,6 +390,7 @@ const AppContent: React.FC = () => {
               onSelectProfile={switchProfile}
               onCreateProfile={createProfile}
               onDeleteProfile={deleteProfile}
+              onStartOnboarding={startNewUserOnboarding}
               cryptoAssets={cryptoAssets}
               onAssetsUpdated={updateCryptoAssets}
               onNotify={showNotification}
@@ -436,6 +438,7 @@ const AppContent: React.FC = () => {
         onSelectProfile={switchProfile}
         onCreateProfile={createProfile}
         onDeleteProfile={deleteProfile}
+        onStartOnboarding={startNewUserOnboarding}
       />
 
       {/* Toast Notification Snackbar (Bottom-Floating above BottomNav) */}
