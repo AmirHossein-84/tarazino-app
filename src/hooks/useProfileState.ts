@@ -183,6 +183,33 @@ export function useProfileState() {
     [createProfile]
   );
 
+  const canCancelOnboarding = Boolean(vault && vault.profiles && vault.profiles.length > 0);
+
+  // Cancel onboarding and return safely to existing profile
+  const cancelOnboarding = useCallback(() => {
+    if (!vault || !vault.profiles || vault.profiles.length === 0) return;
+    setNeedsOnboarding(false);
+    setShowProfileSwitcher(false);
+
+    // If no activeProfileId, fallback to first existing profile
+    if (!activeProfileId && vault.profiles.length > 0) {
+      setActiveProfileId(vault.profiles[0].id);
+    }
+
+    // Clean up onboarding query parameter from URL without reload
+    if (typeof window !== 'undefined' && window.history?.replaceState) {
+      try {
+        const url = new URL(window.location.href);
+        if (url.searchParams.has('onboarding') || url.searchParams.has('new_user') || url.searchParams.has('test')) {
+          url.searchParams.delete('onboarding');
+          url.searchParams.delete('new_user');
+          url.searchParams.delete('test');
+          window.history.replaceState({}, '', url.pathname + (url.search ? '?' + url.search : ''));
+        }
+      } catch (_) {}
+    }
+  }, [vault, activeProfileId]);
+
   // Update active profile data (assets, vehicles, settings, etc.)
   const updateActiveProfileData = useCallback(
     (updates: Partial<UserProfile>) => {
@@ -248,6 +275,8 @@ export function useProfileState() {
     createProfile,
     completeOnboarding,
     startNewUserOnboarding,
+    canCancelOnboarding,
+    cancelOnboarding,
     updateActiveProfileData,
     deleteProfile,
   };

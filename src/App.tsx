@@ -37,6 +37,8 @@ const AppContent: React.FC = () => {
     createProfile,
     completeOnboarding,
     startNewUserOnboarding,
+    canCancelOnboarding,
+    cancelOnboarding,
     updateActiveProfileData,
     deleteProfile,
   } = useProfileState();
@@ -427,6 +429,8 @@ const AppContent: React.FC = () => {
       <WelcomeOnboardingModal
         isOpen={needsOnboarding}
         onComplete={completeOnboarding}
+        canCancel={canCancelOnboarding}
+        onCancel={cancelOnboarding}
       />
 
       {/* Profile Switcher Modal */}

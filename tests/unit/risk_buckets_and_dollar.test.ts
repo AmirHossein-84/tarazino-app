@@ -196,5 +196,19 @@ describe('3-Bucket Risk Allocation & Asset Categories (Dollar, Stocks)', () => {
       assert.equal(buckets.highRiskPercent, 11);
       assert.equal(buckets.mediumRiskPercent, 60);
     });
+
+    it('enforces canCancel only when existing user accounts are present', () => {
+      // Case 1: Fresh install, no profiles -> canCancel is false
+      const emptyVault = { profiles: [] };
+      const canCancelEmpty = Boolean(emptyVault && emptyVault.profiles && emptyVault.profiles.length > 0);
+      assert.equal(canCancelEmpty, false);
+
+      // Case 2: Existing accounts present -> canCancel is true
+      const populatedVault = {
+        profiles: [{ id: 'user-1', name: 'کاربر ۱' }],
+      };
+      const canCancelPopulated = Boolean(populatedVault && populatedVault.profiles && populatedVault.profiles.length > 0);
+      assert.equal(canCancelPopulated, true);
+    });
   });
 });

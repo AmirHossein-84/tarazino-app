@@ -16,6 +16,7 @@ import {
   PieChart,
   Calendar,
   Scale,
+  X,
 } from 'lucide-react';
 import { triggerHaptic } from '../../utils/haptics';
 import { UserProfile, PropertyItem, VehicleItem, CryptoAsset, AppSettings } from '../../types/investment';
@@ -29,6 +30,8 @@ import { InlinePersianDatePicker } from '../common/InlinePersianDatePicker';
 interface WelcomeOnboardingModalProps {
   isOpen: boolean;
   onComplete: (profileName: string, initialData?: Partial<UserProfile>) => void;
+  canCancel?: boolean;
+  onCancel?: () => void;
 }
 
 const AVATAR_COLORS = [
@@ -61,6 +64,8 @@ const AVAILABLE_CRYPTOS: AvailableCrypto[] = [
 export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
   isOpen,
   onComplete,
+  canCancel = false,
+  onCancel,
 }) => {
   const [step, setStep] = useState<number>(0);
 
@@ -264,20 +269,38 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
             </span>
           </div>
 
-          {/* Dots Indicator (LTR progression) */}
-          <div className="flex items-center gap-1.5" dir="ltr">
-            {Array.from({ length: totalSlides }).map((_, i) => (
-              <span
-                key={i}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === step
-                    ? 'w-6 bg-amber-500 shadow-gold-glow'
-                    : i < step
-                    ? 'w-2 bg-amber-500/50'
-                    : 'w-2 bg-slate-200 dark:bg-slate-800'
-                }`}
-              />
-            ))}
+          <div className="flex items-center gap-3">
+            {/* Dots Indicator (LTR progression) */}
+            <div className="flex items-center gap-1.5" dir="ltr">
+              {Array.from({ length: totalSlides }).map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i === step
+                      ? 'w-6 bg-amber-500 shadow-gold-glow'
+                      : i < step
+                      ? 'w-2 bg-amber-500/50'
+                      : 'w-2 bg-slate-200 dark:bg-slate-800'
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Cancel / Dismiss Button (Only if user already has an existing account) */}
+            {canCancel && onCancel && (
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic('light');
+                  onCancel();
+                }}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors interactive-tap"
+                title="انصراف و بازگشت به حساب"
+                aria-label="انصراف و بازگشت به حساب"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -905,6 +928,19 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
               >
                 <span>قبلی</span>
                 <ChevronLeft className="w-4 h-4" />
+              </button>
+            )}
+
+            {canCancel && onCancel && (
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic('light');
+                  onCancel();
+                }}
+                className="py-2 px-3 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold transition-colors interactive-tap"
+              >
+                انصراف
               </button>
             )}
           </div>
