@@ -46,7 +46,6 @@ interface DashboardViewProps {
   propertiesValue?: number;
   vehiclesValue?: number;
   dollarValue?: number;
-  stocksValue?: number;
   riskBucketsSummary?: RiskBucketsSummary;
   totalCryptoValue: number;
   totalPortfolioValue: number;
@@ -80,7 +79,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   propertiesValue = 0,
   vehiclesValue = 0,
   dollarValue = 0,
-  stocksValue = 0,
   riskBucketsSummary,
   totalCryptoValue,
   totalPortfolioValue,
@@ -184,16 +182,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     });
   }
 
-  if (stocksValue > 0) {
-    chartItems.push({
-      id: 'stocks',
-      label: 'سهام بورس',
-      value: toDisplayValue(stocksValue),
-      color: '#06B6D4', // Cyan
-      sublabel: 'بازار سهام ایران',
-    });
-  }
-
   if (propertiesValue > 0) {
     chartItems.push({
       id: 'properties',
@@ -237,7 +225,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const isCryptoUnderweight = cryptoPercentActual < settings.cryptoPercent - 2;
 
   const totalPortfolioWithCash = totalPortfolioValue + tomanCashBalance;
-  const totalNetWorth = totalPortfolioWithCash + propertiesValue + vehiclesValue + dollarValue + stocksValue;
+  const totalNetWorth = totalPortfolioWithCash + propertiesValue + vehiclesValue + dollarValue;
 
   return (
     <PullToRefreshContainer onRefresh={onRefreshAll} isRefreshing={isRefreshing} className="space-y-5 pb-24">
@@ -506,27 +494,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
                 {formatCurrency(dollarValue)}
-              </div>
-            </div>
-          )}
-
-          {/* Stocks Chip */}
-          {stocksValue > 0 && (
-            <div
-              onClick={() => onNavigateToTab('holdings')}
-              className="p-3 rounded-2xl bg-cyan-50/70 dark:bg-slate-950/80 border border-cyan-300/80 dark:border-cyan-500/30 hover:border-cyan-400 dark:hover:border-cyan-500/60 transition-all cursor-pointer space-y-1 col-span-2 sm:col-span-1"
-            >
-              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                <span className="flex items-center gap-1 font-bold text-cyan-700 dark:text-cyan-400">
-                  <TrendingUp className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-                  <span>سهام بورس</span>
-                </span>
-                <span className="text-cyan-700 dark:text-cyan-300 font-bold">
-                  {totalNetWorth > 0 ? formatPercent((stocksValue / totalNetWorth) * 100) : '۰٪'}
-                </span>
-              </div>
-              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
-                {formatCurrency(stocksValue)}
               </div>
             </div>
           )}

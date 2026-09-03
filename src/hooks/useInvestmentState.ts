@@ -10,7 +10,6 @@ import {
   PropertyItem,
   VehicleItem,
   DollarHolding,
-  StockItem,
   RiskBucketsSummary,
   TransactionRecord,
   CalculationResult,
@@ -32,8 +31,6 @@ import {
   saveVehicles,
   loadDollarHolding,
   saveDollarHolding,
-  loadStocks,
-  saveStocks,
   loadGoldBuyLots,
   saveGoldBuyLots,
   loadPhysicalGoldSales,
@@ -72,7 +69,6 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
   const [properties, setPropertiesState] = useState<PropertyItem[]>(() => loadProperties());
   const [vehicles, setVehiclesState] = useState<VehicleItem[]>(() => loadVehicles());
   const [dollarHolding, setDollarHoldingState] = useState<DollarHolding>(() => loadDollarHolding());
-  const [stocks, setStocksState] = useState<StockItem[]>(() => loadStocks());
   const [isRefreshingGold, setIsRefreshingGold] = useState<boolean>(false);
   const [isGoldFetchError, setIsGoldFetchError] = useState<boolean>(false);
   const [transactions, setTransactionsState] = useState<TransactionRecord[]>(() => loadTransactions());
@@ -657,47 +653,6 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
   }, [dollarHolding]);
 
   // -------------------------------------------------------------
-  // BOURSE STOCKS MANAGEMENT
-  // -------------------------------------------------------------
-
-  const addStock = useCallback((stockData: Omit<StockItem, 'id' | 'updatedAt'>) => {
-    const newStock: StockItem = {
-      ...stockData,
-      id: `stock_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      updatedAt: Date.now(),
-    };
-    setStocksState((prev) => {
-      const updated = [newStock, ...prev];
-      saveStocks(updated);
-      return updated;
-    });
-    showNotification(`نماد "${newStock.symbol}" به سبد سهام اضافه شد`);
-  }, [showNotification]);
-
-  const editStock = useCallback((id: string, updates: Partial<StockItem>) => {
-    setStocksState((prev) => {
-      const updated = prev.map((s) => (s.id === id ? { ...s, ...updates, updatedAt: Date.now() } : s));
-      saveStocks(updated);
-      return updated;
-    });
-    showNotification('نماد بورسی ویرایش شد');
-  }, [showNotification]);
-
-  const removeStock = useCallback((id: string) => {
-    setStocksState((prev) => {
-      const target = prev.find((s) => s.id === id);
-      const updated = prev.filter((s) => s.id !== id);
-      saveStocks(updated);
-      showNotification(`نماد "${target?.symbol || ''}" حذف شد`, 'info');
-      return updated;
-    });
-  }, [showNotification]);
-
-  const totalStocksValueTomans = useMemo(() => {
-    return stocks.reduce((sum, s) => sum + Math.round((s.sharesCount || 0) * (s.currentPriceTomans || s.averageBuyPriceTomans || 0)), 0);
-  }, [stocks]);
-
-  // -------------------------------------------------------------
   // 3-BUCKET RISK PORTFOLIO SUMMARY (Low, Medium, High Risk)
   // -------------------------------------------------------------
 
@@ -708,11 +663,10 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     const dollarVal = totalDollarValueTomans;
     const lowRiskTotal = vehiclesVal + propertiesVal + dollarVal;
 
-    // 2. Medium Risk: Physical Gold + TSETMC Gold + Stocks
+    // 2. Medium Risk: Physical Gold + TSETMC Gold Funds (عيار، کهربا، زر و...)
     const physGoldVal = totalPhysicalGoldValueTomans;
     const tsetmcGoldVal = props?.externalGoldValueTomans || 0;
-    const stocksVal = totalStocksValueTomans;
-    const mediumRiskTotal = physGoldVal + tsetmcGoldVal + stocksVal;
+    const mediumRiskTotal = physGoldVal + tsetmcGoldVal;
 
     // 3. High Risk: Crypto Assets
     const cryptoTotal = cryptoAssets.reduce((sum, a) => sum + (a.currentHoldingValue || 0), 0);
@@ -747,7 +701,6 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
         components: {
           physicalGoldValueTomans: physGoldVal,
           tsetmcGoldValueTomans: tsetmcGoldVal,
-          stocksValueTomans: stocksVal,
         },
       },
       highRisk: {
@@ -766,7 +719,6 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     totalDollarValueTomans,
     totalPhysicalGoldValueTomans,
     props?.externalGoldValueTomans,
-    totalStocksValueTomans,
     cryptoAssets,
     settings.riskBucketsConfig,
   ]);
@@ -797,7 +749,6 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     setPropertiesState([]);
     setVehiclesState([]);
     setDollarHoldingState(loadDollarHolding());
-    setStocksState(loadStocks());
     setTransactionsState([]);
     setInputAmountState(0);
     showNotification('تمامی اطلاعات به تنظیمات پیش‌فرض کارخانه بازنشانی شد', 'info');
@@ -833,7 +784,6 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
       setPropertiesState(loadProperties());
       setVehiclesState(loadVehicles());
       setDollarHoldingState(loadDollarHolding());
-      setStocksState(loadStocks());
       setTransactionsState(loadTransactions());
       showNotification('اطلاعات با موفقیت از فایل پشتیبان بازیابی شدند');
     } else {
@@ -888,11 +838,6 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     dollarHolding,
     totalDollarValueTomans,
     updateDollarHolding,
-    stocks,
-    totalStocksValueTomans,
-    addStock,
-    editStock,
-    removeStock,
     riskBucketsSummary,
     transactions,
     deleteTransaction,

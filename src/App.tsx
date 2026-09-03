@@ -135,11 +135,6 @@ const AppContent: React.FC = () => {
     dollarHolding,
     totalDollarValueTomans,
     updateDollarHolding,
-    stocks,
-    totalStocksValueTomans,
-    addStock,
-    editStock,
-    removeStock,
     riskBucketsSummary,
     transactions,
     deleteTransaction,
@@ -167,7 +162,6 @@ const AppContent: React.FC = () => {
         properties,
         vehicles,
         dollarHolding,
-        stocks,
         goldBuyLots,
         physicalGoldSales,
         transactions,
@@ -182,7 +176,6 @@ const AppContent: React.FC = () => {
     properties,
     vehicles,
     dollarHolding,
-    stocks,
     goldBuyLots,
     physicalGoldSales,
     transactions,
@@ -274,7 +267,6 @@ const AppContent: React.FC = () => {
             propertiesValue={netWorthPropertiesValueTomans}
             vehiclesValue={netWorthVehiclesValueTomans}
             dollarValue={totalDollarValueTomans}
-            stocksValue={totalStocksValueTomans}
             riskBucketsSummary={riskBucketsSummary}
             totalCryptoValue={totalCryptoValue}
             totalPortfolioValue={totalPortfolioValue}
@@ -350,10 +342,6 @@ const AppContent: React.FC = () => {
               onRemoveVehicle={removeVehicle}
               dollarHolding={dollarHolding}
               onUpdateDollarHolding={updateDollarHolding}
-              stocks={stocks}
-              onAddStock={addStock}
-              onEditStock={editStock}
-              onRemoveStock={removeStock}
               onNavigateToCalculator={() => setActiveTab('dashboard')}
               onNavigateToMarket={() => setActiveTab('markets')}
               onNotify={showNotification}

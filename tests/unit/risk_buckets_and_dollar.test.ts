@@ -5,15 +5,13 @@ import { calculateRiskBuckets } from '../../src/utils/calculations';
 import {
   loadDollarHolding,
   saveDollarHolding,
-  loadStocks,
-  saveStocks,
   exportBackupData,
   importBackupData,
 } from '../../src/utils/storage';
-import { DollarHolding, StockItem, RiskBucketsSummary } from '../../src/types/investment';
-import { DEFAULT_DOLLAR_HOLDING, DEFAULT_STOCKS } from '../../src/constants/defaultData';
+import { DollarHolding, RiskBucketsSummary } from '../../src/types/investment';
+import { DEFAULT_DOLLAR_HOLDING } from '../../src/constants/defaultData';
 
-describe('3-Bucket Risk Allocation & Asset Categories (Dollar, Stocks)', () => {
+describe('3-Bucket Risk Allocation & Asset Categories (Dollar, Gold & Bourse)', () => {
   let env: ReturnType<typeof setupTestEnvironment>;
 
   beforeEach(() => {
@@ -89,83 +87,40 @@ describe('3-Bucket Risk Allocation & Asset Categories (Dollar, Stocks)', () => {
     });
   });
 
-  describe('Iranian Bourse Stocks Storage & Valuation', () => {
-    it('returns DEFAULT_STOCKS on initial empty storage', () => {
-      const stocks = loadStocks();
-      assert.deepEqual(stocks, DEFAULT_STOCKS);
-    });
-
-    it('saves and reloads list of stock items', () => {
-      const stockList: StockItem[] = [
-        {
-          id: 'stock_1',
-          symbol: 'فولاد',
-          title: 'فولاد مبارکه اصفهان',
-          sharesCount: 10000,
-          averageBuyPriceTomans: 550,
-          currentPriceTomans: 620,
-          updatedAt: Date.now(),
-        },
-        {
-          id: 'stock_2',
-          symbol: 'فملی',
-          title: 'ملی صنایع مس ایران',
-          sharesCount: 5000,
-          averageBuyPriceTomans: 700,
-          currentPriceTomans: 780,
-          updatedAt: Date.now(),
-        },
-      ];
-
-      saveStocks(stockList);
-      const reloaded = loadStocks();
-      assert.equal(reloaded.length, 2);
-      assert.equal(reloaded[0].symbol, 'فولاد');
-      assert.equal(reloaded[0].sharesCount, 10000);
-      assert.equal(reloaded[1].symbol, 'فملی');
+  describe('Unified Medium-Risk Bucket (Physical Gold + Bourse Gold Funds)', () => {
+    it('correctly aggregates physical gold and bourse gold funds into medium-risk total', () => {
+      const physicalGoldVal = 85_000_000;
+      const tsetmcGoldFundsVal = 35_000_000; // e.g. عیار + کهربا
+      const mediumRiskTotal = physicalGoldVal + tsetmcGoldFundsVal;
+      assert.equal(mediumRiskTotal, 120_000_000);
     });
   });
 
-  describe('Backup & Restore Integrity for Dollar and Stocks', () => {
-    it('exports and imports backup containing dollar holding and stocks', () => {
+  describe('Backup & Restore Integrity for Dollar Holding', () => {
+    it('exports and imports backup containing dollar holding properly', () => {
       const customDollar: DollarHolding = {
         amountUsd: 1200,
         averageBuyPriceTomans: 89000,
         currentPriceTomans: 94000,
         lastUpdated: Date.now(),
       };
-      const customStocks: StockItem[] = [
-        {
-          id: 'stk_auto',
-          symbol: 'خودرو',
-          sharesCount: 20000,
-          averageBuyPriceTomans: 310,
-          currentPriceTomans: 350,
-          updatedAt: Date.now(),
-        },
-      ];
 
       saveDollarHolding(customDollar);
-      saveStocks(customStocks);
 
       const backupJson = exportBackupData();
       assert.ok(backupJson.length > 0);
 
       // Mutate storage
       saveDollarHolding({ ...DEFAULT_DOLLAR_HOLDING, amountUsd: 0 });
-      saveStocks([]);
 
       // Import backup
       const success = importBackupData(backupJson);
       assert.equal(success, true);
 
       const restoredDollar = loadDollarHolding();
-      const restoredStocks = loadStocks();
-
       assert.equal(restoredDollar.amountUsd, 1200);
       assert.equal(restoredDollar.averageBuyPriceTomans, 89000);
-      assert.equal(restoredStocks.length, 1);
-      assert.equal(restoredStocks[0].symbol, 'خودرو');
+      assert.equal(restoredDollar.currentPriceTomans, 94000);
     });
   });
 

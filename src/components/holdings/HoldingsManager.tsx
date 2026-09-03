@@ -19,7 +19,6 @@ import {
   PropertyItem,
   VehicleItem,
   DollarHolding,
-  StockItem,
 } from '../../types/investment';
 import { useMarketData } from '../../hooks/useMarketData';
 import { formatToman, formatPercent, toPersianDigits } from '../../utils/formatters';
@@ -31,7 +30,6 @@ import { PhysicalGoldSection } from './PhysicalGoldSection';
 import { PropertyManagerView } from '../properties/PropertyManagerView';
 import { VehicleManagerView } from '../vehicles/VehicleManagerView';
 import { DollarHoldingCard } from './DollarHoldingCard';
-import { BourseStocksSection } from './BourseStocksSection';
 import { CurrencyDisplayMode } from '../../hooks/useCurrencyDisplay';
 
 interface HoldingsManagerProps {
@@ -69,11 +67,6 @@ interface HoldingsManagerProps {
   // Dollar Holding
   dollarHolding?: DollarHolding;
   onUpdateDollarHolding?: (updates: Partial<DollarHolding>) => void;
-  // Bourse Stocks
-  stocks?: StockItem[];
-  onAddStock?: (stock: Omit<StockItem, 'id' | 'updatedAt'>) => void;
-  onEditStock?: (id: string, updates: Partial<StockItem>) => void;
-  onRemoveStock?: (id: string) => void;
   onNavigateToCalculator: () => void;
   onNavigateToMarket?: () => void;
   onNotify?: (message: string, type?: 'success' | 'info' | 'error' | 'warning') => void;
@@ -111,15 +104,11 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
   onRemoveVehicle,
   dollarHolding,
   onUpdateDollarHolding,
-  stocks = [],
-  onAddStock,
-  onEditStock,
-  onRemoveStock,
   onNavigateToCalculator,
   onNavigateToMarket,
   onNotify,
 }) => {
-  const [activeCategory, setActiveCategory] = useState<'gold' | 'crypto' | 'properties' | 'vehicles' | 'dollar' | 'stocks'>('gold');
+  const [activeCategory, setActiveCategory] = useState<'gold' | 'crypto' | 'properties' | 'vehicles' | 'dollar'>('gold');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<CryptoAsset | null>(null);
 
@@ -151,10 +140,6 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
   const totalDollarValue = Math.round(
     (dollarHolding?.amountUsd || 0) * (dollarHolding?.currentPriceTomans || usdtRateTomans || 90000)
   );
-  const totalStocksValue = stocks.reduce(
-    (sum, s) => sum + Math.round((s.sharesCount || 0) * (s.currentPriceTomans || s.averageBuyPriceTomans || 0)),
-    0
-  );
 
   const categories = [
     {
@@ -180,14 +165,6 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
       value: totalDollarValue,
       colorClass: 'text-teal-700 dark:text-teal-400',
       activeClass: 'bg-teal-600 text-white font-black shadow-md',
-    },
-    {
-      id: 'stocks' as const,
-      label: 'سهام بورس',
-      icon: TrendingUp,
-      value: totalStocksValue,
-      colorClass: 'text-cyan-700 dark:text-cyan-400',
-      activeClass: 'bg-cyan-600 text-white font-black shadow-md',
     },
     {
       id: 'properties' as const,
@@ -483,19 +460,6 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
             dollarHolding={dollarHolding}
             onUpdate={onUpdateDollarHolding}
             usdtRateTomans={usdtRateTomans}
-            formatCurrency={formatCurrency}
-          />
-        </div>
-      )}
-
-      {/* 7. CATEGORY: BOURSE STOCKS */}
-      {activeCategory === 'stocks' && onAddStock && onEditStock && onRemoveStock && (
-        <div className="animate-fadeIn">
-          <BourseStocksSection
-            stocks={stocks}
-            onAddStock={onAddStock}
-            onEditStock={onEditStock}
-            onRemoveStock={onRemoveStock}
             formatCurrency={formatCurrency}
           />
         </div>

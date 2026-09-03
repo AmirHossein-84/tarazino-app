@@ -117,17 +117,6 @@ export interface DollarHolding {
   notes?: string;
 }
 
-export interface StockItem {
-  id: string;
-  symbol: string; // e.g. "فولاد", "فملی", "خودرو"
-  title?: string;
-  sharesCount: number; // Total shares owned
-  averageBuyPriceTomans: number; // Cost per share in Tomans
-  currentPriceTomans: number; // Current market price per share in Tomans
-  notes?: string;
-  updatedAt?: number;
-}
-
 export interface RiskBucketsConfig {
   userAge?: number;
   riskTolerance?: 'conservative' | 'moderate' | 'aggressive';
@@ -154,7 +143,6 @@ export interface RiskBucketsSummary {
     components: {
       physicalGoldValueTomans: number;
       tsetmcGoldValueTomans: number;
-      stocksValueTomans: number;
     };
   };
   highRisk: {
@@ -232,7 +220,6 @@ export interface UserProfile {
   properties?: PropertyItem[];
   vehicles?: VehicleItem[];
   dollarHolding?: DollarHolding;
-  stocks?: StockItem[];
   goldBuyLots?: PhysicalGoldBuyLot[];
   physicalGoldSales?: PhysicalGoldSaleRecord[];
   transactions?: TransactionRecord[];
@@ -259,7 +246,6 @@ export interface AppBackupData {
   properties?: PropertyItem[];
   vehicles?: VehicleItem[];
   dollarHolding?: DollarHolding;
-  stocks?: StockItem[];
   goldBuyLots?: PhysicalGoldBuyLot[];
   physicalGoldSales?: PhysicalGoldSaleRecord[];
   settings: AppSettings;

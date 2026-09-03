@@ -26,7 +26,6 @@ function createEmptyProfile(name: string, color?: string): UserProfile {
     properties: [],
     vehicles: [],
     dollarHolding: DEFAULT_DOLLAR_HOLDING,
-    stocks: [],
     goldBuyLots: [],
     physicalGoldSales: [],
     transactions: [],

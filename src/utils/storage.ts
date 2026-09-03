@@ -11,7 +11,6 @@ import {
   MarketInstrument,
   UserMarketHolding,
   DollarHolding,
-  StockItem,
 } from '../types/investment';
 import {
   DEFAULT_CRYPTO_ASSETS,
@@ -19,7 +18,6 @@ import {
   DEFAULT_PHYSICAL_GOLD_ITEMS,
   DEFAULT_SETTINGS,
   DEFAULT_DOLLAR_HOLDING,
-  DEFAULT_STOCKS,
 } from '../constants/defaultData';
 import { NobitexConfig } from '../services/nobitex/types';
 
@@ -31,7 +29,6 @@ export const STORAGE_KEYS = {
   PROPERTIES: 'tarazino_properties_v1',
   VEHICLES: 'tarazino_vehicles_v1',
   DOLLAR_HOLDING: 'tarazino_dollar_holding_v1',
-  STOCKS: 'tarazino_stocks_v1',
   GOLD_BUY_LOTS: 'tarazino_gold_buy_lots_v1',
   PHYSICAL_GOLD_SALES: 'tarazino_physical_gold_sales_v1',
   TRANSACTIONS: 'tarazino_transactions_v1',
@@ -49,7 +46,6 @@ export const LEGACY_STORAGE_KEYS = {
   PROPERTIES: 'investment_app_properties_v1',
   VEHICLES: 'investment_app_vehicles_v1',
   DOLLAR_HOLDING: 'investment_app_dollar_holding_v1',
-  STOCKS: 'investment_app_stocks_v1',
   GOLD_BUY_LOTS: 'investment_app_gold_buy_lots_v1',
   PHYSICAL_GOLD_SALES: 'investment_app_physical_gold_sales_v1',
   TRANSACTIONS: 'investment_app_transactions_v1',
@@ -88,7 +84,6 @@ export interface ExportedBackupData {
   properties?: PropertyItem[];
   vehicles?: VehicleItem[];
   dollarHolding?: DollarHolding;
-  stocks?: StockItem[];
   goldBuyLots?: PhysicalGoldBuyLot[];
   physicalGoldSales?: PhysicalGoldSaleRecord[];
   transactions: TransactionRecord[];
@@ -258,30 +253,6 @@ export function saveDollarHolding(holding: DollarHolding): void {
     localStorage.setItem(STORAGE_KEYS.DOLLAR_HOLDING, JSON.stringify(holding));
   } catch (e) {
     console.error('Failed to save dollar holding:', e);
-  }
-}
-
-// -------------------------------------------------------------
-// BOURSE STOCKS PERSISTENCE
-// -------------------------------------------------------------
-
-export function loadStocks(): StockItem[] {
-  try {
-    const data = getStorageItem(STORAGE_KEYS.STOCKS, LEGACY_STORAGE_KEYS.STOCKS);
-    if (!data) return DEFAULT_STOCKS;
-    const parsed = JSON.parse(data);
-    return Array.isArray(parsed) ? parsed : DEFAULT_STOCKS;
-  } catch (e) {
-    console.error('Failed to load stocks:', e);
-    return DEFAULT_STOCKS;
-  }
-}
-
-export function saveStocks(stocks: StockItem[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEYS.STOCKS, JSON.stringify(stocks));
-  } catch (e) {
-    console.error('Failed to save stocks:', e);
   }
 }
 
@@ -458,7 +429,6 @@ export function exportBackupData(): string {
     properties: loadProperties(),
     vehicles: loadVehicles(),
     dollarHolding: loadDollarHolding(),
-    stocks: loadStocks(),
     goldBuyLots: loadGoldBuyLots(),
     physicalGoldSales: loadPhysicalGoldSales(),
     transactions: loadTransactions(),
@@ -496,9 +466,6 @@ export function importBackupData(jsonString: string): boolean {
     }
     if (parsed.dollarHolding) {
       saveDollarHolding({ ...DEFAULT_DOLLAR_HOLDING, ...parsed.dollarHolding });
-    }
-    if (Array.isArray(parsed.stocks)) {
-      saveStocks(parsed.stocks);
     }
     if (Array.isArray(parsed.goldBuyLots)) {
       saveGoldBuyLots(parsed.goldBuyLots);
