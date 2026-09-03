@@ -23,12 +23,14 @@ import {
   CalculationResult,
   AppSettings,
   CalculatedCryptoBuy,
+  RiskBucketsSummary,
 } from '../../types/investment';
 import { PortfolioDonutChart, DonutChartItem } from '../common/PortfolioDonutChart';
 import { PullToRefreshContainer } from '../common/PullToRefreshContainer';
 import { CapitalInputCard } from './CapitalInputCard';
 import { GoldBuyCard } from '../calculation/GoldBuyCard';
 import { QuickActions } from '../calculation/QuickActions';
+import { RiskBucketsOverviewCard } from './RiskBucketsOverviewCard';
 import { formatToman, formatPercent, toPersianDigits } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { CurrencyDisplayMode } from '../../hooks/useCurrencyDisplay';
@@ -43,6 +45,9 @@ interface DashboardViewProps {
   bourseGoldValue?: number;
   propertiesValue?: number;
   vehiclesValue?: number;
+  dollarValue?: number;
+  stocksValue?: number;
+  riskBucketsSummary?: RiskBucketsSummary;
   totalCryptoValue: number;
   totalPortfolioValue: number;
   tomanCashBalance: number;
@@ -74,6 +79,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   bourseGoldValue = 0,
   propertiesValue = 0,
   vehiclesValue = 0,
+  dollarValue = 0,
+  stocksValue = 0,
+  riskBucketsSummary,
   totalCryptoValue,
   totalPortfolioValue,
   tomanCashBalance,
@@ -166,6 +174,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     targetPercent: settings.cryptoPercent,
   });
 
+  if (dollarValue > 0) {
+    chartItems.push({
+      id: 'dollar',
+      label: 'دلار نقدی (اسکناس)',
+      value: toDisplayValue(dollarValue),
+      color: '#10B981', // Emerald
+      sublabel: 'دلار و ارز نقدی',
+    });
+  }
+
+  if (stocksValue > 0) {
+    chartItems.push({
+      id: 'stocks',
+      label: 'سهام بورس',
+      value: toDisplayValue(stocksValue),
+      color: '#06B6D4', // Cyan
+      sublabel: 'بازار سهام ایران',
+    });
+  }
+
   if (propertiesValue > 0) {
     chartItems.push({
       id: 'properties',
@@ -191,7 +219,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       id: 'cash',
       label: 'موجودی نقدی نوبیتکس',
       value: toDisplayValue(tomanCashBalance),
-      color: '#10B981',
+      color: '#84CC16', // Lime
       sublabel: 'نقد ریالی',
     });
   }
@@ -209,7 +237,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const isCryptoUnderweight = cryptoPercentActual < settings.cryptoPercent - 2;
 
   const totalPortfolioWithCash = totalPortfolioValue + tomanCashBalance;
-  const totalNetWorth = totalPortfolioWithCash + propertiesValue + vehiclesValue;
+  const totalNetWorth = totalPortfolioWithCash + propertiesValue + vehiclesValue + dollarValue + stocksValue;
 
   return (
     <PullToRefreshContainer onRefresh={onRefreshAll} isRefreshing={isRefreshing} className="space-y-5 pb-24">
@@ -461,6 +489,48 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           )}
 
+          {/* Dollar Cash Chip */}
+          {dollarValue > 0 && (
+            <div
+              onClick={() => onNavigateToTab('holdings')}
+              className="p-3 rounded-2xl bg-emerald-50/70 dark:bg-slate-950/80 border border-emerald-300/80 dark:border-emerald-500/30 hover:border-emerald-400 dark:hover:border-emerald-500/60 transition-all cursor-pointer space-y-1 col-span-2 sm:col-span-1"
+            >
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1 font-bold text-emerald-700 dark:text-emerald-400">
+                  <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>دلار نقدی</span>
+                </span>
+                <span className="text-emerald-700 dark:text-emerald-300 font-bold">
+                  {totalNetWorth > 0 ? formatPercent((dollarValue / totalNetWorth) * 100) : '۰٪'}
+                </span>
+              </div>
+              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
+                {formatCurrency(dollarValue)}
+              </div>
+            </div>
+          )}
+
+          {/* Stocks Chip */}
+          {stocksValue > 0 && (
+            <div
+              onClick={() => onNavigateToTab('holdings')}
+              className="p-3 rounded-2xl bg-cyan-50/70 dark:bg-slate-950/80 border border-cyan-300/80 dark:border-cyan-500/30 hover:border-cyan-400 dark:hover:border-cyan-500/60 transition-all cursor-pointer space-y-1 col-span-2 sm:col-span-1"
+            >
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1 font-bold text-cyan-700 dark:text-cyan-400">
+                  <TrendingUp className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                  <span>سهام بورس</span>
+                </span>
+                <span className="text-cyan-700 dark:text-cyan-300 font-bold">
+                  {totalNetWorth > 0 ? formatPercent((stocksValue / totalNetWorth) * 100) : '۰٪'}
+                </span>
+              </div>
+              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
+                {formatCurrency(stocksValue)}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
 
@@ -526,7 +596,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 3. CAPITAL INPUT CARD */}
+      {/* 3. 3-BUCKET RISK MANAGEMENT OVERVIEW */}
+      {riskBucketsSummary && (
+        <RiskBucketsOverviewCard
+          summary={riskBucketsSummary}
+          config={settings.riskBucketsConfig}
+          onNavigateToHoldings={() => onNavigateToTab('holdings')}
+        />
+      )}
+
+      {/* 4. CAPITAL INPUT CARD */}
       <CapitalInputCard
         inputAmount={totalInputAmount}
         setInputAmount={setTotalInputAmount}

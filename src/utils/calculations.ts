@@ -281,3 +281,49 @@ export function calculatePortfolioAllocation(
     newTotalPortfolioValue,
   };
 }
+
+/**
+ * Calculates target portfolio percentages for the 3-bucket risk system:
+ * 1. Low Risk (Vehicles, Real Estate, Cash Dollar) = user's age (e.g. 20 years = 20%)
+ * 2. High Risk (Crypto) = based on risk tolerance:
+ *    - 'conservative': 8%
+ *    - 'moderate': 11%
+ *    - 'aggressive': 15%
+ * 3. Medium Risk (Gold & Bourse Stocks) = remaining percentage (100 - lowRisk - highRisk)
+ *
+ * Age is clamped between 5 and 85 to ensure valid positive allocations.
+ */
+export function calculateRiskBuckets(
+  age: number,
+  riskTolerance: 'conservative' | 'moderate' | 'aggressive' = 'moderate'
+): {
+  lowRiskPercent: number;
+  mediumRiskPercent: number;
+  highRiskPercent: number;
+} {
+  const safeAge = Math.max(5, Math.min(85, Math.round(Number(age) || 25)));
+
+  let highRiskPercent = 11;
+  if (riskTolerance === 'conservative') {
+    highRiskPercent = 8;
+  } else if (riskTolerance === 'aggressive') {
+    highRiskPercent = 15;
+  }
+
+  // Low risk is equal to age
+  let lowRiskPercent = safeAge;
+
+  // Guarantee that lowRisk + highRisk <= 95% so medium risk has at least 5%
+  if (lowRiskPercent + highRiskPercent > 95) {
+    lowRiskPercent = 95 - highRiskPercent;
+  }
+
+  const mediumRiskPercent = Math.max(0, 100 - lowRiskPercent - highRiskPercent);
+
+  return {
+    lowRiskPercent,
+    mediumRiskPercent,
+    highRiskPercent,
+  };
+}
+

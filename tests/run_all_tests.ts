@@ -9,6 +9,7 @@ const __dirname = path.dirname(__filename);
 const testFiles = [
   // Unit & Calculations Tests
   path.join(__dirname, 'unit/calculations.test.ts'),
+  path.join(__dirname, 'unit/risk_buckets_and_dollar.test.ts'),
   path.join(__dirname, 'unit/sellCalculator.test.ts'),
   path.join(__dirname, 'unit/goldPnlCalculators.test.ts'),
   path.join(__dirname, 'unit/formatters.test.ts'),

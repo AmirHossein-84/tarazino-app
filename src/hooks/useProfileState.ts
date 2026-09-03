@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { UserProfile, ProfilesVault } from '../types/investment';
 import { readDeviceVault, writeDeviceVault, debouncedSaveDeviceVault } from '../utils/deviceVault';
-import { DEFAULT_SETTINGS, DEFAULT_CRYPTO_ASSETS, DEFAULT_GOLD_HOLDING, DEFAULT_PHYSICAL_GOLD_ITEMS } from '../constants/defaultData';
+import { DEFAULT_SETTINGS, DEFAULT_CRYPTO_ASSETS, DEFAULT_GOLD_HOLDING, DEFAULT_PHYSICAL_GOLD_ITEMS, DEFAULT_DOLLAR_HOLDING } from '../constants/defaultData';
 
 const AVATAR_COLORS = [
   '#3b82f6', // blue
@@ -25,6 +25,8 @@ function createEmptyProfile(name: string, color?: string): UserProfile {
     physicalGold: DEFAULT_PHYSICAL_GOLD_ITEMS,
     properties: [],
     vehicles: [],
+    dollarHolding: DEFAULT_DOLLAR_HOLDING,
+    stocks: [],
     goldBuyLots: [],
     physicalGoldSales: [],
     transactions: [],

@@ -1,4 +1,4 @@
-import { AppSettings, CryptoAsset, GoldHolding } from '../types/investment';
+import { AppSettings, CryptoAsset, GoldHolding, DollarHolding, StockItem } from '../types/investment';
 
 export const DEFAULT_CRYPTO_ASSETS: CryptoAsset[] = [
   {
@@ -92,7 +92,22 @@ export const DEFAULT_SETTINGS: AppSettings = {
   currencyUnit: 'toman',
   goldPricePerGram: 5200000, // Approximate gold price per gram in Tomans
   capitalInputMode: 'income',
+  riskBucketsConfig: {
+    userAge: 25,
+    riskTolerance: 'moderate',
+    lowRiskPercent: 25,
+    mediumRiskPercent: 64,
+    highRiskPercent: 11,
+  },
 };
+
+export const DEFAULT_DOLLAR_HOLDING: DollarHolding = {
+  amountUsd: 0,
+  averageBuyPriceTomans: 90000,
+  currentPriceTomans: 90000,
+};
+
+export const DEFAULT_STOCKS: StockItem[] = [];
 
 export const DEFAULT_GOLD_HOLDING: GoldHolding = {
   currentHoldingValue: 0,

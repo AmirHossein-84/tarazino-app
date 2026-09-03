@@ -109,6 +109,65 @@ export interface GoldHolding {
   pricePerGram?: number; // in Tomans per gram
 }
 
+export interface DollarHolding {
+  amountUsd: number; // Cash banknotes owned in USD
+  averageBuyPriceTomans: number; // Average acquisition rate in Tomans
+  currentPriceTomans: number; // Current market price in Tomans per USD
+  lastUpdated?: number;
+  notes?: string;
+}
+
+export interface StockItem {
+  id: string;
+  symbol: string; // e.g. "فولاد", "فملی", "خودرو"
+  title?: string;
+  sharesCount: number; // Total shares owned
+  averageBuyPriceTomans: number; // Cost per share in Tomans
+  currentPriceTomans: number; // Current market price per share in Tomans
+  notes?: string;
+  updatedAt?: number;
+}
+
+export interface RiskBucketsConfig {
+  userAge?: number;
+  riskTolerance?: 'conservative' | 'moderate' | 'aggressive';
+  lowRiskPercent?: number; // Target low risk % (equals age)
+  mediumRiskPercent?: number; // Target medium risk % (100 - age - highRisk)
+  highRiskPercent?: number; // Target high risk % (8% to 15%)
+}
+
+export interface RiskBucketsSummary {
+  lowRisk: {
+    targetPercent: number;
+    currentValueTomans: number;
+    actualPercent: number;
+    components: {
+      vehiclesValueTomans: number;
+      propertiesValueTomans: number;
+      dollarValueTomans: number;
+    };
+  };
+  mediumRisk: {
+    targetPercent: number;
+    currentValueTomans: number;
+    actualPercent: number;
+    components: {
+      physicalGoldValueTomans: number;
+      tsetmcGoldValueTomans: number;
+      stocksValueTomans: number;
+    };
+  };
+  highRisk: {
+    targetPercent: number;
+    currentValueTomans: number;
+    actualPercent: number;
+    components: {
+      cryptoValueTomans: number;
+    };
+  };
+  totalNetWorthTomans: number;
+}
+
 export interface AppSettings {
   savingsPercent: number; // default 30%
   goldPercent: number; // default 80% (of savings)
@@ -117,6 +176,7 @@ export interface AppSettings {
   currencyUnit: 'toman' | 'rial';
   goldPricePerGram: number; // e.g. 5,000,000 Tomans
   capitalInputMode?: 'direct' | 'income'; // 'direct' = 100% direct allocation, 'income' = apply savingsPercent
+  riskBucketsConfig?: RiskBucketsConfig;
 }
 
 export interface CalculatedCryptoBuy {
@@ -161,6 +221,9 @@ export interface UserProfile {
   id: string;
   name: string;
   avatarColor: string;
+  birthDate?: string; // Persian date e.g. "1375/04/12"
+  age?: number; // User age
+  riskTolerance?: 'conservative' | 'moderate' | 'aggressive';
   createdAt: number;
   updatedAt: number;
   cryptoAssets?: CryptoAsset[];
@@ -168,6 +231,8 @@ export interface UserProfile {
   physicalGold?: PhysicalGoldItem[];
   properties?: PropertyItem[];
   vehicles?: VehicleItem[];
+  dollarHolding?: DollarHolding;
+  stocks?: StockItem[];
   goldBuyLots?: PhysicalGoldBuyLot[];
   physicalGoldSales?: PhysicalGoldSaleRecord[];
   transactions?: TransactionRecord[];
@@ -193,6 +258,8 @@ export interface AppBackupData {
   physicalGold?: PhysicalGoldItem[];
   properties?: PropertyItem[];
   vehicles?: VehicleItem[];
+  dollarHolding?: DollarHolding;
+  stocks?: StockItem[];
   goldBuyLots?: PhysicalGoldBuyLot[];
   physicalGoldSales?: PhysicalGoldSaleRecord[];
   settings: AppSettings;

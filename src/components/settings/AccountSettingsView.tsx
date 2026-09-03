@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, CryptoAsset } from '../../types/investment';
 import { triggerHaptic } from '../../utils/haptics';
+import { toPersianDigits } from '../../utils/formatters';
 import { ProfileSwitcherModal } from '../account/ProfileSwitcherModal';
 import { NobitexSyncModal } from '../crypto/NobitexSyncModal';
 
@@ -85,21 +86,25 @@ export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({
         {/* Profile Stats Mini Bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
           <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-center space-y-0.5">
-            <span className="text-[10px] text-slate-500 dark:text-slate-400">خودرو و موتور</span>
-            <span className="text-xs font-black text-slate-800 dark:text-slate-200 block">
-              {activeProfile?.vehicles?.length || 0} مورد
+            <span className="text-[10px] text-slate-500 dark:text-slate-400">سن و تاریخ تولد</span>
+            <span className="text-xs font-black text-slate-800 dark:text-slate-200 block font-mono">
+              {activeProfile?.age ? `${toPersianDigits(activeProfile.age)} سال` : '—'}
             </span>
           </div>
           <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-center space-y-0.5">
-            <span className="text-[10px] text-slate-500 dark:text-slate-400">املاک و مستغلات</span>
-            <span className="text-xs font-black text-slate-800 dark:text-slate-200 block">
-              {activeProfile?.properties?.length || 0} مورد
+            <span className="text-[10px] text-slate-500 dark:text-slate-400">پروفایل ریسک</span>
+            <span className="text-xs font-black text-amber-600 dark:text-gold-400 block">
+              {activeProfile?.riskTolerance === 'conservative'
+                ? 'کم‌ریسک (۸٪)'
+                : activeProfile?.riskTolerance === 'aggressive'
+                ? 'پرریسک (۱۵٪)'
+                : 'متعادل (۱۱٪)'}
             </span>
           </div>
           <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-center space-y-0.5">
-            <span className="text-[10px] text-slate-500 dark:text-slate-400">رمزارزها</span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-400">املاک و خودرو</span>
             <span className="text-xs font-black text-slate-800 dark:text-slate-200 block">
-              {activeProfile?.cryptoAssets?.length || 0} ارز
+              {(activeProfile?.properties?.length || 0) + (activeProfile?.vehicles?.length || 0)} مورد
             </span>
           </div>
           <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-center space-y-0.5">

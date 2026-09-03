@@ -9,6 +9,9 @@ import {
   PhysicalGoldSaleRecord,
   PropertyItem,
   VehicleItem,
+  DollarHolding,
+  StockItem,
+  RiskBucketsSummary,
   TransactionRecord,
   CalculationResult,
   ActiveTab,
@@ -27,6 +30,10 @@ import {
   saveProperties,
   loadVehicles,
   saveVehicles,
+  loadDollarHolding,
+  saveDollarHolding,
+  loadStocks,
+  saveStocks,
   loadGoldBuyLots,
   saveGoldBuyLots,
   loadPhysicalGoldSales,
@@ -64,6 +71,8 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
   const [physicalGoldSales, setPhysicalGoldSalesState] = useState<PhysicalGoldSaleRecord[]>(() => loadPhysicalGoldSales());
   const [properties, setPropertiesState] = useState<PropertyItem[]>(() => loadProperties());
   const [vehicles, setVehiclesState] = useState<VehicleItem[]>(() => loadVehicles());
+  const [dollarHolding, setDollarHoldingState] = useState<DollarHolding>(() => loadDollarHolding());
+  const [stocks, setStocksState] = useState<StockItem[]>(() => loadStocks());
   const [isRefreshingGold, setIsRefreshingGold] = useState<boolean>(false);
   const [isGoldFetchError, setIsGoldFetchError] = useState<boolean>(false);
   const [transactions, setTransactionsState] = useState<TransactionRecord[]>(() => loadTransactions());
@@ -630,6 +639,138 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     }, 0);
   }, [vehicles]);
 
+  // -------------------------------------------------------------
+  // USD CASH BANKNOTES HOLDINGS MANAGEMENT
+  // -------------------------------------------------------------
+
+  const updateDollarHolding = useCallback((updates: Partial<DollarHolding>) => {
+    setDollarHoldingState((prev) => {
+      const updated = { ...prev, ...updates, lastUpdated: Date.now() };
+      saveDollarHolding(updated);
+      return updated;
+    });
+    showNotification('دارایی دلاری به‌روزرسانی شد');
+  }, [showNotification]);
+
+  const totalDollarValueTomans = useMemo(() => {
+    return Math.round((dollarHolding.amountUsd || 0) * (dollarHolding.currentPriceTomans || 0));
+  }, [dollarHolding]);
+
+  // -------------------------------------------------------------
+  // BOURSE STOCKS MANAGEMENT
+  // -------------------------------------------------------------
+
+  const addStock = useCallback((stockData: Omit<StockItem, 'id' | 'updatedAt'>) => {
+    const newStock: StockItem = {
+      ...stockData,
+      id: `stock_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      updatedAt: Date.now(),
+    };
+    setStocksState((prev) => {
+      const updated = [newStock, ...prev];
+      saveStocks(updated);
+      return updated;
+    });
+    showNotification(`نماد "${newStock.symbol}" به سبد سهام اضافه شد`);
+  }, [showNotification]);
+
+  const editStock = useCallback((id: string, updates: Partial<StockItem>) => {
+    setStocksState((prev) => {
+      const updated = prev.map((s) => (s.id === id ? { ...s, ...updates, updatedAt: Date.now() } : s));
+      saveStocks(updated);
+      return updated;
+    });
+    showNotification('نماد بورسی ویرایش شد');
+  }, [showNotification]);
+
+  const removeStock = useCallback((id: string) => {
+    setStocksState((prev) => {
+      const target = prev.find((s) => s.id === id);
+      const updated = prev.filter((s) => s.id !== id);
+      saveStocks(updated);
+      showNotification(`نماد "${target?.symbol || ''}" حذف شد`, 'info');
+      return updated;
+    });
+  }, [showNotification]);
+
+  const totalStocksValueTomans = useMemo(() => {
+    return stocks.reduce((sum, s) => sum + Math.round((s.sharesCount || 0) * (s.currentPriceTomans || s.averageBuyPriceTomans || 0)), 0);
+  }, [stocks]);
+
+  // -------------------------------------------------------------
+  // 3-BUCKET RISK PORTFOLIO SUMMARY (Low, Medium, High Risk)
+  // -------------------------------------------------------------
+
+  const riskBucketsSummary: RiskBucketsSummary = useMemo(() => {
+    // 1. Low Risk: Vehicles + Properties + Dollar
+    const vehiclesVal = netWorthVehiclesValueTomans;
+    const propertiesVal = netWorthPropertiesValueTomans;
+    const dollarVal = totalDollarValueTomans;
+    const lowRiskTotal = vehiclesVal + propertiesVal + dollarVal;
+
+    // 2. Medium Risk: Physical Gold + TSETMC Gold + Stocks
+    const physGoldVal = totalPhysicalGoldValueTomans;
+    const tsetmcGoldVal = props?.externalGoldValueTomans || 0;
+    const stocksVal = totalStocksValueTomans;
+    const mediumRiskTotal = physGoldVal + tsetmcGoldVal + stocksVal;
+
+    // 3. High Risk: Crypto Assets
+    const cryptoTotal = cryptoAssets.reduce((sum, a) => sum + (a.currentHoldingValue || 0), 0);
+
+    const totalNetWorth = lowRiskTotal + mediumRiskTotal + cryptoTotal;
+
+    const actualLowRiskPercent = totalNetWorth > 0 ? Number(((lowRiskTotal / totalNetWorth) * 100).toFixed(1)) : 0;
+    const actualMediumRiskPercent = totalNetWorth > 0 ? Number(((mediumRiskTotal / totalNetWorth) * 100).toFixed(1)) : 0;
+    const actualHighRiskPercent = totalNetWorth > 0 ? Number(((cryptoTotal / totalNetWorth) * 100).toFixed(1)) : 0;
+
+    const config = settings.riskBucketsConfig;
+    const userAge = config?.userAge ?? 25;
+    const lowRiskTarget = config?.lowRiskPercent ?? userAge;
+    const highRiskTarget = config?.highRiskPercent ?? 11;
+    const mediumRiskTarget = config?.mediumRiskPercent ?? Math.max(0, 100 - lowRiskTarget - highRiskTarget);
+
+    return {
+      lowRisk: {
+        targetPercent: lowRiskTarget,
+        currentValueTomans: lowRiskTotal,
+        actualPercent: actualLowRiskPercent,
+        components: {
+          vehiclesValueTomans: vehiclesVal,
+          propertiesValueTomans: propertiesVal,
+          dollarValueTomans: dollarVal,
+        },
+      },
+      mediumRisk: {
+        targetPercent: mediumRiskTarget,
+        currentValueTomans: mediumRiskTotal,
+        actualPercent: actualMediumRiskPercent,
+        components: {
+          physicalGoldValueTomans: physGoldVal,
+          tsetmcGoldValueTomans: tsetmcGoldVal,
+          stocksValueTomans: stocksVal,
+        },
+      },
+      highRisk: {
+        targetPercent: highRiskTarget,
+        currentValueTomans: cryptoTotal,
+        actualPercent: actualHighRiskPercent,
+        components: {
+          cryptoValueTomans: cryptoTotal,
+        },
+      },
+      totalNetWorthTomans: totalNetWorth,
+    };
+  }, [
+    netWorthVehiclesValueTomans,
+    netWorthPropertiesValueTomans,
+    totalDollarValueTomans,
+    totalPhysicalGoldValueTomans,
+    props?.externalGoldValueTomans,
+    totalStocksValueTomans,
+    cryptoAssets,
+    settings.riskBucketsConfig,
+  ]);
+
   const deleteTransaction = useCallback((id: string) => {
     setTransactionsState((prev) => {
       const updated = prev.filter((tx) => tx.id !== id);
@@ -655,6 +796,8 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     setPhysicalGoldSalesState([]);
     setPropertiesState([]);
     setVehiclesState([]);
+    setDollarHoldingState(loadDollarHolding());
+    setStocksState(loadStocks());
     setTransactionsState([]);
     setInputAmountState(0);
     showNotification('تمامی اطلاعات به تنظیمات پیش‌فرض کارخانه بازنشانی شد', 'info');
@@ -689,6 +832,8 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
       setPhysicalGoldSalesState(loadPhysicalGoldSales());
       setPropertiesState(loadProperties());
       setVehiclesState(loadVehicles());
+      setDollarHoldingState(loadDollarHolding());
+      setStocksState(loadStocks());
       setTransactionsState(loadTransactions());
       showNotification('اطلاعات با موفقیت از فایل پشتیبان بازیابی شدند');
     } else {
@@ -740,6 +885,15 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     addVehicle,
     editVehicle,
     removeVehicle,
+    dollarHolding,
+    totalDollarValueTomans,
+    updateDollarHolding,
+    stocks,
+    totalStocksValueTomans,
+    addStock,
+    editStock,
+    removeStock,
+    riskBucketsSummary,
     transactions,
     deleteTransaction,
     clearAllHistory,

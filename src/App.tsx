@@ -129,6 +129,15 @@ const AppContent: React.FC = () => {
     addVehicle,
     editVehicle,
     removeVehicle,
+    dollarHolding,
+    totalDollarValueTomans,
+    updateDollarHolding,
+    stocks,
+    totalStocksValueTomans,
+    addStock,
+    editStock,
+    removeStock,
+    riskBucketsSummary,
     transactions,
     deleteTransaction,
     clearAllHistory,
@@ -154,6 +163,8 @@ const AppContent: React.FC = () => {
         physicalGold: physicalGoldItems,
         properties,
         vehicles,
+        dollarHolding,
+        stocks,
         goldBuyLots,
         physicalGoldSales,
         transactions,
@@ -167,6 +178,8 @@ const AppContent: React.FC = () => {
     physicalGoldItems,
     properties,
     vehicles,
+    dollarHolding,
+    stocks,
     goldBuyLots,
     physicalGoldSales,
     transactions,
@@ -257,6 +270,9 @@ const AppContent: React.FC = () => {
             bourseGoldValue={totalGoldMarketValueTomans}
             propertiesValue={netWorthPropertiesValueTomans}
             vehiclesValue={netWorthVehiclesValueTomans}
+            dollarValue={totalDollarValueTomans}
+            stocksValue={totalStocksValueTomans}
+            riskBucketsSummary={riskBucketsSummary}
             totalCryptoValue={totalCryptoValue}
             totalPortfolioValue={totalPortfolioValue}
             tomanCashBalance={tomanCashBalance}
@@ -329,6 +345,12 @@ const AppContent: React.FC = () => {
               onAddVehicle={addVehicle}
               onEditVehicle={editVehicle}
               onRemoveVehicle={removeVehicle}
+              dollarHolding={dollarHolding}
+              onUpdateDollarHolding={updateDollarHolding}
+              stocks={stocks}
+              onAddStock={addStock}
+              onEditStock={editStock}
+              onRemoveStock={removeStock}
               onNavigateToCalculator={() => setActiveTab('dashboard')}
               onNavigateToMarket={() => setActiveTab('markets')}
               onNotify={showNotification}

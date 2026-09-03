@@ -14,12 +14,17 @@ import {
   Sliders,
   Wallet,
   PieChart,
+  Calendar,
+  Scale,
 } from 'lucide-react';
 import { triggerHaptic } from '../../utils/haptics';
 import { UserProfile, PropertyItem, VehicleItem, CryptoAsset, AppSettings } from '../../types/investment';
 import { NobitexConfig } from '../../services/nobitex/types';
 import { DEFAULT_SETTINGS, DEFAULT_CRYPTO_ASSETS } from '../../constants/defaultData';
-import { toPersianDigits } from '../../utils/formatters';
+import { toPersianDigits, getTodayPersianDate } from '../../utils/formatters';
+import { calculateRiskBuckets } from '../../utils/calculations';
+import { saveSettings } from '../../utils/storage';
+import { InlinePersianDatePicker } from '../common/InlinePersianDatePicker';
 
 interface WelcomeOnboardingModalProps {
   isOpen: boolean;
@@ -63,7 +68,13 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
   const [userName, setUserName] = useState('');
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
 
-  // 2. Strategy & Crypto setup
+  // 2. Age, Birthdate & Risk Tolerance (3-Bucket Model)
+  const [birthDate, setBirthDate] = useState<string>('1375/01/01');
+  const [age, setAge] = useState<number>(29);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState<boolean>(false);
+  const [riskTolerance, setRiskTolerance] = useState<'conservative' | 'moderate' | 'aggressive'>('moderate');
+
+  // 3. Strategy & Crypto setup
   const [strategyMode, setStrategyMode] = useState<'default' | 'custom'>('default');
   const [goldRatio, setGoldRatio] = useState<number>(80);
   const [savingsPercent, setSavingsPercent] = useState<number>(30);
@@ -79,21 +90,21 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
     DOGE: 0,
   });
 
-  // 3. Optional Property setup
+  // 4. Optional Property setup
   const [propertyTitle, setPropertyTitle] = useState('');
   const [propertyPriceToman, setPropertyPriceToman] = useState('');
 
-  // 4. Optional Vehicle setup
+  // 5. Optional Vehicle setup
   const [vehicleTitle, setVehicleTitle] = useState('');
   const [vehiclePriceToman, setVehiclePriceToman] = useState('');
 
-  // 5. Optional Nobitex setup
+  // 6. Optional Nobitex setup
   const [publicKey, setPublicKey] = useState('');
   const [secretKey, setSecretKey] = useState('');
 
   if (!isOpen) return null;
 
-  const totalSlides = 6;
+  const totalSlides = 7;
 
   const handleNext = () => {
     triggerHaptic('light');
@@ -131,8 +142,19 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
     }));
   };
 
+  const handleBirthDateSelect = (persianDate: string) => {
+    setBirthDate(persianDate);
+    const today = getTodayPersianDate();
+    const currentYear = parseInt(today.split('/')[0], 10) || 1404;
+    const birthYear = parseInt(persianDate.split('/')[0], 10) || 1375;
+    const computedAge = Math.max(5, Math.min(85, currentYear - birthYear));
+    setAge(computedAge);
+  };
+
   const handleFinish = () => {
     triggerHaptic('success');
+
+    const { lowRiskPercent, mediumRiskPercent, highRiskPercent } = calculateRiskBuckets(age, riskTolerance);
 
     // Build Settings
     const customSettings: AppSettings = {
@@ -140,7 +162,15 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
       goldPercent: strategyMode === 'default' ? 80 : goldRatio,
       cryptoPercent: strategyMode === 'default' ? 20 : (100 - goldRatio),
       savingsPercent: strategyMode === 'default' ? 30 : savingsPercent,
+      riskBucketsConfig: {
+        userAge: age,
+        riskTolerance,
+        lowRiskPercent,
+        mediumRiskPercent,
+        highRiskPercent,
+      },
     };
+    saveSettings(customSettings);
 
     // Build Crypto Assets
     let finalCryptoAssets: CryptoAsset[] = DEFAULT_CRYPTO_ASSETS;
@@ -206,6 +236,9 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
 
     onComplete(userName.trim() || 'حساب اصلی', {
       avatarColor,
+      birthDate,
+      age,
+      riskTolerance,
       settings: customSettings,
       cryptoAssets: finalCryptoAssets,
       properties: initialProperties,
@@ -214,7 +247,7 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
     });
   };
 
-  const isSkippableStep = step === 4 || step === 5;
+  const isSkippableStep = step === 5 || step === 6;
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4" dir="rtl">
@@ -412,8 +445,167 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
             </div>
           )}
 
-          {/* SLIDE 3: Strategy & Crypto Customization (NEW) */}
-          {step === 3 && (
+          {/* SLIDE 3: Age, Persian Birthdate & 3-Bucket Risk Profile (NEW) */}
+          {step === 3 && (() => {
+            const { lowRiskPercent, mediumRiskPercent, highRiskPercent } = calculateRiskBuckets(age, riskTolerance);
+
+            return (
+              <div className="space-y-4 animate-slideInFromLeft">
+                <div className="text-center space-y-1">
+                  <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
+                    سن و پروفایل ریسک‌پذیری
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    ترازینو ۳ سبد پس‌انداز را متناسب با سن و رویکرد شما هوشمندانه تنظیم می‌کند
+                  </p>
+                </div>
+
+                {/* Birthdate & Age Inputs */}
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">
+                        تاریخ تولد (شمسی)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          triggerHaptic('light');
+                          setIsDatePickerOpen(true);
+                        }}
+                        className="w-full py-2.5 px-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-amber-500 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 shadow-xs"
+                      >
+                        <span className="font-mono">{toPersianDigits(birthDate)}</span>
+                        <Calendar className="w-4 h-4 text-amber-500" />
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">
+                        سن شما (سال)
+                      </label>
+                      <input
+                        type="number"
+                        min="5"
+                        max="85"
+                        value={age}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          if (!isNaN(val)) setAge(Math.max(5, Math.min(85, val)));
+                        }}
+                        className="w-full py-2.5 px-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-center font-mono font-bold text-xs text-slate-900 dark:text-white outline-none focus:border-amber-500"
+                      />
+                    </div>
+                  </div>
+
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    💡 طبق فرمول تخصصی ثروت، درصد سبد کم‌ریسک برابر با سن شما ({toPersianDigits(age)}٪) در نظر گرفته می‌شود.
+                  </p>
+                </div>
+
+                {/* Risk Tolerance Selector */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                    میزان ریسک‌پذیری شما:
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: 'conservative', label: 'کم‌ریسک', sub: '۸٪ کریپتو', desc: 'محتاطانه' },
+                      { id: 'moderate', label: 'ریسک متوسط', sub: '۱۱٪ کریپتو', desc: 'متعادل' },
+                      { id: 'aggressive', label: 'پرریسک', sub: '۱۵٪ کریپتو', desc: 'جسورانه' },
+                    ].map((item) => {
+                      const isSelected = riskTolerance === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic('light');
+                            setRiskTolerance(item.id as any);
+                          }}
+                          className={`p-2.5 rounded-2xl border text-center transition-all ${
+                            isSelected
+                              ? 'bg-amber-500/15 dark:bg-amber-500/20 border-amber-500 text-amber-800 dark:text-gold-300 shadow-sm ring-1 ring-amber-500'
+                              : 'bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                          }`}
+                        >
+                          <div className="text-xs font-black">{item.label}</div>
+                          <div className="text-[10px] font-bold mt-0.5 opacity-80">{item.sub}</div>
+                          <div className="text-[9px] text-slate-400 mt-0.5">{item.desc}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 3-Bucket Real-time Allocation Card */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/70 dark:from-slate-950/80 dark:to-slate-900/80 border border-slate-200 dark:border-slate-800 space-y-3">
+                  <div className="flex items-center justify-between text-xs font-black text-slate-900 dark:text-white">
+                    <span className="flex items-center gap-1.5">
+                      <Scale className="w-4 h-4 text-amber-500" />
+                      سبدهای سه‌گانه شما
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-mono">مجموع: ۱۰۰٪</span>
+                  </div>
+
+                  {/* Multi-segmented bar */}
+                  <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-slate-800 flex overflow-hidden shadow-inner">
+                    <div
+                      style={{ width: `${lowRiskPercent}%` }}
+                      className="h-full bg-emerald-500 transition-all duration-300"
+                      title="سبد کم‌ریسک"
+                    />
+                    <div
+                      style={{ width: `${mediumRiskPercent}%` }}
+                      className="h-full bg-gradient-to-r from-amber-500 to-yellow-500 transition-all duration-300"
+                      title="سبد ریسک متوسط"
+                    />
+                    <div
+                      style={{ width: `${highRiskPercent}%` }}
+                      className="h-full bg-purple-500 transition-all duration-300"
+                      title="سبد پرریسک"
+                    />
+                  </div>
+
+                  {/* Bucket labels */}
+                  <div className="grid grid-cols-3 gap-2 text-center text-[10px] pt-1">
+                    <div className="p-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                      <div className="font-black text-xs">{toPersianDigits(lowRiskPercent)}٪</div>
+                      <div className="font-bold mt-0.5">کم‌ریسک</div>
+                      <div className="text-[9px] text-slate-400">ماشین، ملک، دلار</div>
+                    </div>
+
+                    <div className="p-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
+                      <div className="font-black text-xs">{toPersianDigits(mediumRiskPercent)}٪</div>
+                      <div className="font-bold mt-0.5">ریسک متوسط</div>
+                      <div className="text-[9px] text-slate-400">طلا و بورس</div>
+                    </div>
+
+                    <div className="p-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400">
+                      <div className="font-black text-xs">{toPersianDigits(highRiskPercent)}٪</div>
+                      <div className="font-bold mt-0.5">پرریسک</div>
+                      <div className="text-[9px] text-slate-400">ارز دیجیتال</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Inline Persian Date Picker */}
+                <InlinePersianDatePicker
+                  isOpen={isDatePickerOpen}
+                  onClose={() => setIsDatePickerOpen(false)}
+                  selectedDate={birthDate}
+                  onSelectDate={(d) => {
+                    handleBirthDateSelect(d);
+                    setIsDatePickerOpen(false);
+                  }}
+                  title="انتخاب تاریخ تولد شما"
+                />
+              </div>
+            );
+          })()}
+
+          {/* SLIDE 4: Strategy & Crypto Customization */}
+          {step === 4 && (
             <div className="space-y-4 animate-slideInFromLeft">
               <div className="text-center space-y-1">
                 <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
@@ -556,8 +748,8 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
             </div>
           )}
 
-          {/* SLIDE 4: Optional Property & Vehicle Setup */}
-          {step === 4 && (
+          {/* SLIDE 5: Optional Property & Vehicle Setup */}
+          {step === 5 && (
             <div className="space-y-4 animate-slideInFromLeft">
               <div className="text-center space-y-1">
                 <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
@@ -616,8 +808,8 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
             </div>
           )}
 
-          {/* SLIDE 5: Optional Nobitex Sync Setup */}
-          {step === 5 && (
+          {/* SLIDE 6: Optional Nobitex Sync Setup */}
+          {step === 6 && (
             <div className="space-y-4 animate-slideInFromLeft">
               <div className="text-center space-y-1">
                 <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
