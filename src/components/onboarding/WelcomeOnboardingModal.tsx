@@ -668,17 +668,17 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
         {/* Footer Navigation Buttons (RTL Ergonomics: Continue on RIGHT, Previous on LEFT) */}
         <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/60 dark:bg-slate-950/60" dir="rtl">
           
-          {/* RIGHT SIDE: Primary Continue / Start Button */}
+          {/* RIGHT SIDE: Primary Continue / Start Button (< ادامه) */}
           <button
             type="button"
             onClick={handleNext}
             className="py-2.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-gold-500 to-amber-600 hover:from-amber-400 hover:to-gold-400 text-slate-950 font-black text-xs transition-all shadow-gold-glow flex items-center gap-1.5 interactive-tap"
           >
+            <ChevronLeft className="w-4 h-4" />
             <span>{step === totalSlides - 1 ? 'ورود به ترازینو' : 'ادامه'}</span>
-            <ChevronRight className="w-4 h-4" />
           </button>
 
-          {/* LEFT SIDE: Back & Skip Buttons */}
+          {/* LEFT SIDE: Back & Skip Buttons (قبلی >) */}
           <div className="flex items-center gap-2">
             {isSkippableStep && (
               <button
@@ -696,8 +696,8 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
                 onClick={handleBack}
                 className="py-2 px-3.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 font-bold text-xs flex items-center gap-1 transition-colors"
               >
-                <ChevronLeft className="w-4 h-4" />
                 <span>قبلی</span>
+                <ChevronRight className="w-4 h-4" />
               </button>
             )}
           </div>
