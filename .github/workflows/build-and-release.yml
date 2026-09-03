@@ -116,14 +116,14 @@ jobs:
           mkdir -p build/Payload
           cp -r build/App.xcarchive/Products/Applications/App.app build/Payload/
           cd build
-          zip -qr Investment-App.ipa Payload
+          zip -qr Tarazino.ipa Payload
           cd ../../
 
       - name: Upload iOS IPA Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
-          path: ios/App/build/Investment-App.ipa
+          path: ios/App/build/Tarazino.ipa
           if-no-files-found: error
 
   # ========================================================
@@ -167,7 +167,7 @@ jobs:
         run: |
           TAG="${{ steps.get_version.outputs.tag }}"
           mv release-files/app-release.apk "release-files/Tarazino-${TAG}.apk"
-          mv release-files/Investment-App.ipa "release-files/Tarazino-${TAG}.ipa"
+          mv release-files/Tarazino.ipa "release-files/Tarazino-${TAG}.ipa"
 
       - name: Create Preview Draft Release
         uses: softprops/action-gh-release@v2

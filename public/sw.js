@@ -1,4 +1,4 @@
-const CACHE_NAME = 'investment-app-v1';
+const CACHE_NAME = 'tarazino-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

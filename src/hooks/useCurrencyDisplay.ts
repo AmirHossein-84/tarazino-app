@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { nobitexService } from '../services/nobitex/NobitexService';
 import { formatToman } from '../utils/formatters';
 
-const STORAGE_KEY = 'investment_app_currency_mode_v1';
-const USDT_RATE_STORAGE_KEY = 'investment_app_usdt_rate_v1';
+const STORAGE_KEY = 'tarazino_currency_mode_v1';
+const LEGACY_STORAGE_KEY = 'investment_app_currency_mode_v1';
+const USDT_RATE_STORAGE_KEY = 'tarazino_usdt_rate_v1';
+const LEGACY_USDT_RATE_STORAGE_KEY = 'investment_app_usdt_rate_v1';
 const DEFAULT_USDT_RATE_TOMANS = 93000;
 
 export type CurrencyDisplayMode = 'toman' | 'usd';
@@ -29,7 +31,7 @@ export interface UseCurrencyDisplayReturn {
 export function useCurrencyDisplay(): UseCurrencyDisplayReturn {
   const [currencyMode, setCurrencyModeState] = useState<CurrencyDisplayMode>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
       return saved === 'usd' ? 'usd' : 'toman';
     } catch {
       return 'toman';
@@ -38,7 +40,7 @@ export function useCurrencyDisplay(): UseCurrencyDisplayReturn {
 
   const [usdtRateTomans, setUsdtRateTomans] = useState<number>(() => {
     try {
-      const savedRate = localStorage.getItem(USDT_RATE_STORAGE_KEY);
+      const savedRate = localStorage.getItem(USDT_RATE_STORAGE_KEY) || localStorage.getItem(LEGACY_USDT_RATE_STORAGE_KEY);
       if (savedRate) {
         const parsed = parseInt(savedRate, 10);
         if (!isNaN(parsed) && parsed > 0) return parsed;

@@ -2,9 +2,12 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
 import { ProfilesVault, UserProfile, VehicleItem } from '../types/investment';
 
-const VAULT_DIRECTORY = 'InvestmentApp';
+const VAULT_DIRECTORY = 'Tarazino';
+const LEGACY_VAULT_DIRECTORY = 'InvestmentApp';
 const VAULT_FILENAME = `${VAULT_DIRECTORY}/profiles_vault.json`;
-const LOCAL_STORAGE_VAULT_KEY = 'investment_app_profiles_vault_v1';
+const LEGACY_VAULT_FILENAME = `${LEGACY_VAULT_DIRECTORY}/profiles_vault.json`;
+const LOCAL_STORAGE_VAULT_KEY = 'tarazino_profiles_vault_v1';
+const LEGACY_LOCAL_STORAGE_VAULT_KEY = 'investment_app_profiles_vault_v1';
 
 let saveTimeout: any = null;
 
@@ -16,7 +19,7 @@ export function isNativePlatform(): boolean {
 }
 
 /**
- * Initialize and ensure the InvestmentApp directory exists on the device storage
+ * Initialize and ensure the Tarazino directory exists on the device storage
  */
 async function ensureDirectoryExists(): Promise<void> {
   if (!isNativePlatform()) return;
@@ -39,18 +42,45 @@ export async function readDeviceVault(): Promise<ProfilesVault | null> {
   if (isNativePlatform()) {
     try {
       await ensureDirectoryExists();
-      const result = await Filesystem.readFile({
-        path: VAULT_FILENAME,
-        directory: Directory.Documents,
-        encoding: Encoding.UTF8,
-      });
+      let fileData: string | null = null;
 
-      if (result && typeof result.data === 'string') {
-        const parsed = JSON.parse(result.data);
+      try {
+        const result = await Filesystem.readFile({
+          path: VAULT_FILENAME,
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8,
+        });
+        if (result && typeof result.data === 'string') {
+          fileData = result.data;
+        }
+      } catch {
+        // Fallback to legacy path if new file does not exist yet
+        try {
+          const legacyResult = await Filesystem.readFile({
+            path: LEGACY_VAULT_FILENAME,
+            directory: Directory.Documents,
+            encoding: Encoding.UTF8,
+          });
+          if (legacyResult && typeof legacyResult.data === 'string') {
+            fileData = legacyResult.data;
+            // Migrate forward to new path
+            await Filesystem.writeFile({
+              path: VAULT_FILENAME,
+              data: fileData,
+              directory: Directory.Documents,
+              encoding: Encoding.UTF8,
+              recursive: true,
+            });
+          }
+        } catch {}
+      }
+
+      if (fileData) {
+        const parsed = JSON.parse(fileData);
         if (parsed && Array.isArray(parsed.profiles)) {
           // Cache in localStorage as well
           try {
-            localStorage.setItem(LOCAL_STORAGE_VAULT_KEY, result.data);
+            localStorage.setItem(LOCAL_STORAGE_VAULT_KEY, fileData);
           } catch {}
           return parsed as ProfilesVault;
         }
@@ -62,7 +92,7 @@ export async function readDeviceVault(): Promise<ProfilesVault | null> {
 
   // 2. Fallback to localStorage (web / PWA / fast cache)
   try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_VAULT_KEY);
+    const raw = localStorage.getItem(LOCAL_STORAGE_VAULT_KEY) || localStorage.getItem(LEGACY_LOCAL_STORAGE_VAULT_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.profiles)) {

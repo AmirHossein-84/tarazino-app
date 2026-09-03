@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# دستورالعمل‌های توسعه و انتشار اپلیکیشن مدیریت سرمایه (Investment Portfolio App Guidelines)
+# دستورالعمل‌های توسعه و انتشار اپلیکیشن ترازینو (Tarazino Guidelines)
 
 ## ۱. انتشار و بیلد اندروید (Android Release & CI)
 - برای ساخت APK نسخه نهایی جهت انتشار در کافه‌بازار، مایکت یا گوگل‌پلی، همیشه از دستور `./gradlew assembleRelease` استفاده شود تا پکیج با کلید اختصاصی `android/release-key.jks` و امضای معتبر V1/V2 بیلد شود.

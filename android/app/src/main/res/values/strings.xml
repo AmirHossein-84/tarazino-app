@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">مدیریت سرمایه</string>
-    <string name="title_activity_main">مدیریت سرمایه</string>
+    <string name="app_name">ترازینو</string>
+    <string name="title_activity_main">ترازینو</string>
     <string name="package_name">com.investment.portfolio</string>
     <string name="custom_url_scheme">com.investment.portfolio</string>
 </resources>

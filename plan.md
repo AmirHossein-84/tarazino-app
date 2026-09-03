@@ -1,5 +1,5 @@
 # نقشه راه جامع معماری و پیاده‌سازی (Architectural Plan & Roadmap)
-# Investment Portfolio App (React 18 + TypeScript + Vite + Tailwind CSS + Capacitor 7)
+# Tarazino - ترازینو (React 18 + TypeScript + Vite + Tailwind CSS + Capacitor 7)
 
 ## ۱. مرور کلی معماری و اهداف سیستم (System Architecture Overview)
 این سند نقشه راه فنی، مدل‌های داده‌ای، فرمول‌های محاسبات مالی و مراحل گام‌به‌گام پیاده‌سازی قابلیت‌های جدید اپلیکیشن مدیریت پورتفوی سرمایه‌گذاری را مشخص می‌کند.

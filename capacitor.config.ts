@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.investment.portfolio',
-  appName: 'مدیریت سرمایه',
+  appName: 'ترازینو',
   webDir: 'dist',
   server: {
     androidScheme: 'https'

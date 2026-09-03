@@ -1,4 +1,4 @@
-# Investment Portfolio App - AI Agent Guidelines
+# ترازینو (Tarazino) - AI Agent Guidelines
 
 Refer to `.agents/rules/project-guidelines.md` for comprehensive guidelines on:
 - Android Release builds with `release-key.jks` and `assembleRelease`.

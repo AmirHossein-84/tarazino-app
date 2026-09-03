@@ -25,6 +25,7 @@ import {
   exportBackupData,
   importBackupData,
   resetAllDataToDefault,
+  loadLastInput,
 } from '../../src/utils/storage';
 import { DEFAULT_SETTINGS, DEFAULT_CRYPTO_ASSETS, DEFAULT_PHYSICAL_GOLD_ITEMS } from '../../src/constants/defaultData';
 
@@ -167,5 +168,18 @@ describe('Storage & Backup System', () => {
     const loadedSettings = loadSettings();
     assert.equal(loadedSettings.savingsPercent, 30);
     assert.equal(loadProperties().length, 0);
+  });
+
+  it('migrates legacy investment_app_* storage keys to tarazino_* keys automatically', () => {
+    localStorage.setItem('investment_app_settings_v1', JSON.stringify({ ...DEFAULT_SETTINGS, savingsPercent: 42 }));
+    localStorage.setItem('investment_app_last_input_v1', '123456');
+
+    const loadedSettings = loadSettings();
+    assert.equal(loadedSettings.savingsPercent, 42);
+    assert.equal(localStorage.getItem('tarazino_settings_v1') !== null, true);
+
+    const loadedInput = loadLastInput();
+    assert.equal(loadedInput, 123456);
+    assert.equal(localStorage.getItem('tarazino_last_input_v1'), '123456');
   });
 });

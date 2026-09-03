@@ -19,7 +19,23 @@ import {
 } from '../constants/defaultData';
 import { NobitexConfig } from '../services/nobitex/types';
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
+  SETTINGS: 'tarazino_settings_v1',
+  CRYPTO_ASSETS: 'tarazino_crypto_assets_v1',
+  GOLD_HOLDING: 'tarazino_gold_holding_v1',
+  PHYSICAL_GOLD: 'tarazino_physical_gold_v1',
+  PROPERTIES: 'tarazino_properties_v1',
+  VEHICLES: 'tarazino_vehicles_v1',
+  GOLD_BUY_LOTS: 'tarazino_gold_buy_lots_v1',
+  PHYSICAL_GOLD_SALES: 'tarazino_physical_gold_sales_v1',
+  TRANSACTIONS: 'tarazino_transactions_v1',
+  LAST_INPUT: 'tarazino_last_input_v1',
+  MARKET_INSTRUMENTS: 'tarazino_market_instruments_v1',
+  MARKET_HOLDINGS: 'tarazino_market_holdings_v1',
+  NOBITEX_CONFIG: 'tarazino_nobitex_config_v1',
+};
+
+export const LEGACY_STORAGE_KEYS = {
   SETTINGS: 'investment_app_settings_v1',
   CRYPTO_ASSETS: 'investment_app_crypto_assets_v1',
   GOLD_HOLDING: 'investment_app_gold_holding_v1',
@@ -34,6 +50,25 @@ const STORAGE_KEYS = {
   MARKET_HOLDINGS: 'investment_app_market_holdings_v1',
   NOBITEX_CONFIG: 'investment_app_nobitex_config_v1',
 };
+
+function getStorageItem(key: string, legacyKey?: string): string | null {
+  try {
+    const item = localStorage.getItem(key);
+    if (item !== null) return item;
+    if (legacyKey) {
+      const legacyItem = localStorage.getItem(legacyKey);
+      if (legacyItem !== null) {
+        try {
+          localStorage.setItem(key, legacyItem);
+        } catch (_) {}
+        return legacyItem;
+      }
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
 
 export interface ExportedBackupData {
   version: string;
@@ -54,7 +89,7 @@ export interface ExportedBackupData {
 
 export function loadSettings(): AppSettings {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    const data = getStorageItem(STORAGE_KEYS.SETTINGS, LEGACY_STORAGE_KEYS.SETTINGS);
     if (!data) return DEFAULT_SETTINGS;
     const parsed = JSON.parse(data);
     return parsed && typeof parsed === 'object' ? { ...DEFAULT_SETTINGS, ...parsed } : DEFAULT_SETTINGS;
@@ -74,7 +109,7 @@ export function saveSettings(settings: AppSettings): void {
 
 export function loadCryptoAssets(): CryptoAsset[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.CRYPTO_ASSETS);
+    const data = getStorageItem(STORAGE_KEYS.CRYPTO_ASSETS, LEGACY_STORAGE_KEYS.CRYPTO_ASSETS);
     if (!data) return DEFAULT_CRYPTO_ASSETS;
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : DEFAULT_CRYPTO_ASSETS;
@@ -94,7 +129,7 @@ export function saveCryptoAssets(assets: CryptoAsset[]): void {
 
 export function loadGoldHolding(): GoldHolding {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.GOLD_HOLDING);
+    const data = getStorageItem(STORAGE_KEYS.GOLD_HOLDING, LEGACY_STORAGE_KEYS.GOLD_HOLDING);
     if (!data) return DEFAULT_GOLD_HOLDING;
     const parsed = JSON.parse(data);
     return parsed && typeof parsed === 'object' ? { ...DEFAULT_GOLD_HOLDING, ...parsed } : DEFAULT_GOLD_HOLDING;
@@ -118,7 +153,7 @@ export function saveGoldHolding(holding: GoldHolding): void {
 
 export function loadPhysicalGold(): PhysicalGoldItem[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.PHYSICAL_GOLD);
+    const data = getStorageItem(STORAGE_KEYS.PHYSICAL_GOLD, LEGACY_STORAGE_KEYS.PHYSICAL_GOLD);
     if (!data) return DEFAULT_PHYSICAL_GOLD_ITEMS;
     const parsed = JSON.parse(data);
     if (!Array.isArray(parsed)) return DEFAULT_PHYSICAL_GOLD_ITEMS;
@@ -148,7 +183,7 @@ export function savePhysicalGold(items: PhysicalGoldItem[]): void {
 
 export function loadProperties(): PropertyItem[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.PROPERTIES);
+    const data = getStorageItem(STORAGE_KEYS.PROPERTIES, LEGACY_STORAGE_KEYS.PROPERTIES);
     if (!data) return [];
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
@@ -172,7 +207,7 @@ export function saveProperties(properties: PropertyItem[]): void {
 
 export function loadVehicles(): VehicleItem[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.VEHICLES);
+    const data = getStorageItem(STORAGE_KEYS.VEHICLES, LEGACY_STORAGE_KEYS.VEHICLES);
     if (!data) return [];
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
@@ -196,7 +231,7 @@ export function saveVehicles(vehicles: VehicleItem[]): void {
 
 export function loadGoldBuyLots(): PhysicalGoldBuyLot[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.GOLD_BUY_LOTS);
+    const data = getStorageItem(STORAGE_KEYS.GOLD_BUY_LOTS, LEGACY_STORAGE_KEYS.GOLD_BUY_LOTS);
     if (!data) return [];
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
@@ -216,7 +251,7 @@ export function saveGoldBuyLots(lots: PhysicalGoldBuyLot[]): void {
 
 export function loadPhysicalGoldSales(): PhysicalGoldSaleRecord[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.PHYSICAL_GOLD_SALES);
+    const data = getStorageItem(STORAGE_KEYS.PHYSICAL_GOLD_SALES, LEGACY_STORAGE_KEYS.PHYSICAL_GOLD_SALES);
     if (!data) return [];
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
@@ -236,7 +271,7 @@ export function savePhysicalGoldSales(sales: PhysicalGoldSaleRecord[]): void {
 
 export function loadTransactions(): TransactionRecord[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
+    const data = getStorageItem(STORAGE_KEYS.TRANSACTIONS, LEGACY_STORAGE_KEYS.TRANSACTIONS);
     if (!data) return [];
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
@@ -256,7 +291,7 @@ export function saveTransactions(transactions: TransactionRecord[]): void {
 
 export function loadLastInput(): number {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.LAST_INPUT);
+    const data = getStorageItem(STORAGE_KEYS.LAST_INPUT, LEGACY_STORAGE_KEYS.LAST_INPUT);
     return data ? Number(data) || 0 : 0;
   } catch (e) {
     console.error('Failed to load last input:', e);
@@ -278,7 +313,7 @@ export function saveLastInput(amount: number): void {
 
 export function loadMarketInstruments(): MarketInstrument[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.MARKET_INSTRUMENTS);
+    const data = getStorageItem(STORAGE_KEYS.MARKET_INSTRUMENTS, LEGACY_STORAGE_KEYS.MARKET_INSTRUMENTS);
     if (!data) return [];
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
@@ -298,7 +333,7 @@ export function saveMarketInstruments(instruments: MarketInstrument[]): void {
 
 export function loadMarketHoldings(): UserMarketHolding[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.MARKET_HOLDINGS);
+    const data = getStorageItem(STORAGE_KEYS.MARKET_HOLDINGS, LEGACY_STORAGE_KEYS.MARKET_HOLDINGS);
     if (!data) return [];
     const parsed = JSON.parse(data);
     return Array.isArray(parsed) ? parsed : [];
@@ -322,7 +357,7 @@ export function saveMarketHoldings(holdings: UserMarketHolding[]): void {
 
 export function loadNobitexConfig(): NobitexConfig {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.NOBITEX_CONFIG);
+    const data = getStorageItem(STORAGE_KEYS.NOBITEX_CONFIG, LEGACY_STORAGE_KEYS.NOBITEX_CONFIG);
     if (!data) return { authType: 'api_key', publicKey: '', secretKey: '' };
     const parsed = JSON.parse(data);
     return parsed && typeof parsed === 'object'
@@ -423,19 +458,10 @@ export function importBackupData(jsonString: string): boolean {
 }
 
 export function resetAllDataToDefault(): void {
-  localStorage.removeItem(STORAGE_KEYS.SETTINGS);
-  localStorage.removeItem(STORAGE_KEYS.CRYPTO_ASSETS);
-  localStorage.removeItem(STORAGE_KEYS.GOLD_HOLDING);
-  localStorage.removeItem(STORAGE_KEYS.PHYSICAL_GOLD);
-  localStorage.removeItem(STORAGE_KEYS.PROPERTIES);
-  localStorage.removeItem(STORAGE_KEYS.VEHICLES);
-  localStorage.removeItem(STORAGE_KEYS.GOLD_BUY_LOTS);
-  localStorage.removeItem(STORAGE_KEYS.PHYSICAL_GOLD_SALES);
-  localStorage.removeItem(STORAGE_KEYS.TRANSACTIONS);
-  localStorage.removeItem(STORAGE_KEYS.LAST_INPUT);
-  localStorage.removeItem(STORAGE_KEYS.MARKET_INSTRUMENTS);
-  localStorage.removeItem(STORAGE_KEYS.MARKET_HOLDINGS);
-  localStorage.removeItem(STORAGE_KEYS.NOBITEX_CONFIG);
+  // Clear current keys
+  Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
+  // Clear legacy keys
+  Object.values(LEGACY_STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('nobitex_config_updated'));
   }
