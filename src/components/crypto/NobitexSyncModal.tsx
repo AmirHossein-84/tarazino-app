@@ -74,8 +74,22 @@ export const NobitexSyncModal: React.FC<NobitexSyncModalProps> = ({
     };
     saveConfig(newConfig);
 
+    const prevSymbols = new Set(cryptoAssets.map((a) => a.symbol.toLowerCase()));
+    const handleAssetsUpdated = (updated: CryptoAsset[]) => {
+      onAssetsUpdated(updated);
+      const newHoldings = updated.filter(
+        (a) => a.isHoldingOnly && !prevSymbols.has(a.symbol.toLowerCase())
+      );
+      if (newHoldings.length > 0) {
+        onNotify?.(
+          `${toPersianDigits(newHoldings.length)} ارز جدید فقط به دارایی‌ها اضافه شد (بدون وزن خرید)`,
+          'info'
+        );
+      }
+    };
+
     // Pass overrideConfig directly to avoid asynchronous state lag
-    const success = await syncWithNobitex(cryptoAssets, onAssetsUpdated, newConfig /* overrideConfig */);
+    const success = await syncWithNobitex(cryptoAssets, handleAssetsUpdated, newConfig /* overrideConfig */);
     if (success) {
       onNotify?.('همگام‌سازی دارایی‌های نوبیتکس با موفقیت انجام شد', 'success');
       onClose();

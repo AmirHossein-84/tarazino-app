@@ -358,9 +358,15 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
                     <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="font-black text-slate-900 dark:text-slate-100 text-sm leading-none">{asset.symbol}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold leading-none shrink-0">
-                          وزن: {toPersianDigits(asset.targetPercent)}%
-                        </span>
+                        {asset.isHoldingOnly ? (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-200/80 dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold leading-none shrink-0">
+                            فقط نگهداری
+                          </span>
+                        ) : (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold leading-none shrink-0">
+                            وزن: {toPersianDigits(asset.targetPercent)}%
+                          </span>
+                        )}
                       </div>
                       <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate pt-0.5">
                         {asset.currentAmount !== undefined && asset.currentAmount > 0
