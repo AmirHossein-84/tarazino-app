@@ -18,9 +18,9 @@ export const AllocationCharts: React.FC<AllocationChartsProps> = ({
 }) => {
   const [chartView, setChartView] = useState<'crypto' | 'total'>('crypto');
 
-  // Crypto chart data
+  // Crypto chart data (strategy coins only — holdings-only stay out)
   const cryptoData = cryptoBuys
-    .filter((c) => c.suggestedBuy > 0 || c.targetPercent > 0)
+    .filter((c) => !c.isHoldingOnly && (c.suggestedBuy > 0 || c.targetPercent > 0))
     .map((c) => ({
       name: c.symbol,
       fullName: c.name,

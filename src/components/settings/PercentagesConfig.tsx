@@ -69,16 +69,29 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
   updateCryptoAssets,
   onNotify,
 }) => {
-  const totalCryptoTargetSum = cryptoAssets.reduce((sum, a) => sum + (a.targetPercent || 0), 0);
+  const strategyAssets = cryptoAssets.filter((a) => !a.isHoldingOnly);
+  const holdingsOnlyAssets = cryptoAssets.filter((a) => a.isHoldingOnly);
+  const totalCryptoTargetSum = strategyAssets.reduce((sum, a) => sum + (a.targetPercent || 0), 0);
   const isCryptoSum100 = Math.abs(totalCryptoTargetSum - 100) < 0.2;
 
+  // Opt a holdings-only coin into the buy strategy with an editable weight
+  const handleAddHoldingToStrategy = (id: string) => {
+    triggerHaptic('success');
+    const updated = cryptoAssets.map((a) =>
+      a.id === id ? { ...a, isHoldingOnly: false, targetPercent: 5 } : a
+    );
+    updateCryptoAssets(updated);
+    onNotify?.('ارز به استراتژی خرید اضافه شد. درصد آن را تنظیم کنید.', 'success');
+  };
+
   // 1. Suggested Strategy Balance (ETH 25%, BTC 19%, BNB 15%, ADA 9%, DOT 9%, TRX 8%, XRP 8%, DOGE 5%, POL 2%)
+  // Holdings-only coins stay out until the user explicitly opts them in.
   const handleSuggestedStrategyBalance = () => {
     triggerHaptic('success');
-    if (cryptoAssets.length === 0) return;
+    if (strategyAssets.length === 0) return;
 
     // Apply baseline weights
-    let updated = cryptoAssets.map((a) => {
+    let updatedStrategy = strategyAssets.map((a) => {
       const sym = a.symbol.toLowerCase();
       const weight = DEFAULT_STRATEGY_WEIGHTS[sym] || 5;
       return {
@@ -88,16 +101,17 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
     });
 
     // Normalize if the sum doesn't match 100 (e.g. if user has fewer or more coins)
-    const currentSum = updated.reduce((s, a) => s + a.targetPercent, 0);
+    const currentSum = updatedStrategy.reduce((s, a) => s + a.targetPercent, 0);
     if (currentSum > 0 && Math.abs(currentSum - 100) > 0.1) {
       const factor = 100 / currentSum;
-      updated = updated.map((a) => ({
+      updatedStrategy = updatedStrategy.map((a) => ({
         ...a,
         targetPercent: Math.round(a.targetPercent * factor * 10) / 10,
       }));
     }
 
-    updateCryptoAssets(updated);
+    const updatedById = new Map(updatedStrategy.map((a) => [a.id, a]));
+    updateCryptoAssets(cryptoAssets.map((a) => updatedById.get(a.id) || a));
     onNotify?.('تراز پیشنهادی استراتژی (ETH 25%, BTC 19%, ...) اعمال شد', 'success');
   };
 
@@ -106,24 +120,25 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
     triggerHaptic('success');
     if (totalCryptoTargetSum <= 0) return;
     const factor = 100 / totalCryptoTargetSum;
-    const updated = cryptoAssets.map((a) => ({
-      ...a,
-      targetPercent: Math.round(a.targetPercent * factor * 10) / 10,
-    }));
-    updateCryptoAssets(updated);
+    const updatedById = new Map(
+      strategyAssets.map((a) => [
+        a.id,
+        { ...a, targetPercent: Math.round(a.targetPercent * factor * 10) / 10 },
+      ])
+    );
+    updateCryptoAssets(cryptoAssets.map((a) => updatedById.get(a.id) || a));
     onNotify?.('درصدهای فعلی روی ۱۰۰٪ تراز شدند', 'info');
   };
 
-  // 3. Equal Split across all coins
+  // 3. Equal Split across strategy coins only (holdings-only stay out)
   const handleEqualSplit = () => {
     triggerHaptic('medium');
-    if (cryptoAssets.length === 0) return;
-    const equalVal = Math.round((100 / cryptoAssets.length) * 10) / 10;
-    const updated = cryptoAssets.map((a) => ({
-      ...a,
-      targetPercent: equalVal,
-    }));
-    updateCryptoAssets(updated);
+    if (strategyAssets.length === 0) return;
+    const equalVal = Math.round((100 / strategyAssets.length) * 10) / 10;
+    const updatedById = new Map(
+      strategyAssets.map((a) => [a.id, { ...a, targetPercent: equalVal }] as const)
+    );
+    updateCryptoAssets(cryptoAssets.map((a) => updatedById.get(a.id) || a));
     onNotify?.(`درصدها به صورت مساوی (${toPersianDigits(equalVal)}٪) تقسیم شدند`, 'info');
   };
 
@@ -441,7 +456,7 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
             className="py-2.5 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-all interactive-tap touch-target"
           >
             <Sliders className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-            <span>تقسیم مساوی ({toPersianDigits(cryptoAssets.length > 0 ? (100 / cryptoAssets.length).toFixed(0) : '0')}٪)</span>
+            <span>تقسیم مساوی ({toPersianDigits(strategyAssets.length > 0 ? (100 / strategyAssets.length).toFixed(0) : '0')}٪)</span>
           </button>
 
           {/* Proportional Normalize */}
@@ -465,9 +480,9 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
           </span>
         </div>
 
-        {/* Crypto Items List */}
+        {/* Crypto Items List (strategy only — holdings-only stay out) */}
         <div className="space-y-2.5 pt-1">
-          {cryptoAssets.map((asset) => {
+          {strategyAssets.map((asset) => {
             const { faName, enName } = cleanCoinName(asset.name, asset.symbol);
 
             return (
@@ -559,6 +574,58 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
             );
           })}
         </div>
+
+        {/* Holdings-only coins: belongings without a buy weight (opt-in) */}
+        {holdingsOnlyAssets.length > 0 && (
+          <div className="space-y-2.5 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div>
+              <h4 className="text-xs font-black text-slate-900 dark:text-slate-100">
+                فقط نگهداری (بدون وزن خرید)
+              </h4>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                این ارزها از نوبیتکس دریافت شده‌اند و فقط در دارایی‌ها نمایش داده می‌شوند. برای ورود به استراتژی خرید، آن را اضافه کنید.
+              </p>
+            </div>
+            {holdingsOnlyAssets.map((asset) => {
+              const { faName } = cleanCoinName(asset.name, asset.symbol);
+              return (
+                <div
+                  key={asset.id}
+                  className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-between gap-2"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div
+                      className="w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs shrink-0"
+                      style={{ backgroundColor: `${asset.color}25`, color: asset.color }}
+                    >
+                      {asset.symbol.toUpperCase().slice(0, 3)}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-black text-slate-900 dark:text-slate-100 text-xs truncate">
+                          {faName}
+                        </span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+                          {asset.symbol.toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                        وزن خرید: {toPersianDigits(0)}٪ • فقط دارایی
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleAddHoldingToStrategy(asset.id)}
+                    className="py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-black transition-all interactive-tap touch-target shrink-0"
+                  >
+                    افزودن به استراتژی خرید
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
       </div>
 

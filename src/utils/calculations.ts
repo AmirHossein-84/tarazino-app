@@ -219,12 +219,16 @@ export function calculatePortfolioAllocation(
     cryptoBuyAmount = topAllocations.find((a) => a.id === 'crypto')?.suggestedBuy || 0;
   }
 
-  // Allocate Crypto among individual crypto assets
+  // Allocate Crypto among individual crypto assets (strategy coins only —
+  // holdings-only belongings always get a 0 buy suggestion until opted in)
+  const strategyCoins = cryptoAssets.filter((c) => !c.isHoldingOnly);
   let cryptoBuysList: { id: string; suggestedBuy: number }[] = [];
 
-  if (settings.calculationMode === 'rebalance') {
+  if (strategyCoins.length === 0) {
+    cryptoBuysList = [];
+  } else if (settings.calculationMode === 'rebalance') {
     cryptoBuysList = calculateRebalancedBuys(
-      cryptoAssets.map((c) => ({
+      strategyCoins.map((c) => ({
         id: c.id,
         targetWeight: c.targetPercent || 0,
         currentValue: Math.max(0, c.currentHoldingValue || 0),
@@ -233,7 +237,7 @@ export function calculatePortfolioAllocation(
     );
   } else {
     cryptoBuysList = calculateDirectBuys(
-      cryptoAssets.map((c) => ({
+      strategyCoins.map((c) => ({
         id: c.id,
         targetWeight: c.targetPercent || 0,
       })),
@@ -245,7 +249,7 @@ export function calculatePortfolioAllocation(
   const finalCryptoTotal = currentCryptoTotalVal + cryptoBuyAmount;
 
   const calculatedCryptoBuys: CalculatedCryptoBuy[] = cryptoAssets.map((asset) => {
-    const buy = buyMap.get(asset.id) || 0;
+    const buy = asset.isHoldingOnly ? 0 : buyMap.get(asset.id) || 0;
     const current = Math.max(0, asset.currentHoldingValue || 0);
     const finalVal = current + buy;
     const finalPercent = finalCryptoTotal > 0 ? (finalVal / finalCryptoTotal) * 100 : asset.targetPercent;
@@ -260,6 +264,7 @@ export function calculatePortfolioAllocation(
       finalHoldingValue: finalVal,
       finalPercent,
       color: asset.color,
+      isHoldingOnly: asset.isHoldingOnly,
     };
   });
 

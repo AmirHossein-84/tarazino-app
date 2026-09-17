@@ -720,11 +720,13 @@ class NobitexService {
       const profitTomans = totalCost !== undefined && totalCost > 0 ? holdingValue - totalCost : undefined;
       const profitPercent = totalCost !== undefined && totalCost > 0 ? ((holdingValue - totalCost) / totalCost) * 100 : undefined;
 
+      // Holdings-only: track as a belonging with zero strategy weight.
+      // The user can explicitly opt it into the buy strategy later.
       updatedAssets.push({
         id: `nobitex_${sym}`,
         symbol: sym.toUpperCase(),
         name: meta.name,
-        targetPercent: meta.targetPercent,
+        targetPercent: 0,
         currentAmount: coinAmount,
         unitPrice: unitPriceTomans,
         currentHoldingValue: holdingValue,
@@ -733,6 +735,8 @@ class NobitexService {
         profitTomans,
         profitPercent,
         color: meta.color,
+        isDefault: false,
+        isHoldingOnly: true,
       });
     }
 

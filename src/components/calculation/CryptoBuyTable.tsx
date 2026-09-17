@@ -13,6 +13,8 @@ export const CryptoBuyTable: React.FC<CryptoBuyTableProps> = ({
   cryptoBuys,
   totalCryptoBuySuggested,
 }) => {
+  // Holdings-only coins are belongings, not buy suggestions — keep them out
+  const strategyBuys = cryptoBuys.filter((c) => !c.isHoldingOnly);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
@@ -26,7 +28,7 @@ export const CryptoBuyTable: React.FC<CryptoBuyTableProps> = ({
 
   const handleCopyAllSummary = () => {
     triggerHaptic('success');
-    const text = cryptoBuys
+    const text = strategyBuys
       .filter((c) => c.suggestedBuy > 0)
       .map((c) => `${c.symbol}: ${new Intl.NumberFormat('en-US').format(c.suggestedBuy)} تومان`)
       .join('\n');
@@ -35,8 +37,8 @@ export const CryptoBuyTable: React.FC<CryptoBuyTableProps> = ({
     setTimeout(() => setCopiedAll(false), 2500);
   };
 
-  const totalTargetPercent = cryptoBuys.reduce((sum, c) => sum + c.targetPercent, 0);
-  const totalCurrentCrypto = cryptoBuys.reduce((sum, c) => sum + c.currentHoldingValue, 0);
+  const totalTargetPercent = strategyBuys.reduce((sum, c) => sum + c.targetPercent, 0);
+  const totalCurrentCrypto = strategyBuys.reduce((sum, c) => sum + c.currentHoldingValue, 0);
 
   return (
     <div className="glass-card p-4 sm:p-6 border border-slate-200 dark:border-slate-800 space-y-4">
@@ -114,7 +116,7 @@ export const CryptoBuyTable: React.FC<CryptoBuyTableProps> = ({
       {/* VIEW 1: MOBILE TOUCH CARDS (Ergonomic for Phones) */}
       {viewMode === 'cards' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {cryptoBuys.map((crypto) => {
+          {strategyBuys.map((crypto) => {
             const isCopied = copiedId === crypto.id;
             const hasBuy = crypto.suggestedBuy > 0;
 
@@ -214,7 +216,7 @@ export const CryptoBuyTable: React.FC<CryptoBuyTableProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 text-xs sm:text-sm">
-                {cryptoBuys.map((crypto) => {
+                {strategyBuys.map((crypto) => {
                   const isCopied = copiedId === crypto.id;
                   const hasBuy = crypto.suggestedBuy > 0;
 

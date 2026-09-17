@@ -61,6 +61,8 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
       totalCostTomans: totalCost,
       profitTomans,
       profitPercent,
+      // Editing a weight above 0 opts a holdings-only coin into the strategy
+      isHoldingOnly: (parseFloat(targetPercent) || 0) > 0 ? false : asset.isHoldingOnly,
     });
     onClose();
   };

@@ -42,6 +42,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({
       currentHoldingValue: parseNumberInput(currentHoldingValue),
       color,
       isDefault: false,
+      isHoldingOnly: false,
     });
 
     setSymbol('');

@@ -638,7 +638,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {calculationResult.cryptoBuys.map((buy) => {
+              {calculationResult.cryptoBuys.filter((buy) => !buy.isHoldingOnly).map((buy) => {
                 const isCopied = copiedId === buy.id;
                 return (
                   <div

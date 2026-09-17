@@ -45,7 +45,21 @@ export const NobitexIntegrationCard: React.FC<NobitexIntegrationCardProps> = ({
       return;
     }
 
-    const success = await syncWithNobitex(cryptoAssets, onAssetsUpdated);
+    const prevSymbols = new Set(cryptoAssets.map((a) => a.symbol.toLowerCase()));
+    const handleAssetsUpdated = (updated: CryptoAsset[]) => {
+      onAssetsUpdated(updated);
+      const newHoldings = updated.filter(
+        (a) => a.isHoldingOnly && !prevSymbols.has(a.symbol.toLowerCase())
+      );
+      if (newHoldings.length > 0) {
+        onNotify?.(
+          `${toPersianDigits(newHoldings.length)} ارز جدید فقط به دارایی‌ها اضافه شد (بدون وزن خرید)`,
+          'info'
+        );
+      }
+    };
+
+    const success = await syncWithNobitex(cryptoAssets, handleAssetsUpdated);
     if (success) {
       triggerHaptic('success');
       onNotify?.('موجودی و قیمت‌های نوبیتکس با موفقیت به‌روزرسانی شدند!');

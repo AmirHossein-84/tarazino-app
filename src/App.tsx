@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useInvestmentState } from './hooks/useInvestmentState';
 import { MarketDataProvider, useMarketData } from './hooks/useMarketData';
 import { useNobitex } from './hooks/useNobitex';
@@ -19,6 +19,7 @@ import { WelcomeOnboardingModal } from './components/onboarding/WelcomeOnboardin
 import { ProfileSwitcherModal } from './components/account/ProfileSwitcherModal';
 import { CheckCircle, Info, AlertCircle } from 'lucide-react';
 import { PhysicalGoldType, ActiveTab } from './types/investment';
+import { NobitexConfig } from './services/nobitex/types';
 
 const AppContent: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -64,10 +65,12 @@ const AppContent: React.FC = () => {
   } = useMarketData();
 
   const {
+    config: nobitexConfig,
     isConfigured: isNobitexConfigured,
     tomanCashBalance,
     syncWithNobitex,
     refreshCryptoPrices,
+    saveConfig: saveNobitexConfigState,
   } = useNobitex();
 
   // Handler to automatically add purchased TSETMC Gold units to user holdings
@@ -144,6 +147,7 @@ const AppContent: React.FC = () => {
     resetToFactoryDefaults,
     handleExportBackup,
     handleImportBackup,
+    hydrateFromProfile,
     notification,
     showNotification,
   } = useInvestmentState({
@@ -151,22 +155,58 @@ const AppContent: React.FC = () => {
     onApplyGoldPurchase: handleApplyGoldPurchase,
   });
 
-  // Sync active profile data into device vault when local state changes
+  // Track which profile the local investment state currently reflects.
+  // Prevents the sync-back effect below from overwriting a freshly
+  // selected/created profile with the previous profile's stale state.
+  const lastHydratedProfileRef = useRef<string>('');
+
+  // Hydrate local state + per-profile Nobitex keys when the active profile changes
   useEffect(() => {
-    if (activeProfileId) {
-      updateActiveProfileData({
-        settings,
-        cryptoAssets,
-        goldHolding,
-        physicalGold: physicalGoldItems,
-        properties,
-        vehicles,
-        dollarHolding,
-        goldBuyLots,
-        physicalGoldSales,
-        transactions,
+    if (!activeProfileId || !activeProfile) return;
+    if (lastHydratedProfileRef.current === activeProfileId) return;
+    lastHydratedProfileRef.current = activeProfileId;
+
+    hydrateFromProfile(activeProfile);
+
+    const profileNobitex = activeProfile.nobitexConfig as NobitexConfig | undefined;
+    if (profileNobitex && (profileNobitex.publicKey?.trim() || profileNobitex.token?.trim())) {
+      saveNobitexConfigState({
+        authType: profileNobitex.authType || 'api_key',
+        publicKey: profileNobitex.publicKey || '',
+        secretKey: profileNobitex.secretKey || '',
+        token: profileNobitex.token || '',
+        autoSyncEnabled: profileNobitex.autoSyncEnabled ?? true,
+        lastSyncedAt: profileNobitex.lastSyncedAt,
+      });
+    } else {
+      saveNobitexConfigState({
+        authType: 'api_key',
+        publicKey: '',
+        secretKey: '',
+        token: '',
+        autoSyncEnabled: false,
+        lastSyncedAt: undefined,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeProfileId, activeProfile, hydrateFromProfile]);
+
+  // Sync active profile data into device vault when local state changes
+  useEffect(() => {
+    if (!activeProfileId) return;
+    if (lastHydratedProfileRef.current !== activeProfileId) return;
+    updateActiveProfileData({
+      settings,
+      cryptoAssets,
+      goldHolding,
+      physicalGold: physicalGoldItems,
+      properties,
+      vehicles,
+      dollarHolding,
+      goldBuyLots,
+      physicalGoldSales,
+      transactions,
+    });
   }, [
     activeProfileId,
     settings,
@@ -181,6 +221,14 @@ const AppContent: React.FC = () => {
     transactions,
     updateActiveProfileData,
   ]);
+
+  // Persist per-profile Nobitex keys when they change (isolated per profile)
+  useEffect(() => {
+    if (!activeProfileId) return;
+    if (lastHydratedProfileRef.current !== activeProfileId) return;
+    if (!nobitexConfig) return;
+    updateActiveProfileData({ nobitexConfig });
+  }, [activeProfileId, nobitexConfig, updateActiveProfileData]);
 
   // Handlers to deduct sold gold units from holdings
   const handleDeductBourseGold = useCallback(
@@ -431,6 +479,7 @@ const AppContent: React.FC = () => {
         onCreateProfile={createProfile}
         onDeleteProfile={deleteProfile}
         onStartOnboarding={startNewUserOnboarding}
+        onNotify={showNotification}
       />
 
       {/* Toast Notification Snackbar (Bottom-Floating above BottomNav) */}

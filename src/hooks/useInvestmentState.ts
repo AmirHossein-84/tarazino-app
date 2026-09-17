@@ -8,6 +8,7 @@ import {
   PhysicalGoldBuyLot,
   PhysicalGoldSaleRecord,
   PropertyItem,
+  UserProfile,
   VehicleItem,
   DollarHolding,
   RiskBucketsSummary,
@@ -16,6 +17,13 @@ import {
   ActiveTab,
   AppBackupData,
 } from '../types/investment';
+import {
+  DEFAULT_CRYPTO_ASSETS,
+  DEFAULT_DOLLAR_HOLDING,
+  DEFAULT_GOLD_HOLDING,
+  DEFAULT_PHYSICAL_GOLD_ITEMS,
+  DEFAULT_SETTINGS,
+} from '../constants/defaultData';
 import {
   loadSettings,
   saveSettings,
@@ -792,6 +800,52 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     return success;
   }, [showNotification]);
 
+  // -------------------------------------------------------------
+  // MULTI-PROFILE HYDRATION — load a profile's snapshot into local state
+  // -------------------------------------------------------------
+  const hydrateFromProfile = useCallback((profile: UserProfile) => {
+    const clone = <T,>(value: T | undefined, fallback: T): T => {
+      try {
+        if (value === undefined || value === null) return JSON.parse(JSON.stringify(fallback));
+        return JSON.parse(JSON.stringify(value));
+      } catch {
+        return fallback;
+      }
+    };
+
+    const nextSettings = clone(profile.settings, DEFAULT_SETTINGS);
+    const nextCrypto = clone(profile.cryptoAssets, DEFAULT_CRYPTO_ASSETS);
+    const nextGold = clone(profile.goldHolding, DEFAULT_GOLD_HOLDING);
+    const nextPhysical = clone(profile.physicalGold, DEFAULT_PHYSICAL_GOLD_ITEMS);
+    const nextProperties = clone(profile.properties, []);
+    const nextVehicles = clone(profile.vehicles, []);
+    const nextDollar = clone(profile.dollarHolding, DEFAULT_DOLLAR_HOLDING);
+    const nextLots = clone(profile.goldBuyLots, []);
+    const nextSales = clone(profile.physicalGoldSales, []);
+    const nextTx = clone(profile.transactions, []);
+
+    setSettingsState(nextSettings);
+    saveSettings(nextSettings);
+    setCryptoAssetsState(nextCrypto);
+    saveCryptoAssets(nextCrypto);
+    setGoldHoldingState(nextGold);
+    saveGoldHolding(nextGold);
+    setPhysicalGoldItemsState(nextPhysical);
+    savePhysicalGold(nextPhysical);
+    setPropertiesState(nextProperties);
+    saveProperties(nextProperties);
+    setVehiclesState(nextVehicles);
+    saveVehicles(nextVehicles);
+    setDollarHoldingState(nextDollar);
+    saveDollarHolding(nextDollar);
+    setGoldBuyLotsState(nextLots);
+    saveGoldBuyLots(nextLots);
+    setPhysicalGoldSalesState(nextSales);
+    savePhysicalGoldSales(nextSales);
+    setTransactionsState(nextTx);
+    saveTransactions(nextTx);
+  }, []);
+
   return {
     activeTab,
     setActiveTab,
@@ -847,6 +901,7 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     resetToFactoryDefaults,
     handleExportBackup,
     handleImportBackup,
+    hydrateFromProfile,
     notification,
     showNotification,
   };

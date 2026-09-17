@@ -17,6 +17,9 @@ export interface CryptoAsset {
   profitPercent?: number; // net profit/loss percentage (optional)
   color: string;
   isDefault?: boolean;
+  // Holdings-only coins (e.g. auto-discovered via Nobitex) are tracked as
+  // belongings but excluded from the buy strategy until the user opts in.
+  isHoldingOnly?: boolean;
 }
 
 export type PhysicalGoldType =
@@ -177,6 +180,7 @@ export interface CalculatedCryptoBuy {
   finalHoldingValue: number;
   finalPercent: number;
   color: string;
+  isHoldingOnly?: boolean;
 }
 
 export interface CalculationResult {

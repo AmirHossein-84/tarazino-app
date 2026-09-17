@@ -12,6 +12,14 @@ const AVATAR_COLORS = [
   '#06b6d4', // cyan
 ];
 
+function deepClone<T>(value: T): T {
+  try {
+    return JSON.parse(JSON.stringify(value)) as T;
+  } catch {
+    return value;
+  }
+}
+
 function createEmptyProfile(name: string, color?: string): UserProfile {
   return {
     id: `profile_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -19,13 +27,13 @@ function createEmptyProfile(name: string, color?: string): UserProfile {
     avatarColor: color || AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)],
     createdAt: Date.now(),
     updatedAt: Date.now(),
-    settings: DEFAULT_SETTINGS,
-    cryptoAssets: DEFAULT_CRYPTO_ASSETS,
-    goldHolding: DEFAULT_GOLD_HOLDING,
-    physicalGold: DEFAULT_PHYSICAL_GOLD_ITEMS,
+    settings: deepClone(DEFAULT_SETTINGS),
+    cryptoAssets: deepClone(DEFAULT_CRYPTO_ASSETS),
+    goldHolding: deepClone(DEFAULT_GOLD_HOLDING),
+    physicalGold: deepClone(DEFAULT_PHYSICAL_GOLD_ITEMS),
     properties: [],
     vehicles: [],
-    dollarHolding: DEFAULT_DOLLAR_HOLDING,
+    dollarHolding: deepClone(DEFAULT_DOLLAR_HOLDING),
     goldBuyLots: [],
     physicalGoldSales: [],
     transactions: [],
@@ -125,9 +133,22 @@ export function useProfileState() {
           ? { avatarColor: colorOrInitialData }
           : (colorOrInitialData || {});
 
+      const base = createEmptyProfile(name, typeof colorOrInitialData === 'string' ? colorOrInitialData : initialData.avatarColor);
       const newProfile: UserProfile = {
-        ...createEmptyProfile(name, typeof colorOrInitialData === 'string' ? colorOrInitialData : initialData.avatarColor),
+        ...base,
         ...initialData,
+        // Deep-clone slice data so profiles never share mutable references
+        settings: initialData.settings ? deepClone(initialData.settings) : base.settings,
+        cryptoAssets: initialData.cryptoAssets ? deepClone(initialData.cryptoAssets) : base.cryptoAssets,
+        goldHolding: initialData.goldHolding ? deepClone(initialData.goldHolding) : base.goldHolding,
+        physicalGold: initialData.physicalGold ? deepClone(initialData.physicalGold) : base.physicalGold,
+        properties: initialData.properties ? deepClone(initialData.properties) : base.properties,
+        vehicles: initialData.vehicles ? deepClone(initialData.vehicles) : base.vehicles,
+        dollarHolding: initialData.dollarHolding ? deepClone(initialData.dollarHolding) : base.dollarHolding,
+        goldBuyLots: initialData.goldBuyLots ? deepClone(initialData.goldBuyLots) : base.goldBuyLots,
+        physicalGoldSales: initialData.physicalGoldSales ? deepClone(initialData.physicalGoldSales) : base.physicalGoldSales,
+        transactions: initialData.transactions ? deepClone(initialData.transactions) : base.transactions,
+        nobitexConfig: initialData.nobitexConfig ? deepClone(initialData.nobitexConfig) : undefined,
       };
 
       const existingProfiles = vault?.profiles || [];
@@ -236,14 +257,17 @@ export function useProfileState() {
     [vault, activeProfileId, saveVault]
   );
 
-  // Delete profile
+  // Delete profile — returns false when deletion is blocked (e.g. last profile).
+  // Callers show a themed toast instead of a native alert.
   const deleteProfile = useCallback(
-    (profileId: string) => {
-      if (!vault) return;
+    (profileId: string): boolean => {
+      if (!vault) return false;
       if (vault.profiles.length <= 1) {
-        alert('امکان حذف تنها حساب کاربری فعال وجود ندارد.');
-        return;
+        return false;
       }
+
+      const exists = vault.profiles.some((p) => p.id === profileId);
+      if (!exists) return false;
 
       const updatedProfiles = vault.profiles.filter((p) => p.id !== profileId);
       const nextActiveId =
@@ -258,6 +282,7 @@ export function useProfileState() {
 
       setActiveProfileId(nextActiveId);
       saveVault(updatedVault, true);
+      return true;
     },
     [vault, activeProfileId, saveVault]
   );

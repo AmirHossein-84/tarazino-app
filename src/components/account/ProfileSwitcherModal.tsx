@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { User, Plus, Check, Shield, Trash2, ArrowRight, Sparkles } from 'lucide-react';
+import { User, Plus, Check, Trash2, ArrowRight, Sparkles } from 'lucide-react';
 import { UserProfile } from '../../types/investment';
 import { triggerHaptic } from '../../utils/haptics';
 import { BottomSheetModal } from '../common/BottomSheetModal';
+import { DeleteProfileConfirmModal } from './DeleteProfileConfirmModal';
 
 interface ProfileSwitcherModalProps {
   isOpen: boolean;
@@ -11,8 +12,9 @@ interface ProfileSwitcherModalProps {
   activeProfileId: string;
   onSelectProfile: (profileId: string) => void;
   onCreateProfile: (name: string, color?: string) => void;
-  onDeleteProfile?: (profileId: string) => void;
+  onDeleteProfile?: (profileId: string) => boolean | void;
   onStartOnboarding?: () => void;
+  onNotify?: (message: string, type?: 'success' | 'warning' | 'info' | 'error') => void;
   isClosable?: boolean;
 }
 
@@ -27,11 +29,39 @@ export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
   onCreateProfile,
   onDeleteProfile,
   onStartOnboarding,
+  onNotify,
   isClosable = true,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [newProfileName, setNewProfileName] = useState('');
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+  // Hooks must run before any early return
+  const pendingProfile = pendingDeleteId
+    ? profiles.find((p) => p.id === pendingDeleteId) || null
+    : null;
+  const canDelete = profiles.length > 1 && Boolean(onDeleteProfile);
+  const nextProfileName = pendingProfile
+    ? profiles.find((p) => p.id !== pendingProfile.id)?.name
+    : undefined;
+
+  const handleConfirmDelete = (profileId: string) => {
+    if (!onDeleteProfile) {
+      setPendingDeleteId(null);
+      return;
+    }
+    const result = onDeleteProfile(profileId);
+    if (result === false) {
+      triggerHaptic('medium');
+      onNotify?.('امکان حذف تنها حساب کاربری فعال وجود ندارد.', 'error');
+      setPendingDeleteId(null);
+      return;
+    }
+    triggerHaptic('success');
+    onNotify?.('حساب کاربری با موفقیت حذف شد', 'info');
+    setPendingDeleteId(null);
+  };
 
   if (!isOpen) return null;
 
@@ -99,19 +129,20 @@ export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
   );
 
   return (
-    <BottomSheetModal
-      isOpen={isOpen}
-      onClose={isClosable ? onClose : () => {}}
-      title={isCreating ? 'افزودن حساب کاربری جدید' : 'انتخاب حساب کاربری'}
-      subtitle={
-        isCreating
-          ? 'تعریف پروفایل مستقل با سبد دارایی و کلیدهای اختصاصی'
-          : 'حساب‌های محلی ذخیره‌شده روی حافظه گوشی شما'
-      }
-      icon={<User className="w-5 h-5 text-amber-500" />}
-      footer={footer}
-      maxWidth="max-w-md"
-    >
+    <>
+      <BottomSheetModal
+        isOpen={isOpen}
+        onClose={isClosable ? onClose : () => {}}
+        title={isCreating ? 'افزودن حساب کاربری جدید' : 'انتخاب حساب کاربری'}
+        subtitle={
+          isCreating
+            ? 'تعریف پروفایل مستقل با سبد دارایی و کلیدهای اختصاصی'
+            : 'حساب‌های محلی ذخیره‌شده روی حافظه گوشی شما'
+        }
+        icon={<User className="w-5 h-5 text-amber-500" />}
+        footer={footer}
+        maxWidth="max-w-md"
+      >
       <div className="space-y-3">
         {isCreating ? (
           <form onSubmit={handleCreateSubmit} className="space-y-4">
@@ -210,11 +241,45 @@ export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
                   </div>
 
                   {isActive ? (
-                    <div className="w-7 h-7 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-xs">
-                      <Check className="w-4 h-4" />
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {canDelete && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            triggerHaptic('medium');
+                            setPendingDeleteId(profile.id);
+                          }}
+                          className="w-9 h-9 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 flex items-center justify-center transition-all interactive-tap touch-target"
+                          title="حذف این حساب"
+                          aria-label={`حذف حساب ${profile.name}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      <div className="w-7 h-7 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-xs">
+                        <Check className="w-4 h-4" />
+                      </div>
                     </div>
                   ) : (
-                    <ArrowRight className="w-4 h-4 text-slate-400 rotate-180" />
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {canDelete && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            triggerHaptic('medium');
+                            setPendingDeleteId(profile.id);
+                          }}
+                          className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-rose-50 dark:bg-slate-900 dark:hover:bg-rose-950/40 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 border border-transparent hover:border-rose-200 dark:hover:border-rose-500/30 flex items-center justify-center transition-all interactive-tap touch-target"
+                          title="حذف این حساب"
+                          aria-label={`حذف حساب ${profile.name}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      <ArrowRight className="w-4 h-4 text-slate-400 rotate-180" />
+                    </div>
                   )}
                 </div>
               );
@@ -223,6 +288,16 @@ export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
           </div>
         )}
       </div>
-    </BottomSheetModal>
+      </BottomSheetModal>
+
+      <DeleteProfileConfirmModal
+        isOpen={pendingDeleteId !== null}
+        onClose={() => setPendingDeleteId(null)}
+        profile={pendingProfile}
+        isActiveProfile={pendingProfile?.id === activeProfileId}
+        nextProfileName={nextProfileName}
+        onConfirm={handleConfirmDelete}
+      />
+    </>
   );
 };
