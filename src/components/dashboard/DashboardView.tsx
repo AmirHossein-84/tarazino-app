@@ -627,19 +627,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="w-2 h-2 rounded-full bg-indigo-500" />
                 <span>ارزهای دیجیتال پیشنهادی برای خرید:</span>
               </h4>
-              {totalCryptoProfitTomans !== undefined && (
-                <span
-                  className={`text-[10px] font-black px-2 py-0.5 rounded-lg dir-ltr inline-flex items-center gap-1 ${
-                    totalCryptoProfitTomans >= 0
-                      ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30'
-                      : 'bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30'
-                  }`}
-                >
-                  <span>سود کل کریپتو:</span>
-                  <span>{totalCryptoProfitTomans >= 0 ? '+' : ''}{formatCurrency(totalCryptoProfitTomans)}</span>
-                  <span>({totalCryptoProfitPercent !== undefined ? formatPercent(totalCryptoProfitPercent, 1) : '0%'})</span>
-                </span>
-              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
