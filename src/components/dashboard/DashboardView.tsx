@@ -552,9 +552,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-gold-500/40 text-amber-800 dark:text-gold-300'
               : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
           }`}>
-            <span className={`w-2 h-2 rounded-full ${isGoldUnderweight ? 'bg-amber-500 dark:bg-gold-400 animate-pulse' : 'bg-emerald-500'}`} />
-            <span>
-              طلا: {formatPercent(goldPercentActual)} {isGoldUnderweight && '📉 نیاز به خرید'}
+            <span className={`w-2 h-2 rounded-full shrink-0 ${isGoldUnderweight ? 'bg-amber-500 dark:bg-gold-400 animate-pulse' : 'bg-emerald-500'}`} />
+            <span className="whitespace-nowrap">
+              طلا: {formatPercent(goldPercentActual)} {isGoldUnderweight && 'نیاز به خرید'}
             </span>
           </div>
 
@@ -563,9 +563,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-500/40 text-indigo-800 dark:text-indigo-300'
               : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
           }`}>
-            <span className={`w-2 h-2 rounded-full ${isCryptoUnderweight ? 'bg-indigo-500 dark:bg-indigo-400 animate-pulse' : 'bg-emerald-500'}`} />
-            <span>
-              کریپتو: {formatPercent(cryptoPercentActual)} {isCryptoUnderweight && '📉 نیاز به خرید'}
+            <span className={`w-2 h-2 rounded-full shrink-0 ${isCryptoUnderweight ? 'bg-indigo-500 dark:bg-indigo-400 animate-pulse' : 'bg-emerald-500'}`} />
+            <span className="whitespace-nowrap">
+              کریپتو: {formatPercent(cryptoPercentActual)} {isCryptoUnderweight && 'نیاز به خرید'}
             </span>
           </div>
         </div>
