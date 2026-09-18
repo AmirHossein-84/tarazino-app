@@ -133,12 +133,12 @@ export const GoldBuyCard: React.FC<GoldBuyCardProps> = ({
             <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-1">
               مبلغ کل خرید طلا به تومان
             </div>
-            <div className="text-xl sm:text-2xl font-black text-amber-700 dark:text-gold-400 dir-ltr">
+            <div className="text-xl sm:text-2xl font-black text-amber-700 dark:text-gold-400 dir-ltr tabular-nums whitespace-nowrap">
               {formatToman(goldBuyAmount)}{' '}
               <span className="text-xs font-bold text-slate-500 dark:text-slate-400">تومان</span>
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 dir-ltr font-medium">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 dir-ltr font-medium tabular-nums">
                 نرخ واحد: <strong className="text-slate-800 dark:text-slate-200">{formatToman(unitPriceTomans)} ت</strong>
               </span>
               {quote && (
@@ -178,12 +178,12 @@ export const GoldBuyCard: React.FC<GoldBuyCardProps> = ({
               <Layers className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400" />
               <span>تعداد واحد / برگه قابل سفارش در کارگزاری</span>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 dir-ltr">
+            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 dir-ltr tabular-nums whitespace-nowrap">
               {toPersianDigits(new Intl.NumberFormat('en-US').format(unitsToBuy))}{' '}
               <span className="text-xs font-bold text-amber-700 dark:text-gold-400">واحد {selectedSymbol}</span>
             </div>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
-              مبلغ دقیق سفارش: {formatToman(exactBuyValue)} تومان
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5 tabular-nums">
+              مبلغ دقیق سفارش: <span className="dir-ltr">{formatToman(exactBuyValue)}</span> تومان
             </span>
           </div>
           <button
@@ -208,8 +208,8 @@ export const GoldBuyCard: React.FC<GoldBuyCardProps> = ({
       {/* TSETMC Live Tip Footer */}
       <div className="text-[11px] text-slate-700 dark:text-slate-300 bg-amber-500/10 p-3.5 rounded-2xl border border-amber-500/20 flex items-center gap-2.5">
         <TrendingUp className="w-4 h-4 text-amber-600 dark:text-gold-400 shrink-0" />
-        <p className="leading-relaxed">
-          کافیست در ایزی‌تریدر یا کارگزاری خود نماد <strong>{selectedSymbol}</strong> را سرچ کرده و <strong>{toPersianDigits(unitsToBuy)} واحد</strong> با قیمت <strong>{formatToman(unitPriceTomans)} تومان</strong> سفارش خرید ثبت کنید.
+        <p className="leading-relaxed tabular-nums">
+          کافیست در ایزی‌تریدر یا کارگزاری خود نماد <strong>{selectedSymbol}</strong> را سرچ کرده و <strong><span className="dir-ltr">{toPersianDigits(unitsToBuy)}</span> واحد</strong> با قیمت <strong><span className="dir-ltr">{formatToman(unitPriceTomans)}</span> تومان</strong> سفارش خرید ثبت کنید.
         </p>
       </div>
 
