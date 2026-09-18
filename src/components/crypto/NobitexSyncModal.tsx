@@ -127,39 +127,27 @@ export const NobitexSyncModal: React.FC<NobitexSyncModalProps> = ({
       : token.trim().length > 10;
 
   const footerActions = (
-    <div className="flex items-center justify-between gap-2.5">
-      {isConfigured ? (
+    <div className="flex items-center gap-2.5">
+      {isConfigured && (
         <button
           type="button"
           onClick={handleDisconnect}
-          className="px-3.5 py-3 rounded-2xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 text-xs font-bold flex items-center gap-1.5 transition-all interactive-tap touch-target"
+          className="flex-1 px-3.5 py-3 rounded-2xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 text-xs font-bold flex items-center justify-center gap-1.5 transition-all interactive-tap touch-target"
         >
           <Trash2 className="w-3.5 h-3.5" />
           <span>قطع اتصال</span>
         </button>
-      ) : (
-        <div />
       )}
 
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all interactive-tap touch-target border border-slate-200 dark:border-slate-700"
-        >
-          انصراف
-        </button>
-
-        <button
-          type="button"
-          onClick={handleSaveAndSync}
-          disabled={isSyncing || !isValid}
-          className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-black flex items-center gap-2 transition-all interactive-tap shadow-crypto-glow touch-target"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-          <span>{isSyncing ? 'در حال همگام‌سازی...' : 'ذخیره و همگام‌سازی'}</span>
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={handleSaveAndSync}
+        disabled={isSyncing || !isValid}
+        className="flex-1 px-3.5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-black flex items-center justify-center gap-2 transition-all interactive-tap shadow-crypto-glow touch-target"
+      >
+        <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+        <span>{isSyncing ? 'در حال همگام‌سازی...' : 'ذخیره و همگام‌سازی'}</span>
+      </button>
     </div>
   );
 
