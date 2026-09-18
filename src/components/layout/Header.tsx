@@ -9,6 +9,7 @@ interface HeaderProps {
   toggleTheme: () => void;
   currencyMode?: CurrencyDisplayMode;
   toggleCurrencyMode?: () => void;
+  userName?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -16,6 +17,7 @@ export const Header: React.FC<HeaderProps> = ({
   toggleTheme,
   currencyMode = 'toman',
   toggleCurrencyMode,
+  userName,
 }) => {
   const todayPersian = getPersianFormattedDate(new Date()).split('ساعت')[0];
 
@@ -50,9 +52,14 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 font-mono tracking-wider">(Tarazino)</span>
               </h1>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              مدیریت سبد طلا و کریپتو • {todayPersian}
-            </p>
+            <div className="text-[11px] leading-tight">
+              {userName && (
+                <span className="block font-bold text-slate-600 dark:text-slate-300 truncate">
+                  سلام، {userName} 👋
+                </span>
+              )}
+              <span className="block text-slate-500 dark:text-slate-400">{todayPersian}</span>
+            </div>
           </div>
         </div>
 
