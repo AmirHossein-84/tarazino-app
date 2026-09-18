@@ -651,8 +651,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         <span className="text-[10px] text-slate-500 dark:text-slate-400">{buy.name}</span>
                       </div>
 
-                      <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-400">
-                        وزن هدف: {toPersianDigits(buy.targetPercent)}%
+                      <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-400 whitespace-nowrap">
+                        وزن هدف: <span className="dir-ltr tabular-nums">{formatPercent(buy.targetPercent)}</span>
                       </span>
                     </div>
 
