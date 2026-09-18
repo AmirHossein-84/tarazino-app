@@ -352,19 +352,19 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                     </div>
 
                     {/* Pricing & Valuation Details */}
-                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                      <div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800/80 flex items-start justify-between gap-2 text-xs">
+                      <div className="min-w-0">
                         <span className="text-[10px] text-slate-500 dark:text-slate-400 block">ارزش فعلی:</span>
-                        <span className="font-black text-indigo-700 dark:text-indigo-300 dir-ltr text-right block">
+                        <span className="text-base font-black text-indigo-700 dark:text-indigo-300 dir-ltr text-right tabular-nums whitespace-nowrap block">
                           {formatCurrency(asset.currentHoldingValue, { isTomanSuffix: true })}
                         </span>
                       </div>
 
-                      <div className="text-left">
-                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
+                      <div className="text-left shrink-0">
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 block">
                           {asset.averageBuyPrice ? 'میانگین خرید:' : 'نرخ روز:'}
                         </span>
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 dir-ltr text-right block">
+                        <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 dir-ltr text-right tabular-nums block">
                           {asset.averageBuyPrice
                             ? formatCurrency(asset.averageBuyPrice, { isUnitPrice: true, isTomanSuffix: true })
                             : asset.unitPrice
@@ -376,9 +376,13 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
 
                     {/* Net Profit amount */}
                     {hasProfit && (
-                      <div className="flex items-center justify-between text-[11px] pt-0.5 border-t border-slate-100 dark:border-slate-800/60">
-                        <span className="text-slate-500 dark:text-slate-400">سود / زیان خالص:</span>
-                        <span className={`font-bold dir-ltr ${isProfitPositive ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
+                      <div className={`flex items-center justify-between gap-2 text-[11px] px-2 py-1 rounded-lg border ${
+                        isProfitPositive
+                          ? 'bg-emerald-500/10 border-emerald-500/20'
+                          : 'bg-rose-500/10 border-rose-500/20'
+                      }`}>
+                        <span className="text-slate-500 dark:text-slate-400 shrink-0">سود / زیان خالص:</span>
+                        <span className={`font-black dir-ltr tabular-nums whitespace-nowrap ${isProfitPositive ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
                           {isProfitPositive ? '+' : ''}{formatCurrency(profitVal, { isTomanSuffix: true })}
                         </span>
                       </div>
