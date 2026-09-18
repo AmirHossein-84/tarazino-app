@@ -595,15 +595,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {totalInputAmount > 0 && calculationResult.totalSavingsAmount > 0 && (
         <div className="space-y-4 animate-fadeIn">
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-600 dark:text-gold-400" />
                 <span>محاسبه و خرید هوشمند دارایی‌ها</span>
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                بر اساس سهم پس‌انداز و فرمول بازتعادل جهت رسیدن سبد به نسبت {toPersianDigits(settings.goldPercent)} / {toPersianDigits(settings.cryptoPercent)}
-              </p>
             </div>
 
             <button
