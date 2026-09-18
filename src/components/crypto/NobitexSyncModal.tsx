@@ -10,6 +10,7 @@ import {
   EyeOff,
   Trash2,
   Lock,
+  ClipboardPaste,
 } from 'lucide-react';
 import { CryptoAsset } from '../../types/investment';
 import { useNobitex } from '../../hooks/useNobitex';
@@ -93,6 +94,20 @@ export const NobitexSyncModal: React.FC<NobitexSyncModalProps> = ({
     if (success) {
       onNotify?.('همگام‌سازی دارایی‌های نوبیتکس با موفقیت انجام شد', 'success');
       onClose();
+    }
+  };
+
+  const handlePaste = async (setter: (v: string) => void) => {
+    triggerHaptic('light');
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text && text.trim()) {
+        setter(text.trim());
+      } else {
+        onNotify?.('کلیپ‌بورد خالی است', 'info');
+      }
+    } catch {
+      onNotify?.('دسترسی به کلیپ‌بورد ممکن نیست؛ دستی جایگذاری کنید', 'error');
     }
   };
 
@@ -202,7 +217,7 @@ export const NobitexSyncModal: React.FC<NobitexSyncModalProps> = ({
           <div className="space-y-1">
             <span className="font-bold text-slate-900 dark:text-slate-100 block">امنیت و حریم خصوصی کلیدها</span>
             <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-              کلیدهای شما فقط در حافظه امن همین دستگاه ذخیره شده و مستقیماً جهت امضای درخواست‌ها به سرور نوبیتکس ارسال می‌شوند. هیچ داده‌ای به سرور واسط ارسال نمی‌شود.
+              کلیدها فقط روی همین دستگاه می‌مانند و به هیچ سرور واسطی ارسال نمی‌شوند.
             </p>
           </div>
         </div>
@@ -221,7 +236,16 @@ export const NobitexSyncModal: React.FC<NobitexSyncModalProps> = ({
                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >
-            کلید اختصاصی API Key (توصیه‌شده)
+            <span className="inline-flex items-center gap-1.5">
+              <span>کلید API</span>
+              <span className={`text-[9px] px-1.5 py-px rounded-full font-black ${
+                authType === 'api_key'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
+              }`}>
+                توصیه‌شده
+              </span>
+            </span>
           </button>
           <button
             type="button"
@@ -235,7 +259,7 @@ export const NobitexSyncModal: React.FC<NobitexSyncModalProps> = ({
                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >
-            توکن ورود مستقیم (Token)
+            توکن ورود مستقیم
           </button>
         </div>
 
@@ -245,21 +269,31 @@ export const NobitexSyncModal: React.FC<NobitexSyncModalProps> = ({
             {/* Public Key */}
             <div className="space-y-1">
               <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
-                کلید عمومی (Public Key / Key)
+                کلید عمومی (Public Key)
               </label>
-              <input
-                type="text"
-                value={publicKey}
-                onChange={(e) => setPublicKey(e.target.value)}
-                placeholder="مثال: 5XOCQZSPLQM4MiLzuUnZoBuqgYgTKl40..."
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:bg-white dir-ltr font-mono text-xs"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  value={publicKey}
+                  onChange={(e) => setPublicKey(e.target.value)}
+                  placeholder="مثال: 5XOCQZSPLQM4MiLzuUnZoBuqgYgTKl40..."
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:bg-white dir-ltr font-mono text-xs pl-11"
+                />
+                <button
+                  type="button"
+                  onClick={() => handlePaste(setPublicKey)}
+                  title="جایگذاری از کلیپ‌بورد"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 p-1 transition-colors"
+                >
+                  <ClipboardPaste className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* Secret Key */}
             <div className="space-y-1">
               <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
-                کلید خصوصی (Secret Key / Private Key)
+                کلید خصوصی (Private Key)
               </label>
               <div className="relative">
                 <input
@@ -267,7 +301,7 @@ export const NobitexSyncModal: React.FC<NobitexSyncModalProps> = ({
                   value={secretKey}
                   onChange={(e) => setSecretKey(e.target.value)}
                   placeholder="کلید خصوصی محرمانه نوبیتکس..."
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:bg-white dir-ltr font-mono text-xs pr-11"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:bg-white dir-ltr font-mono text-xs pr-11 pl-11"
                 />
                 <button
                   type="button"
@@ -275,6 +309,14 @@ export const NobitexSyncModal: React.FC<NobitexSyncModalProps> = ({
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 p-1"
                 >
                   {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handlePaste(setSecretKey)}
+                  title="جایگذاری از کلیپ‌بورد"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 p-1 transition-colors"
+                >
+                  <ClipboardPaste className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -311,7 +353,7 @@ export const NobitexSyncModal: React.FC<NobitexSyncModalProps> = ({
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
                   placeholder="توکن احراز هویت ورود مستقیم..."
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:bg-white dir-ltr font-mono text-xs pr-11"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:bg-white dir-ltr font-mono text-xs pr-11 pl-11"
                 />
                 <button
                   type="button"
@@ -319,6 +361,14 @@ export const NobitexSyncModal: React.FC<NobitexSyncModalProps> = ({
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 p-1"
                 >
                   {showToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handlePaste(setToken)}
+                  title="جایگذاری از کلیپ‌بورد"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 p-1 transition-colors"
+                >
+                  <ClipboardPaste className="w-4 h-4" />
                 </button>
               </div>
             </div>
