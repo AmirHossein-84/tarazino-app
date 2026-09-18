@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Copy, Check, TrendingUp, Layers, ChevronDown } from 'lucide-react';
+import { Sparkles, Copy, Check, TrendingUp, Layers, ChevronDown, Coins } from 'lucide-react';
 import { useMarketData } from '../../hooks/useMarketData';
 import { formatToman, formatPercent, toPersianDigits } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
@@ -82,22 +82,22 @@ export const GoldBuyCard: React.FC<GoldBuyCardProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-3.5">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-gold-500 to-yellow-600 p-[2px]">
-            <div className="w-full h-full bg-white dark:bg-slate-950 rounded-[14px] flex items-center justify-center text-xl">
-              🥇
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-gold-500 to-yellow-600 p-[2px] shrink-0">
+            <div className="w-full h-full bg-white dark:bg-slate-950 rounded-[14px] flex items-center justify-center">
+              <Coins className="w-5 h-5 text-amber-600 dark:text-gold-400" />
             </div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
-                خرید پیشنهادی <span className="gold-gradient-text">صندوق طلای بورس (TSETMC)</span>
+              <h3 className="text-base font-black text-slate-900 dark:text-slate-100 truncate">
+                خرید پیشنهادی <span className="gold-gradient-text">صندوق طلای بورس</span>
               </h3>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 dark:bg-amber-500/20 text-amber-800 dark:text-gold-300 border border-amber-500/30 dark:border-gold-500/30 font-bold">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 dark:bg-amber-500/20 text-amber-800 dark:text-gold-300 border border-amber-500/30 dark:border-gold-500/30 font-bold whitespace-nowrap shrink-0">
                 {toPersianDigits(goldPercent)}٪ سهم پس‌انداز
               </span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-              محاسبه زنده بر اساس نرخ تابلو بورس تهران (صندوق منتخب: {selectedSymbol})
+              نرخ زنده تابلو بورس تهران
             </p>
           </div>
         </div>
