@@ -518,9 +518,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="w-8 h-8 rounded-xl bg-amber-500/15 dark:bg-gold-500/20 text-amber-700 dark:text-gold-400 flex items-center justify-center font-bold text-sm">
               <PieChart className="w-4 h-4" />
             </div>
-            <div>
-              <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">ترکیب سبد دارایی و وضعیت تعادل</h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            <div className="min-w-0">
+              <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">سبد دارایی</h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                 هدف: {toPersianDigits(settings.goldPercent)}% طلا و مسکوکات / {toPersianDigits(settings.cryptoPercent)}% ارزهای دیجیتال
               </p>
             </div>
@@ -528,7 +528,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <button
             onClick={() => onNavigateToTab('settings')}
-            className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-gold-400 font-bold transition-colors"
+            className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-gold-400 font-bold transition-colors shrink-0 whitespace-nowrap"
           >
             تغییر نسبت‌ها
           </button>
