@@ -177,8 +177,8 @@ jobs:
           tag_name: ${{ steps.get_version.outputs.tag }}
           name: "💎 ترازینو (Tarazino) ${{ steps.get_version.outputs.tag }} (Android APK & iOS IPA)"
           draft: true
-          prerelease: true
-          make_latest: false
+          prerelease: false
+          make_latest: true
           body: |
             <div dir="rtl">
 
