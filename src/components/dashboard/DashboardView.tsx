@@ -245,7 +245,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block">ارزش کل دارایی‌ها (سبد سرمایه)</span>
                 {currencyMode === 'usd' && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-500/30">
-                    USD ($)
+                    USD
                   </span>
                 )}
               </div>
@@ -287,7 +287,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               ) : (
                 <>
                   <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>نمایش به دلار ($)</span>
+                  <span>نمایش به دلار</span>
                 </>
               )}
             </button>

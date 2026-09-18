@@ -68,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
                   ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-950/90 dark:text-emerald-300 dark:border-emerald-500/50 dark:hover:bg-emerald-900/80 shadow-emerald-500/10'
                   : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/90 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:text-gold-600 dark:hover:text-gold-300 hover:border-gold-500/40'
               }`}
-              title={currencyMode === 'usd' ? 'تغییر نمایش کل اپلیکیشن به تومان' : 'تغییر نمایش کل اپلیکیشن به دلار ($)'}
+              title={currencyMode === 'usd' ? 'تغییر نمایش کل اپلیکیشن به تومان' : 'تغییر نمایش کل اپلیکیشن به دلار'}
             >
               {currencyMode === 'usd' ? (
                 <>
@@ -78,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({
               ) : (
                 <>
                   <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>دلار ($)</span>
+                  <span>دلار</span>
                 </>
               )}
             </button>
