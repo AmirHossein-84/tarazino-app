@@ -186,7 +186,7 @@ export const PortfolioDonutChart: React.FC<PortfolioDonutChartProps> = React.mem
                 {formattedTotalValue || `${formatToman(totalValue)} ت`}
               </span>
               {centerSubtitle && (
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-medium">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-medium dir-ltr">
                   {centerSubtitle}
                 </span>
               )}
