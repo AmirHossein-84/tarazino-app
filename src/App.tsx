@@ -297,6 +297,7 @@ const AppContent: React.FC = () => {
         toggleTheme={toggleTheme}
         currencyMode={currencyMode}
         toggleCurrencyMode={toggleCurrencyMode}
+        userName={activeProfile?.name}
       />
 
       {/* Main Container */}
