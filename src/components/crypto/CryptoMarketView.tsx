@@ -13,6 +13,7 @@ import {
   DollarSign,
   Activity,
   ShieldCheck,
+  Pencil,
 } from 'lucide-react';
 import { CryptoAsset } from '../../types/investment';
 import { useNobitex } from '../../hooks/useNobitex';
@@ -345,8 +346,9 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                           <span>{isProfitPositive ? '+' : ''}{formatPercent(profitPct, 1)}</span>
                         </span>
                       ) : (
-                        <span className="text-[10px] text-indigo-700 dark:text-indigo-400 font-medium px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 shrink-0">
-                          ثبت قیمت خرید ✏️
+                        <span className="text-[10px] text-indigo-700 dark:text-indigo-400 font-medium px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 shrink-0 inline-flex items-center gap-1">
+                          <Pencil className="w-3 h-3" />
+                          <span>ثبت قیمت خرید</span>
                         </span>
                       )}
                     </div>
