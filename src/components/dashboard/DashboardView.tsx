@@ -313,17 +313,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onClick={() => onNavigateToTab('holdings')}
               className="p-3 rounded-2xl bg-amber-50/70 dark:bg-slate-950/80 border border-amber-300/80 dark:border-amber-400/40 hover:border-amber-400 dark:hover:border-amber-400/70 transition-all cursor-pointer space-y-1"
             >
-              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                <span className="flex items-center gap-1 font-bold text-amber-800 dark:text-amber-300">
-                  <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                  <span>طلای فیزیکی</span>
+              <div className="flex items-center justify-between gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1 font-bold text-amber-800 dark:text-amber-300 min-w-0">
+                  <Coins className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <span className="truncate">طلای فیزیکی</span>
                 </span>
-                <span className="text-amber-700 dark:text-amber-300 font-bold">
+                <span className="text-amber-700 dark:text-amber-300 font-bold shrink-0">
                   {totalPortfolioValue > 0 ? formatPercent((physicalGoldValue / totalPortfolioValue) * 100) : '۰٪'}
                 </span>
               </div>
-              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
-                {formatCurrency(physicalGoldValue)}
+              <div className="text-[15px] font-black text-slate-900 dark:text-slate-100 dir-ltr text-right tabular-nums whitespace-nowrap">
+                {formatCurrency(physicalGoldValue, false)}
+              </div>
+              <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                {currencyMode === 'usd' ? 'دلار' : 'تومان'}
               </div>
             </div>
           )}
@@ -334,17 +337,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onClick={() => onNavigateToTab('gold')}
               className="p-3 rounded-2xl bg-amber-50/70 dark:bg-slate-950/80 border border-amber-300/80 dark:border-amber-600/40 hover:border-amber-400 dark:hover:border-amber-500/70 transition-all cursor-pointer space-y-1"
             >
-              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                <span className="flex items-center gap-1 font-bold text-amber-800 dark:text-amber-500">
-                  <TrendingUp className="w-3.5 h-3.5 text-amber-600 dark:text-amber-500" />
-                  <span>طلای بورس</span>
+              <div className="flex items-center justify-between gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1 font-bold text-amber-800 dark:text-amber-500 min-w-0">
+                  <TrendingUp className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-500" />
+                  <span className="truncate">طلای بورس</span>
                 </span>
-                <span className="text-amber-700 dark:text-amber-400 font-bold">
+                <span className="text-amber-700 dark:text-amber-400 font-bold shrink-0">
                   {totalPortfolioValue > 0 ? formatPercent((bourseGoldValue / totalPortfolioValue) * 100) : '۰٪'}
                 </span>
               </div>
-              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
-                {formatCurrency(bourseGoldValue)}
+              <div className="text-[15px] font-black text-slate-900 dark:text-slate-100 dir-ltr text-right tabular-nums whitespace-nowrap">
+                {formatCurrency(bourseGoldValue, false)}
+              </div>
+              <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                {currencyMode === 'usd' ? 'دلار' : 'تومان'}
               </div>
             </div>
           )}
@@ -355,15 +361,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onClick={() => onNavigateToTab('gold')}
               className="p-3 rounded-2xl bg-amber-50/70 dark:bg-slate-950/80 border border-amber-300/80 dark:border-gold-500/30 hover:border-amber-400 dark:hover:border-gold-500/60 transition-all cursor-pointer space-y-1"
             >
-              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                <span className="flex items-center gap-1 font-bold text-amber-800 dark:text-gold-400">
-                  <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400" />
-                  <span>مجموع طلا ({toPersianDigits(settings.goldPercent)}%)</span>
+              <div className="flex items-center justify-between gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1 font-bold text-amber-800 dark:text-gold-400 min-w-0">
+                  <Coins className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-gold-400" />
+                  <span className="truncate">مجموع طلا ({toPersianDigits(settings.goldPercent)}%)</span>
                 </span>
-                <span className="text-amber-700 dark:text-gold-300 font-bold">{formatPercent(goldPercentActual)}</span>
+                <span className="text-amber-700 dark:text-gold-300 font-bold shrink-0">{formatPercent(goldPercentActual)}</span>
               </div>
-              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
-                {formatCurrency(goldHoldingValue)}
+              <div className="text-[15px] font-black text-slate-900 dark:text-slate-100 dir-ltr text-right tabular-nums whitespace-nowrap">
+                {formatCurrency(goldHoldingValue, false)}
+              </div>
+              <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                {currencyMode === 'usd' ? 'دلار' : 'تومان'}
               </div>
             </div>
           )}
@@ -373,40 +382,41 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             onClick={() => onNavigateToTab('crypto')}
             className="p-3 rounded-2xl bg-indigo-50/70 dark:bg-slate-950/80 border border-indigo-200 dark:border-indigo-500/30 hover:border-indigo-300 dark:hover:border-indigo-500/60 transition-all cursor-pointer space-y-1"
           >
-            <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-              <span className="flex items-center gap-1 font-bold text-indigo-700 dark:text-indigo-400">
-                <TrendingUp className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                <span>کریپتو ({toPersianDigits(settings.cryptoPercent)}%)</span>
+            <div className="flex items-center justify-between gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+              <span className="flex items-center gap-1 font-bold text-indigo-700 dark:text-indigo-400 min-w-0">
+                <TrendingUp className="w-3.5 h-3.5 shrink-0 text-indigo-600 dark:text-indigo-400" />
+                <span className="truncate">کریپتو ({toPersianDigits(settings.cryptoPercent)}%)</span>
               </span>
-              <span className="text-indigo-700 dark:text-indigo-300 font-bold">{formatPercent(cryptoPercentActual)}</span>
+              <span className="text-indigo-700 dark:text-indigo-300 font-bold shrink-0">{formatPercent(cryptoPercentActual)}</span>
             </div>
-            <div className="flex items-baseline justify-between gap-1">
-              <div className="text-sm font-black text-slate-900 dark:text-slate-100 dir-ltr text-right">
-                {formatCurrency(totalCryptoValue)}
-              </div>
-              {totalCryptoProfitTomans !== undefined && (
-                <span
-                  className={`text-[10px] font-black px-1.5 py-0.5 rounded-md dir-ltr inline-flex items-center gap-0.5 ${
-                    totalCryptoProfitTomans >= 0
-                      ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30'
-                      : 'bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30'
-                  }`}
-                >
-                  {totalCryptoProfitTomans >= 0 ? '+' : ''}
-                  {totalCryptoProfitPercent !== undefined ? formatPercent(totalCryptoProfitPercent, 1) : ''}
-                </span>
-              )}
+            <div className="text-[15px] font-black text-slate-900 dark:text-slate-100 dir-ltr text-right tabular-nums whitespace-nowrap">
+              {formatCurrency(totalCryptoValue, false)}
+            </div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400">
+              {currencyMode === 'usd' ? 'دلار' : 'تومان'}
             </div>
             {totalCryptoProfitTomans !== undefined && (
-              <div className="flex items-center justify-between text-[10px] pt-1 border-t border-indigo-100 dark:border-slate-800/80">
-                <span className="text-slate-500 dark:text-slate-400">سود/زیان خالص:</span>
-                <span
-                  className={`font-bold dir-ltr ${
-                    totalCryptoProfitTomans >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
-                  }`}
-                >
-                  {totalCryptoProfitTomans >= 0 ? '+' : ''}
-                  {formatCurrency(totalCryptoProfitTomans)}
+              <div className="flex items-center justify-between gap-1 text-[10px] pt-1 border-t border-indigo-100 dark:border-slate-800/80">
+                <span className="text-slate-500 dark:text-slate-400 shrink-0">سود/زیان خالص:</span>
+                <span className="flex items-center gap-1 min-w-0">
+                  <span
+                    className={`font-bold dir-ltr tabular-nums truncate ${
+                      totalCryptoProfitTomans >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
+                    }`}
+                  >
+                    {totalCryptoProfitTomans >= 0 ? '+' : ''}
+                    {formatCurrency(totalCryptoProfitTomans, false)}
+                  </span>
+                  <span
+                    className={`text-[10px] font-black px-1.5 py-0.5 rounded-md dir-ltr inline-flex items-center shrink-0 ${
+                      totalCryptoProfitTomans >= 0
+                        ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30'
+                        : 'bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30'
+                    }`}
+                  >
+                    {totalCryptoProfitTomans >= 0 ? '+' : ''}
+                    {totalCryptoProfitPercent !== undefined ? formatPercent(totalCryptoProfitPercent, 1) : ''}
+                  </span>
                 </span>
               </div>
             )}
