@@ -196,7 +196,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       label: 'وسایل نقلیه و خودرو',
       value: toDisplayValue(vehiclesValue),
       color: '#3B82F6', // Blue
-      sublabel: 'خودرو و موتور',
+      sublabel: 'وسیله نقلیه',
     });
   }
 
@@ -452,7 +452,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1 font-bold text-blue-700 dark:text-blue-400">
                   <Car className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                  <span>خودرو و موتور</span>
+                  <span>وسیله نقلیه</span>
                 </span>
                 <span className="text-blue-700 dark:text-blue-300 font-bold">
                   {totalPortfolioValue + propertiesValue + vehiclesValue > 0

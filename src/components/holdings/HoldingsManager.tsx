@@ -176,7 +176,7 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
     },
     {
       id: 'vehicles' as const,
-      label: 'خودرو و موتور',
+      label: 'وسیله نقلیه',
       icon: Car,
       value: totalVehiclesValue,
       colorClass: 'text-blue-700 dark:text-blue-400',
@@ -201,7 +201,7 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
                 triggerHaptic('light');
                 setActiveCategory(cat.id);
               }}
-              className={`flex-1 min-w-[95px] sm:min-w-[120px] py-2.5 px-2 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all interactive-tap touch-target ${
+              className={`flex-1 min-w-[80px] sm:min-w-[110px] py-2.5 px-3 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all interactive-tap touch-target ${
                 isActive
                   ? cat.activeClass
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-transparent'

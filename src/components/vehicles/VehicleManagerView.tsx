@@ -18,6 +18,7 @@ import { CurrencyDisplayMode } from '../../hooks/useCurrencyDisplay';
 import { formatToman, toPersianDigits } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { AddEditVehicleModal } from './AddEditVehicleModal';
+import { ConfirmDeleteModal } from '../common/ConfirmDeleteModal';
 
 interface VehicleManagerViewProps {
   vehicles: VehicleItem[];
@@ -45,6 +46,7 @@ export const VehicleManagerView: React.FC<VehicleManagerViewProps> = ({
   const [filterType, setFilterType] = useState<'all' | VehicleType>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<VehicleItem | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
 
   // Filtered vehicles
   const filteredVehicles = useMemo(() => {
@@ -95,10 +97,14 @@ export const VehicleManagerView: React.FC<VehicleManagerViewProps> = ({
 
   const handleDelete = (id: string, title: string) => {
     triggerHaptic('medium');
-    if (window.confirm(`آیا از حذف وسیله نقلیه «${title}» مطمئن هستید؟`)) {
-      onRemoveVehicle(id);
-      onNotify?.(`«${title}» با موفقیت حذف شد`, 'info');
-    }
+    setPendingDelete({ id, title });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!pendingDelete) return;
+    onRemoveVehicle(pendingDelete.id);
+    onNotify?.(`«${pendingDelete.title}» با موفقیت حذف شد`, 'info');
+    setPendingDelete(null);
   };
 
   return (
@@ -421,6 +427,16 @@ export const VehicleManagerView: React.FC<VehicleManagerViewProps> = ({
         }}
         initialVehicle={editingVehicle}
         usdtRateTomans={usdtRateTomans}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={Boolean(pendingDelete)}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="حذف وسیله نقلیه"
+        itemName={pendingDelete?.title}
+        description="این وسیله نقلیه از سبد دارایی شما حذف می‌شود."
+        confirmLabel="حذف وسیله"
       />
     </div>
   );

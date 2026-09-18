@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Percent,
   Scale,
@@ -17,6 +17,7 @@ import { AppSettings, CryptoAsset } from '../../types/investment';
 import { formatPercent, toPersianDigits } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { NobitexIntegrationCard } from '../crypto/NobitexIntegrationCard';
+import { BottomSheetModal } from '../common/BottomSheetModal';
 
 interface PercentagesConfigProps {
   settings: AppSettings;
@@ -73,6 +74,7 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
   const holdingsOnlyAssets = cryptoAssets.filter((a) => a.isHoldingOnly);
   const totalCryptoTargetSum = strategyAssets.reduce((sum, a) => sum + (a.targetPercent || 0), 0);
   const isCryptoSum100 = Math.abs(totalCryptoTargetSum - 100) < 0.2;
+  const [isStrategyModalOpen, setIsStrategyModalOpen] = useState(false);
 
   // Opt a holdings-only coin into the buy strategy with an editable weight
   const handleAddHoldingToStrategy = (id: string) => {
@@ -240,9 +242,6 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
               <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">
                 نسبت تقسیم پس‌انداز بین طلا و کریپتو
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                تقسیم مبلغ پس‌انداز (پیش‌فرض: ۸۰٪ طلا و ۲۰٪ رمزارزها)
-              </p>
             </div>
           </div>
         </div>
@@ -250,14 +249,14 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
         {/* Ratio Badges */}
         <div className="grid grid-cols-2 gap-2.5">
           <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-gold-500/30 flex items-center justify-between">
-            <span className="text-xs text-slate-700 dark:text-slate-300 font-bold">سهم طلا:</span>
-            <span className="text-sm font-black text-amber-700 dark:text-gold-400">
+            <span className="text-[13px] text-slate-800 dark:text-slate-200 font-extrabold">سهم طلا:</span>
+            <span dir="ltr" className="text-base font-black tabular-nums text-amber-700 dark:text-gold-400">
               {formatPercent(settings.goldPercent)}
             </span>
           </div>
           <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-between">
-            <span className="text-xs text-slate-700 dark:text-slate-300 font-bold">سهم رمزارزها:</span>
-            <span className="text-sm font-black text-indigo-700 dark:text-indigo-400">
+            <span className="text-[13px] text-slate-800 dark:text-slate-200 font-extrabold">سهم رمزارزها:</span>
+            <span dir="ltr" className="text-base font-black tabular-nums text-indigo-700 dark:text-indigo-400">
               {formatPercent(settings.cryptoPercent)}
             </span>
           </div>
@@ -284,10 +283,10 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
                   : 'bg-slate-100 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
               }`}
             >
-              <div className="text-xs font-black dir-ltr text-center">
+              <div dir="ltr" className="text-sm font-black tabular-nums text-center">
                 {preset.label}
               </div>
-              <div className={`text-[9px] mt-0.5 font-medium ${
+              <div className={`text-[10px] mt-0.5 font-bold ${
                 settings.goldPercent === preset.gold ? 'text-slate-950' : 'text-slate-500 dark:text-slate-400'
               }`}>
                 {preset.sub}
@@ -443,9 +442,9 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
           <button
             type="button"
             onClick={handleSuggestedStrategyBalance}
-            className="py-2.5 px-3 rounded-2xl bg-amber-50/80 hover:bg-amber-100/80 dark:bg-gradient-to-r dark:from-gold-500/20 dark:via-indigo-500/20 dark:to-gold-500/20 dark:hover:from-gold-500/30 dark:hover:to-indigo-500/30 text-amber-800 dark:text-gold-300 border border-amber-200 dark:border-gold-500/40 text-xs font-black flex items-center justify-center gap-1.5 transition-all interactive-tap touch-target shadow-xs"
+            className="py-2.5 px-3 rounded-2xl bg-gradient-to-r from-amber-500 via-gold-500 to-amber-600 hover:from-amber-400 hover:to-gold-400 text-slate-950 text-xs font-black flex items-center justify-center gap-1.5 transition-all interactive-tap touch-target shadow-gold-glow"
           >
-            <Sparkles className="w-4 h-4 text-amber-700 dark:text-gold-400" />
+            <Sparkles className="w-4 h-4" />
             <span>تراز پیشنهادی (استراتژی اولیه)</span>
           </button>
 
@@ -472,13 +471,72 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
           )}
         </div>
 
-        {/* Strategy Breakdown Tooltip / Explanation */}
-        <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800/80 text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between gap-2">
-          <span>ترکیب استراتژی پیشنهادی:</span>
-          <span className="text-slate-800 dark:text-slate-300 font-bold text-[10px] dir-ltr text-right">
-            ETH 25% • BTC 19% • BNB 15% • ADA 9% • DOT 9% • TRX 8% • XRP 8% • DOGE 5% • POL 2%
+        {/* Strategy Breakdown — opens modal with weights + short explainer */}
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic('light');
+            setIsStrategyModalOpen(true);
+          }}
+          className="w-full p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800/80 text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between gap-2 hover:border-amber-300 dark:hover:border-gold-500/40 transition-all interactive-tap"
+        >
+          <span className="font-bold">مشاهده ترکیب استراتژی پیشنهادی</span>
+          <span className="text-slate-800 dark:text-slate-300 font-bold text-[10px] dir-ltr text-right truncate">
+            ETH 25% • BTC 19% • BNB 15% • ...
           </span>
-        </div>
+        </button>
+
+        <BottomSheetModal
+          isOpen={isStrategyModalOpen}
+          onClose={() => setIsStrategyModalOpen(false)}
+          title="ترکیب استراتژی پیشنهادی"
+          subtitle="وزن اولیه هر رمزارز در سبد خرید"
+          icon={<PieChart className="w-5 h-5 text-amber-500" />}
+          maxWidth="max-w-md"
+          footer={
+            <button
+              type="button"
+              onClick={handleSuggestedStrategyBalance}
+              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-gold-500 to-amber-600 hover:from-amber-400 hover:to-gold-400 text-slate-950 font-black text-xs shadow-gold-glow flex items-center justify-center gap-1.5 interactive-tap"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>اعمال تراز پیشنهادی</span>
+            </button>
+          }
+        >
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+            وزن‌ها بر اساس ارزش بازار و نقدشوندگی تنظیم شده‌اند؛ پس از اعمال می‌توانید هر درصد را دستی کم/زیاد کنید.
+          </p>
+          <div className="space-y-2">
+            {strategyAssets.length > 0 ? (
+              strategyAssets.map((a) => (
+                <div
+                  key={a.id}
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800"
+                >
+                  <span className="flex items-center gap-2 min-w-0">
+                    <span
+                      className="w-6 h-6 rounded-lg flex items-center justify-center font-black text-[10px] shrink-0"
+                      style={{ backgroundColor: `${a.color}25`, color: a.color }}
+                    >
+                      {a.symbol.toUpperCase().slice(0, 3)}
+                    </span>
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                      {a.symbol.toUpperCase()}
+                    </span>
+                  </span>
+                  <span dir="ltr" className="text-sm font-black tabular-nums text-amber-700 dark:text-gold-400">
+                    {toPersianDigits((a.targetPercent || 0).toFixed(1))}٪
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                ارزی در استراتژی خرید نیست.
+              </p>
+            )}
+          </div>
+        </BottomSheetModal>
 
         {/* Crypto Items List (strategy only — holdings-only stay out) */}
         <div className="space-y-2.5 pt-1">

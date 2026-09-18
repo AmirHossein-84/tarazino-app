@@ -473,7 +473,7 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                       </div>
 
                       <div className="text-left space-y-0.5 shrink-0">
-                        <span className="text-xs font-black text-slate-900 dark:text-slate-100 block dir-ltr text-right">
+                        <span className="text-xs font-black text-slate-900 dark:text-slate-100 block dir-ltr text-right tabular-nums whitespace-nowrap">
                           {priceTomans > 0
                             ? formatCurrency(priceTomans, { isUnitPrice: true, isTomanSuffix: true })
                             : 'در حال دریافت...'}
@@ -496,18 +496,6 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                         )}
                       </div>
                     </div>
-
-                    {/* Additional 24h high/low stats if available */}
-                    {stat && stat.dayHigh && stat.dayLow && (
-                      <div className="pt-1.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
-                        <span>
-                          کف ۲۴ ساعته: <strong className="text-slate-700 dark:text-slate-300 dir-ltr">{formatCurrency(Math.round(parseFloat(stat.dayLow) / 10), { isUnitPrice: true, isTomanSuffix: true })}</strong>
-                        </span>
-                        <span>
-                          سقف ۲۴ ساعته: <strong className="text-slate-700 dark:text-slate-300 dir-ltr">{formatCurrency(Math.round(parseFloat(stat.dayHigh) / 10), { isUnitPrice: true, isTomanSuffix: true })}</strong>
-                        </span>
-                      </div>
-                    )}
                   </div>
                 );
               })}

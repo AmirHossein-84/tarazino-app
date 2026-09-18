@@ -24,6 +24,7 @@ import { formatToman, toPersianDigits, getPersianFormattedDate } from '../../uti
 import { triggerHaptic } from '../../utils/haptics';
 import { CurrencyDisplayMode } from '../../hooks/useCurrencyDisplay';
 import { AddEditPropertyModal } from './AddEditPropertyModal';
+import { ConfirmDeleteModal } from '../common/ConfirmDeleteModal';
 
 interface PropertyManagerViewProps {
   properties: PropertyItem[];
@@ -62,6 +63,7 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
   const [selectedType, setSelectedType] = useState<PropertyType | 'all'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<PropertyItem | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
 
   // Portfolio Totals
   const totalValuationToman = useMemo(() => {
@@ -113,10 +115,14 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
 
   const handleDelete = (id: string, title: string) => {
     triggerHaptic('medium');
-    if (window.confirm(`آیا از حذف ملک "${title}" اطمینان دارید؟`)) {
-      onRemoveProperty(id);
-      onNotify?.(`ملک "${title}" حذف شد`, 'info');
-    }
+    setPendingDelete({ id, title });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!pendingDelete) return;
+    onRemoveProperty(pendingDelete.id);
+    onNotify?.(`ملک "${pendingDelete.title}" حذف شد`, 'info');
+    setPendingDelete(null);
   };
 
   const handleToggleNetWorth = (p: PropertyItem) => {
@@ -476,6 +482,16 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
         onSaveProperty={handleSaveModal}
         initialProperty={editingProperty}
         usdtRateTomans={usdtRateTomans}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={Boolean(pendingDelete)}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="حذف ملک"
+        itemName={pendingDelete?.title}
+        description="این ملک از سبد دارایی شما حذف می‌شود."
+        confirmLabel="حذف ملک"
       />
 
     </div>

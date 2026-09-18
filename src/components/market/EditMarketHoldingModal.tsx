@@ -5,6 +5,7 @@ import { parseNumberInput, formatToman } from '../../utils/formatters';
 import { numberToPersianWords } from '../../utils/numberToPersianWords';
 import { triggerHaptic } from '../../utils/haptics';
 import { BottomSheetModal } from '../common/BottomSheetModal';
+import { ConfirmDeleteModal } from '../common/ConfirmDeleteModal';
 
 interface EditMarketHoldingModalProps {
   item: CombinedMarketItem | null;
@@ -23,6 +24,7 @@ export const EditMarketHoldingModal: React.FC<EditMarketHoldingModalProps> = ({
 }) => {
   const [quantity, setQuantity] = useState('');
   const [averageBuyPrice, setAverageBuyPrice] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (item) {
@@ -51,10 +53,14 @@ export const EditMarketHoldingModal: React.FC<EditMarketHoldingModalProps> = ({
 
   const handleDelete = () => {
     triggerHaptic('heavy');
-    if (confirm(`آیا از حذف دارایی ${item.instrument.symbol} از سبد خود اطمینان دارید؟`)) {
-      onDelete(item.holding.id);
-      onClose();
-    }
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!item) return;
+    onDelete(item.holding.id);
+    setShowDeleteConfirm(false);
+    onClose();
   };
 
   const avgPriceNumber = parseNumberInput(averageBuyPrice);
@@ -92,10 +98,11 @@ export const EditMarketHoldingModal: React.FC<EditMarketHoldingModalProps> = ({
   );
 
   return (
-    <BottomSheetModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={`ویرایش دارایی بورسی: ${item.instrument.symbol}`}
+    <>
+      <BottomSheetModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={`ویرایش دارایی بورسی: ${item.instrument.symbol}`}
       subtitle={item.instrument.name}
       icon={<Edit3 className="w-4 h-4 text-amber-700 dark:text-gold-400" />}
       footer={footerActions}
@@ -148,7 +155,19 @@ export const EditMarketHoldingModal: React.FC<EditMarketHoldingModalProps> = ({
           </div>
         )}
 
-      </form>
-    </BottomSheetModal>
+        </form>
+      </BottomSheetModal>
+
+      <ConfirmDeleteModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleConfirmDelete}
+        title={`حذف دارایی ${item.instrument.symbol}`}
+        itemName={item.instrument.symbol}
+        description="این دارایی از سبد شما حذف می‌شود."
+        confirmLabel="حذف دارایی"
+        zIndex="z-[70]"
+      />
+    </>
   );
 };

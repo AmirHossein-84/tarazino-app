@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { nobitexService } from '../services/nobitex/NobitexService';
+import { physicalGoldService } from '../services/goldPrice/PhysicalGoldService';
 import { formatToman } from '../utils/formatters';
 
 const STORAGE_KEY = 'tarazino_currency_mode_v1';
@@ -56,6 +57,23 @@ export function useCurrencyDisplay(): UseCurrencyDisplayReturn {
   const refreshUsdtRate = useCallback(async () => {
     setIsFetchingRate(true);
     try {
+      // 1. Prefer TGJU dollar so «نرخ روز» matches DollarHoldingCard's source.
+      try {
+        const tgjuDollarTomans = await physicalGoldService.getDollarRateTomans();
+        if (tgjuDollarTomans > 0) {
+          setUsdtRateTomans(tgjuDollarTomans);
+          try {
+            localStorage.setItem(USDT_RATE_STORAGE_KEY, String(tgjuDollarTomans));
+          } catch {
+            // Ignore
+          }
+          return;
+        }
+      } catch {
+        // Fall through to Nobitex fallback below.
+      }
+
+      // 2. Fallback: Nobitex usdt-rls.
       const stats = await nobitexService.getMarketStats([], 'rls');
       const usdtStat = stats['usdt-rls'];
       if (usdtStat && usdtStat.latest) {
