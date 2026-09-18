@@ -16,6 +16,8 @@ import {
   Layers,
   ArrowRight,
   Info,
+  Zap,
+  Crosshair,
 } from 'lucide-react';
 import { AppSettings, CryptoAsset, PhysicalGoldItem, PhysicalGoldType } from '../../types/investment';
 import { CombinedMarketItem } from '../../hooks/useMarketData';
@@ -58,6 +60,7 @@ export const SellView: React.FC<SellViewProps> = ({
 }) => {
   const [inputAmount, setInputAmount] = useState<number>(0);
   const [displayInput, setDisplayInput] = useState<string>('');
+  const [percentInput, setPercentInput] = useState<string>('');
   const [sellMode, setSellMode] = useState<'balanced' | 'custom'>('balanced');
   const [includePhysicalGold, setIncludePhysicalGold] = useState<boolean>(false);
   const [includeBourseGold, setIncludeBourseGold] = useState<boolean>(true);
@@ -78,11 +81,47 @@ export const SellView: React.FC<SellViewProps> = ({
     const numeric = parseNumberInput(text);
     setInputAmount(numeric);
     setDisplayInput(numeric > 0 ? new Intl.NumberFormat('en-US').format(numeric) : '');
+    if (numeric > 0 && totalPortfolioValue > 0) {
+      const rate = usdtRateTomans > 0 ? usdtRateTomans : 93000;
+      const tomans = currencyMode === 'usd' ? Math.round(numeric * rate) : numeric;
+      const pct = (tomans / totalPortfolioValue) * 100;
+      setPercentInput(pct > 0 ? toPersianDigits(String(Number(pct.toFixed(2)))) : '');
+    } else {
+      setPercentInput('');
+    }
   };
 
   const handleQuickPercent = (pct: number) => {
     triggerHaptic('light');
     const targetTomans = Math.round(totalPortfolioValue * (pct / 100));
+    setPercentInput(toPersianDigits(String(pct)));
+    if (currencyMode === 'usd') {
+      const rate = usdtRateTomans > 0 ? usdtRateTomans : 93000;
+      const usdVal = Number((targetTomans / rate).toFixed(2));
+      setInputAmount(usdVal);
+      setDisplayInput(new Intl.NumberFormat('en-US').format(usdVal));
+    } else {
+      setInputAmount(targetTomans);
+      setDisplayInput(new Intl.NumberFormat('en-US').format(targetTomans));
+    }
+  };
+
+  const handlePercentChange = (text: string) => {
+    const normalized = toPersianDigits(text);
+    setPercentInput(normalized);
+    const pct = parseNumberInput(text);
+    if (!(totalPortfolioValue > 0) || pct <= 0) {
+      if (pct <= 0) {
+        setInputAmount(0);
+        setDisplayInput('');
+      }
+      return;
+    }
+    const clamped = Math.min(100, Math.max(0, pct));
+    if (pct > 100) {
+      setPercentInput(toPersianDigits('100'));
+    }
+    const targetTomans = Math.round(totalPortfolioValue * (clamped / 100));
     if (currencyMode === 'usd') {
       const rate = usdtRateTomans > 0 ? usdtRateTomans : 93000;
       const usdVal = Number((targetTomans / rate).toFixed(2));
@@ -160,6 +199,7 @@ export const SellView: React.FC<SellViewProps> = ({
     setIsConfirmModalOpen(false);
     setInputAmount(0);
     setDisplayInput('');
+    setPercentInput('');
     onNotify?.(
       `تعداد ${toPersianDigits(deductedCount)} قلم از دارایی‌های مشخص‌شده با موفقیت از موجودی کسر شدند.`,
       'success'
@@ -175,17 +215,17 @@ export const SellView: React.FC<SellViewProps> = ({
     <div className="space-y-5 pb-24 animate-fadeIn">
       
       {/* 1. Header Card */}
-      <div className="p-4 sm:p-6 rounded-3xl bg-gradient-to-br from-rose-50/80 via-white to-orange-50/40 dark:from-rose-950/40 dark:via-slate-900 dark:to-slate-950 border border-rose-200 dark:border-rose-500/30 shadow-sm dark:shadow-xl space-y-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 flex items-center justify-center font-bold text-lg border border-rose-200 dark:border-rose-500/30 shrink-0">
+      <div className="p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-rose-50/80 via-white to-orange-50/40 dark:from-rose-950/40 dark:via-slate-900 dark:to-slate-950 border border-rose-200 dark:border-rose-500/30 shadow-sm dark:shadow-xl">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-2xl bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 flex items-center justify-center font-bold text-lg border border-rose-200 dark:border-rose-500/30 shrink-0">
             <ArrowDownCircle className="w-5 h-5 text-rose-700 dark:text-rose-400" />
           </div>
-          <div>
-            <h2 className="text-base font-black text-slate-900 dark:text-slate-100">
-              فروش و نقد کردن هوشمند <span className="text-rose-700 dark:text-rose-400 text-xs">(Sell & Rebalance)</span>
+          <div className="min-w-0">
+            <h2 className="text-sm font-black text-slate-900 dark:text-slate-100 truncate">
+              فروش هوشمند
             </h2>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              مبلغ مورد نیاز برای نقد کردن را وارد کنید تا بهترین ترکیب فروش با حفظ توازن سبد محاسبه شود.
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+              بهترین ترکیب فروش با حفظ توازن سبد
             </p>
           </div>
         </div>
@@ -209,10 +249,31 @@ export const SellView: React.FC<SellViewProps> = ({
             value={displayInput}
             onChange={(e) => handleInputChange(e.target.value)}
             placeholder={currencyMode === 'usd' ? 'مثال: 500' : 'مثال: ۵۰,۰۰۰,۰۰۰'}
+            aria-label="مبلغ مورد نیاز برای فروش"
             className="w-full bg-slate-50 dark:bg-slate-950/90 border border-slate-300 dark:border-slate-700/80 rounded-2xl px-4 py-3 text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-rose-500 focus:bg-white transition-all dir-ltr text-right pl-20"
           />
           <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-xl bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
             {currencyMode === 'usd' ? 'USD $' : 'تومان'}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap">
+            درصد از سبد:
+          </label>
+          <div className="relative flex-1">
+            <input
+              type="text"
+              inputMode="decimal"
+              value={percentInput}
+              onChange={(e) => handlePercentChange(e.target.value)}
+              placeholder="مثال: 25"
+              aria-label="درصد از سبد"
+              className="w-full bg-slate-50 dark:bg-slate-950/90 border border-slate-300 dark:border-slate-700/80 rounded-2xl px-4 py-2.5 text-sm font-black text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-rose-500 focus:bg-white transition-all dir-ltr text-right pl-12"
+            />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
+              %
+            </div>
           </div>
         </div>
 
@@ -255,7 +316,7 @@ export const SellView: React.FC<SellViewProps> = ({
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-black text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-                <span>⚡</span>
+                <Zap className="w-3.5 h-3.5 text-amber-500" />
                 <span>فروش هوشمند متعادل (پیش‌فرض)</span>
               </span>
               <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300 font-bold">
@@ -281,7 +342,7 @@ export const SellView: React.FC<SellViewProps> = ({
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-black text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-                <span>🎯</span>
+                <Crosshair className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
                 <span>انتخاب دستی بخش‌های فروش</span>
               </span>
             </div>
@@ -511,7 +572,7 @@ export const SellView: React.FC<SellViewProps> = ({
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between text-xs font-bold text-amber-800 dark:text-amber-400">
                     <span className="flex items-center gap-1.5">
-                      <span>🥇</span>
+                      <Coins className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                       <span>طلای فیزیکی و سکه برای فروش:</span>
                     </span>
                     <span className="dir-ltr text-amber-700 dark:text-amber-300 font-black">
@@ -529,7 +590,7 @@ export const SellView: React.FC<SellViewProps> = ({
                         >
                           <div className="flex items-center justify-between">
                             <h4 className="text-xs font-black text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-                              <span>🪙</span>
+                              <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                               <span>{item.title}</span>
                             </h4>
 

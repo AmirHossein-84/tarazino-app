@@ -4,6 +4,7 @@ import { CryptoAsset } from '../../types/investment';
 import { parseNumberInput, formatToman } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { BottomSheetModal } from '../common/BottomSheetModal';
+import { ConfirmDeleteModal } from '../common/ConfirmDeleteModal';
 
 interface EditAssetModalProps {
   asset: CryptoAsset | null;
@@ -24,6 +25,7 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
   const [targetPercent, setTargetPercent] = useState('0');
   const [currentHoldingValue, setCurrentHoldingValue] = useState('');
   const [averageBuyPrice, setAverageBuyPrice] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (asset) {
@@ -69,10 +71,14 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
 
   const handleDelete = () => {
     triggerHaptic('heavy');
-    if (confirm(`آیا از حذف ارز ${asset.symbol} از سبد اطمینان دارید؟`)) {
-      onDelete(asset.id);
-      onClose();
-    }
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!asset) return;
+    onDelete(asset.id);
+    setShowDeleteConfirm(false);
+    onClose();
   };
 
   const footerActions = (
@@ -106,10 +112,11 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
   );
 
   return (
-    <BottomSheetModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={`ویرایش ارز ${asset.symbol}`}
+    <>
+      <BottomSheetModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={`ویرایش ارز ${asset.symbol}`}
       subtitle="ویرایش نام، درصد هدف، موجودی و میانگین خرید"
       icon={
         <span
@@ -184,7 +191,19 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
             </span>
           )}
         </div>
-      </form>
-    </BottomSheetModal>
+        </form>
+      </BottomSheetModal>
+
+      <ConfirmDeleteModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleConfirmDelete}
+        title={`حذف ارز ${asset.symbol}`}
+        itemName={asset.symbol}
+        description="این ارز از سبد دارایی شما حذف می‌شود."
+        confirmLabel="حذف ارز"
+        zIndex="z-[70]"
+      />
+    </>
   );
 };

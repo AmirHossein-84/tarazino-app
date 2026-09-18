@@ -337,6 +337,28 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
           return updated;
         });
       }
+
+      // TGJU dollar → dollarHolding.currentPriceTomans (no custom flag on
+      // DollarHolding, so always sync the live rate and stamp lastUpdated).
+      // getDollarRateTomans() reuses the fresh /ajax.json payload when
+      // fetchLiveRates just ran, otherwise it fetches on its own TTL.
+      try {
+        const dollarRateTomans = await physicalGoldService.getDollarRateTomans();
+        if (dollarRateTomans > 0) {
+          setDollarHoldingState((prev) => {
+            if (prev.currentPriceTomans === dollarRateTomans) return prev;
+            const updated = {
+              ...prev,
+              currentPriceTomans: dollarRateTomans,
+              lastUpdated: Date.now(),
+            };
+            saveDollarHolding(updated);
+            return updated;
+          });
+        }
+      } catch (dollarError) {
+        console.warn('Failed to refresh TGJU dollar rate:', dollarError);
+      }
     } catch (e) {
       console.warn('Failed to refresh physical gold prices:', e);
       setIsGoldFetchError(true);

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   History,
   TrendingUp,
@@ -16,6 +16,7 @@ import { PhysicalGoldSaleRecord } from '../../types/investment';
 import { formatToman, formatPercent, toPersianDigits } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { BottomSheetModal } from '../common/BottomSheetModal';
+import { ConfirmDeleteModal } from '../common/ConfirmDeleteModal';
 import { CurrencyDisplayMode } from '../../hooks/useCurrencyDisplay';
 
 interface PhysicalGoldHistoryModalProps {
@@ -61,20 +62,30 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
     };
   }, [sales]);
 
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
+  const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
+
   if (!isOpen) return null;
 
   const handleDelete = (id: string, title: string) => {
     triggerHaptic('medium');
-    if (window.confirm(`آیا از حذف این سابقه فروش "${title}" اطمینان دارید؟`)) {
-      onDeleteRecord(id);
-    }
+    setPendingDelete({ id, title });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!pendingDelete) return;
+    onDeleteRecord(pendingDelete.id);
+    setPendingDelete(null);
   };
 
   const handleClearAll = () => {
     triggerHaptic('heavy');
-    if (window.confirm('آیا از پاک‌سازی کل تاریخچه فروش‌های طلا اطمینان دارید؟')) {
-      onClearAll();
-    }
+    setShowClearAllConfirm(true);
+  };
+
+  const handleConfirmClearAll = () => {
+    onClearAll();
+    setShowClearAllConfirm(false);
   };
 
   const footerActions = (
@@ -101,10 +112,11 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
   );
 
   return (
-    <BottomSheetModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="دفتر کل سوابق فروش طلای فیزیکی و مسکوکات"
+    <>
+      <BottomSheetModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="دفتر کل سوابق فروش طلای فیزیکی و مسکوکات"
       subtitle="رهگیری سود/زیان محقق‌شده و تاریخچه نقد کردن دارایی‌های طلا"
       icon={<History className="w-5 h-5 text-amber-700 dark:text-amber-400" />}
       footer={footerActions}
@@ -275,5 +287,27 @@ export const PhysicalGoldHistoryModal: React.FC<PhysicalGoldHistoryModalProps> =
 
       </div>
     </BottomSheetModal>
+
+    <ConfirmDeleteModal
+      isOpen={Boolean(pendingDelete)}
+      onClose={() => setPendingDelete(null)}
+      onConfirm={handleConfirmDelete}
+      title="حذف سابقه فروش"
+      itemName={pendingDelete?.title}
+      description="این سابقه فروش طلا از دفتر کل حذف می‌شود."
+      confirmLabel="حذف سابقه"
+      zIndex="z-[70]"
+    />
+
+    <ConfirmDeleteModal
+      isOpen={showClearAllConfirm}
+      onClose={() => setShowClearAllConfirm(false)}
+      onConfirm={handleConfirmClearAll}
+      title="پاک‌سازی تاریخچه فروش‌های طلا"
+      description="تمام سوابق فروش طلای فیزیکی پاک می‌شود. این عمل غیرقابل بازگشت است."
+      confirmLabel="پاک‌سازی همه"
+      zIndex="z-[70]"
+    />
+    </>
   );
 };

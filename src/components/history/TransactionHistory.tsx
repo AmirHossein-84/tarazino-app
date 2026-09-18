@@ -3,6 +3,7 @@ import { History, Trash2, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
 import { TransactionRecord } from '../../types/investment';
 import { formatToman, toPersianDigits } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
+import { ConfirmDeleteModal } from '../common/ConfirmDeleteModal';
 
 interface TransactionHistoryProps {
   transactions: TransactionRecord[];
@@ -16,6 +17,7 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   onClearAll,
 }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
   const toggleExpand = (id: string) => {
     triggerHaptic('light');
@@ -29,9 +31,12 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 
   const handleClearAll = () => {
     triggerHaptic('heavy');
-    if (confirm('آیا از پاک کردن تمام تاریخچه خریدها مطمئن هستید؟')) {
-      onClearAll();
-    }
+    setShowClearAllConfirm(true);
+  };
+
+  const handleConfirmClearAll = () => {
+    onClearAll();
+    setShowClearAllConfirm(false);
   };
 
   return (
@@ -151,6 +156,15 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
           })}
         </div>
       )}
+
+      <ConfirmDeleteModal
+        isOpen={showClearAllConfirm}
+        onClose={() => setShowClearAllConfirm(false)}
+        onConfirm={handleConfirmClearAll}
+        title="پاک کردن تاریخچه خریدها"
+        description="تمام تاریخچه خریدهای ثبت‌شده پاک می‌شود. این عمل غیرقابل بازگشت است."
+        confirmLabel="پاک کردن همه"
+      />
     </div>
   );
 };
