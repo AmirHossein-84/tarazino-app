@@ -58,18 +58,16 @@ export const RiskBucketsOverviewCard: React.FC<RiskBucketsOverviewCardProps> = (
   return (
     <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-black text-slate-900 dark:text-white">
-              سبدهای سه‌گانه مدیریت ریسک
-            </h3>
-            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <h3 className="text-base font-black text-slate-900 dark:text-white">
+            سبدهای سه‌گانه مدیریت ریسک
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5 flex-wrap">
+            <span>تقسیم بهینه دارایی بر مبنای سن و تحمل ریسک شخصی</span>
+            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 whitespace-nowrap">
               فرمول سنی ({toPersianDigits(config?.userAge ?? 25)} سال)
             </span>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            تقسیم بهینه دارایی بر مبنای سن و تحمل ریسک شخصی
           </p>
         </div>
 
@@ -77,7 +75,7 @@ export const RiskBucketsOverviewCard: React.FC<RiskBucketsOverviewCardProps> = (
           <button
             type="button"
             onClick={onNavigateToHoldings}
-            className="text-xs font-bold text-amber-600 dark:text-gold-400 hover:underline flex items-center gap-0.5"
+            className="text-xs font-bold text-amber-600 dark:text-gold-400 hover:underline flex items-center gap-0.5 shrink-0 whitespace-nowrap pt-1"
           >
             <span>مدیریت دارایی‌ها</span>
             <ChevronRight className="w-4 h-4 rotate-180" />
