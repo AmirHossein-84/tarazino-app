@@ -214,12 +214,15 @@ export const PortfolioDonutChart: React.FC<PortfolioDonutChartProps> = React.mem
                     : 'bg-slate-50 dark:bg-slate-950/70 border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
-                <div className="flex items-center gap-1.5 min-w-0">
+                <div className="flex items-start gap-1.5 min-w-0">
                   <span
-                    className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"
+                    className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs mt-1"
                     style={{ backgroundColor: slice.color }}
                   />
-                  <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 truncate">
+                  <span
+                    className="text-[11px] font-black text-slate-800 dark:text-slate-200 leading-5 line-clamp-2"
+                    title={slice.label}
+                  >
                     {slice.label}
                   </span>
                 </div>

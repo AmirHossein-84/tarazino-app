@@ -144,10 +144,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   if (bourseGoldValue > 0) {
     chartItems.push({
       id: 'bourse_gold',
-      label: 'صندوق‌های طلای بورس',
+      label: 'طلای بورس',
       value: toDisplayValue(bourseGoldValue),
       color: '#D97706', // Rich Amber Gold
-      sublabel: 'صندوق‌های ETF طلا',
     });
   }
 
@@ -168,7 +167,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     label: 'ارزهای دیجیتال',
     value: toDisplayValue(totalCryptoValue),
     color: '#6366F1',
-    sublabel: `هدف: ${toPersianDigits(settings.cryptoPercent)}%`,
     targetPercent: settings.cryptoPercent,
   });
 
@@ -205,7 +203,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   if (tomanCashBalance > 0) {
     chartItems.push({
       id: 'cash',
-      label: 'موجودی نقدی نوبیتکس',
+      label: 'نقد نوبیتکس',
       value: toDisplayValue(tomanCashBalance),
       color: '#84CC16', // Lime
       sublabel: 'نقد ریالی',
