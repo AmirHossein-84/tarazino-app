@@ -16,7 +16,7 @@
     "@capacitor/cli": "^7.0.1",
     "@capacitor/core": "^7.0.1",
     "@capacitor/filesystem": "^7.1.8",
-    "@capacitor/ios": "^7.6.8",
+    "@capacitor/ios": "^7.6.9",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
     "lucide-react": "^1.16.0",
