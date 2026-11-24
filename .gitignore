@@ -48,3 +48,7 @@ Thumbs.db
 # invesment app screenshots
 invesment app screenshots
 store-assets/
+
+# Android signing keys
+*.jks
+*.keystore
