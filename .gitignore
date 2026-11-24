@@ -49,6 +49,7 @@ Thumbs.db
 invesment app screenshots
 store-assets/
 
-# Android signing keys
+# Android signing keys & local secrets
 *.jks
 *.keystore
+android/key.properties

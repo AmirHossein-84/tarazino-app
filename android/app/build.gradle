@@ -1,5 +1,13 @@
 apply plugin: 'com.android.application'
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { stream ->
+        keystoreProperties.load(stream)
+    }
+}
+
 android {
     namespace = "com.investment.portfolio"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -18,12 +26,18 @@ android {
     }
     signingConfigs {
         release {
-            def keystoreFile = file('../release-key.jks')
-            if (keystoreFile.exists()) {
+            def keystorePath = keystoreProperties.getProperty('storeFile') ?: 'release-key.jks'
+            def candidateFromRoot = rootProject.file(keystorePath)
+            def keystoreFile = candidateFromRoot.exists() ? candidateFromRoot : file(keystorePath)
+            def resolvedStorePassword = keystoreProperties.getProperty('storePassword') ?: System.getenv('ANDROID_KEYSTORE_PASSWORD')
+            def resolvedKeyAlias = keystoreProperties.getProperty('keyAlias') ?: System.getenv('ANDROID_KEY_ALIAS')
+            def resolvedKeyPassword = keystoreProperties.getProperty('keyPassword') ?: System.getenv('ANDROID_KEY_PASSWORD')
+
+            if (keystoreFile.exists() && resolvedStorePassword && resolvedKeyAlias && resolvedKeyPassword) {
                 storeFile keystoreFile
-                storePassword System.getenv("KEYSTORE_PASSWORD") ?: "investment_release_key_2026"
-                keyAlias System.getenv("KEY_ALIAS") ?: "investment"
-                keyPassword System.getenv("KEY_PASSWORD") ?: "investment_release_key_2026"
+                storePassword resolvedStorePassword
+                keyAlias resolvedKeyAlias
+                keyPassword resolvedKeyPassword
                 v1SigningEnabled true
                 v2SigningEnabled true
             }
@@ -35,6 +49,17 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    def needsReleaseSigning = taskGraph.allTasks.any {
+        it.name in ['assembleRelease', 'bundleRelease', 'packageRelease']
+    }
+    if (needsReleaseSigning && android.signingConfigs.release.storeFile == null) {
+        throw new GradleException(
+            'Release signing is not configured. Provide android/key.properties (or ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD env vars) and ensure android/release-key.jks exists.'
+        )
     }
 }
 
