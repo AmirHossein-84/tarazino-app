@@ -15,6 +15,7 @@ const testFiles = [
   path.join(__dirname, 'unit/formatters.test.ts'),
   path.join(__dirname, 'unit/storage.test.ts'),
   path.join(__dirname, 'unit/tsetmcMarketData.test.ts'),
+  path.join(__dirname, 'unit/security_and_isolation.test.ts'),
 
   // 4-Tier Verification Suites
   path.join(__dirname, 'verification/tier1_features_visual_tokens.test.ts'),

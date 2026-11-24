@@ -24,7 +24,6 @@ import { NobitexConfig } from '../../services/nobitex/types';
 import { DEFAULT_SETTINGS, DEFAULT_CRYPTO_ASSETS } from '../../constants/defaultData';
 import { toPersianDigits, getTodayPersianDate } from '../../utils/formatters';
 import { calculateRiskBuckets } from '../../utils/calculations';
-import { saveSettings } from '../../utils/storage';
 import { InlinePersianDatePicker } from '../common/InlinePersianDatePicker';
 
 interface WelcomeOnboardingModalProps {
@@ -72,6 +71,7 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
   // 1. Profile setup
   const [userName, setUserName] = useState('');
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
+  const [validationError, setValidationError] = useState('');
 
   // 2. Age, Birthdate & Risk Tolerance (3-Bucket Model)
   const [birthDate, setBirthDate] = useState<string>('1375/01/01');
@@ -114,9 +114,10 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
   const handleNext = () => {
     triggerHaptic('light');
     if (step === 2 && !userName.trim()) {
-      alert('لطفاً نام یا عنوان حساب خود را وارد کنید.');
+      setValidationError('لطفاً نام یا عنوان حساب خود را وارد کنید.');
       return;
     }
+    setValidationError('');
     if (step < totalSlides - 1) {
       setStep((s) => s + 1);
     } else {
@@ -175,7 +176,6 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
         highRiskPercent,
       },
     };
-    saveSettings(customSettings);
 
     // Build Crypto Assets
     let finalCryptoAssets: CryptoAsset[] = DEFAULT_CRYPTO_ASSETS;
@@ -255,7 +255,13 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
   const isSkippableStep = step === 5 || step === 6;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4" dir="rtl">
+    <div
+      role="dialog"
+      aria-modal="true"
+      data-modal-open="true"
+      className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4"
+      dir="rtl"
+    >
       <div className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] max-h-[92dvh] animate-fadeIn">
         
         {/* Header with Title & RTL Progress Dots */}
@@ -435,6 +441,11 @@ export const WelcomeOnboardingModal: React.FC<WelcomeOnboardingModalProps> = ({
                       <User className="w-5 h-5" />
                     </div>
                   </div>
+                  {validationError && step === 2 && (
+                    <p className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2 mt-1.5">
+                      {validationError}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">

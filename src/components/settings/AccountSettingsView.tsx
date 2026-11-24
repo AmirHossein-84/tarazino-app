@@ -56,9 +56,9 @@ export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({
                   {activeProfile?.name || 'حساب اصلی'}
                 </h3>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                 {profiles.length > 1
-                  ? `${profiles.length} حساب کاربری روی این دستگاه ثبت شده است`
+                  ? `${toPersianDigits(profiles.length)} حساب کاربری روی این دستگاه ثبت شده است`
                   : 'حساب فعال روی گوشی شما'}
               </p>
             </div>
@@ -79,15 +79,15 @@ export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({
 
         {/* Profile Stats Mini Bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-center space-y-0.5">
-            <span className="text-[10px] text-slate-500 dark:text-slate-400">سن و تاریخ تولد</span>
-            <span className="text-xs font-black text-slate-800 dark:text-slate-200 block font-mono">
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-center space-y-0.5 min-w-0">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">سن و تاریخ تولد</span>
+            <span className="text-xs font-black text-slate-800 dark:text-slate-200 block font-mono tabular-nums">
               {activeProfile?.age ? `${toPersianDigits(activeProfile.age)} سال` : '—'}
             </span>
           </div>
-          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-center space-y-0.5">
-            <span className="text-[10px] text-slate-500 dark:text-slate-400">پروفایل ریسک</span>
-            <span className="text-xs font-black text-amber-600 dark:text-gold-400 block">
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-center space-y-0.5 min-w-0">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">پروفایل ریسک</span>
+            <span className="text-xs font-black text-amber-600 dark:text-gold-400 block truncate">
               {activeProfile?.riskTolerance === 'conservative'
                 ? 'کم‌ریسک (۸٪)'
                 : activeProfile?.riskTolerance === 'aggressive'
@@ -95,14 +95,14 @@ export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({
                 : 'متعادل (۱۱٪)'}
             </span>
           </div>
-          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-center space-y-0.5">
-            <span className="text-[10px] text-slate-500 dark:text-slate-400">املاک و خودرو</span>
-            <span className="text-xs font-black text-slate-800 dark:text-slate-200 block">
-              {(activeProfile?.properties?.length || 0) + (activeProfile?.vehicles?.length || 0)} مورد
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-center space-y-0.5 min-w-0">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">املاک و خودرو</span>
+            <span className="text-xs font-black text-slate-800 dark:text-slate-200 block tabular-nums">
+              {toPersianDigits((activeProfile?.properties?.length || 0) + (activeProfile?.vehicles?.length || 0))} مورد
             </span>
           </div>
-          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-center space-y-0.5">
-            <span className="text-[10px] text-slate-500 dark:text-slate-400">اتصال نوبیتکس</span>
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-center space-y-0.5 min-w-0">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">اتصال نوبیتکس</span>
             <span className="text-xs font-black text-indigo-600 dark:text-indigo-400 block">
               {hasNobitex ? 'متصل ✓' : 'غیرفعال'}
             </span>

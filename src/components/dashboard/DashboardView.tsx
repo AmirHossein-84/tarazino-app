@@ -226,7 +226,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const totalNetWorth = totalPortfolioWithCash + propertiesValue + vehiclesValue + dollarValue;
 
   return (
-    <PullToRefreshContainer onRefresh={onRefreshAll} isRefreshing={isRefreshing} className="space-y-5 pb-24">
+    <PullToRefreshContainer onRefresh={onRefreshAll} isRefreshing={isRefreshing} className="space-y-4 sm:space-y-5 min-w-0">
       
       {/* 1. HERO NET WORTH CARD */}
       <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 border border-slate-200/90 dark:border-slate-700/80 shadow-sm dark:shadow-2xl relative overflow-hidden space-y-4">
@@ -320,7 +320,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   {totalPortfolioValue > 0 ? formatPercent((physicalGoldValue / totalPortfolioValue) * 100) : '۰٪'}
                 </span>
               </div>
-              <div className="text-[15px] font-black text-slate-900 dark:text-slate-100 dir-ltr text-right tabular-nums whitespace-nowrap">
+              <div className="text-sm sm:text-[15px] font-black text-slate-900 dark:text-slate-100 dir-ltr text-right tabular-nums truncate">
                 {formatCurrency(physicalGoldValue, false)}
               </div>
               <div className="text-[10px] text-slate-500 dark:text-slate-400">
@@ -333,7 +333,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {bourseGoldValue > 0 && (
             <div
               onClick={() => onNavigateToTab('gold')}
-              className="p-3 rounded-2xl bg-amber-50/70 dark:bg-slate-950/80 border border-amber-300/80 dark:border-amber-600/40 hover:border-amber-400 dark:hover:border-amber-500/70 transition-all cursor-pointer space-y-1"
+              className="p-3 rounded-2xl bg-amber-50/70 dark:bg-slate-950/80 border border-amber-300/80 dark:border-amber-600/40 hover:border-amber-400 dark:hover:border-amber-500/70 transition-all cursor-pointer space-y-1 min-w-0"
             >
               <div className="flex items-center justify-between gap-1 text-[11px] text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1 font-bold text-amber-800 dark:text-amber-500 min-w-0">
@@ -344,7 +344,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   {totalPortfolioValue > 0 ? formatPercent((bourseGoldValue / totalPortfolioValue) * 100) : '۰٪'}
                 </span>
               </div>
-              <div className="text-[15px] font-black text-slate-900 dark:text-slate-100 dir-ltr text-right tabular-nums whitespace-nowrap">
+              <div className="text-sm sm:text-[15px] font-black text-slate-900 dark:text-slate-100 dir-ltr text-right tabular-nums truncate">
                 {formatCurrency(bourseGoldValue, false)}
               </div>
               <div className="text-[10px] text-slate-500 dark:text-slate-400">
@@ -357,7 +357,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {physicalGoldValue === 0 && bourseGoldValue === 0 && (
             <div
               onClick={() => onNavigateToTab('gold')}
-              className="p-3 rounded-2xl bg-amber-50/70 dark:bg-slate-950/80 border border-amber-300/80 dark:border-gold-500/30 hover:border-amber-400 dark:hover:border-gold-500/60 transition-all cursor-pointer space-y-1"
+              className="p-3 rounded-2xl bg-amber-50/70 dark:bg-slate-950/80 border border-amber-300/80 dark:border-gold-500/30 hover:border-amber-400 dark:hover:border-gold-500/60 transition-all cursor-pointer space-y-1 min-w-0"
             >
               <div className="flex items-center justify-between gap-1 text-[11px] text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1 font-bold text-amber-800 dark:text-gold-400 min-w-0">
@@ -366,7 +366,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </span>
                 <span className="text-amber-700 dark:text-gold-300 font-bold shrink-0">{formatPercent(goldPercentActual)}</span>
               </div>
-              <div className="text-[15px] font-black text-slate-900 dark:text-slate-100 dir-ltr text-right tabular-nums whitespace-nowrap">
+              <div className="text-sm sm:text-[15px] font-black text-slate-900 dark:text-slate-100 dir-ltr text-right tabular-nums truncate">
                 {formatCurrency(goldHoldingValue, false)}
               </div>
               <div className="text-[10px] text-slate-500 dark:text-slate-400">
@@ -378,7 +378,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Crypto Chip */}
           <div
             onClick={() => onNavigateToTab('crypto')}
-            className="p-3 rounded-2xl bg-indigo-50/70 dark:bg-slate-950/80 border border-indigo-200 dark:border-indigo-500/30 hover:border-indigo-300 dark:hover:border-indigo-500/60 transition-all cursor-pointer space-y-1"
+            className="p-3 rounded-2xl bg-indigo-50/70 dark:bg-slate-950/80 border border-indigo-200 dark:border-indigo-500/30 hover:border-indigo-300 dark:hover:border-indigo-500/60 transition-all cursor-pointer space-y-1 min-w-0"
           >
             <div className="flex items-center justify-between gap-1 text-[11px] text-slate-500 dark:text-slate-400">
               <span className="flex items-center gap-1 font-bold text-indigo-700 dark:text-indigo-400 min-w-0">
@@ -387,7 +387,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </span>
               <span className="text-indigo-700 dark:text-indigo-300 font-bold shrink-0">{formatPercent(cryptoPercentActual)}</span>
             </div>
-            <div className="text-[15px] font-black text-slate-900 dark:text-slate-100 dir-ltr text-right tabular-nums whitespace-nowrap">
+            <div className="text-sm sm:text-[15px] font-black text-slate-900 dark:text-slate-100 dir-ltr text-right tabular-nums truncate">
               {formatCurrency(totalCryptoValue, false)}
             </div>
             <div className="text-[10px] text-slate-500 dark:text-slate-400">
@@ -546,25 +546,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         />
 
         {/* Health status banner */}
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-xs">
-          <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-xs min-w-0">
+          <div className={`p-2.5 rounded-xl border flex items-center gap-2 min-w-0 ${
             isGoldUnderweight
               ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-gold-500/40 text-amber-800 dark:text-gold-300'
               : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
           }`}>
             <span className={`w-2 h-2 rounded-full shrink-0 ${isGoldUnderweight ? 'bg-amber-500 dark:bg-gold-400 animate-pulse' : 'bg-emerald-500'}`} />
-            <span className="whitespace-nowrap">
+            <span className="truncate">
               طلا: {formatPercent(goldPercentActual)} {isGoldUnderweight && 'نیاز به خرید'}
             </span>
           </div>
 
-          <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
+          <div className={`p-2.5 rounded-xl border flex items-center gap-2 min-w-0 ${
             isCryptoUnderweight
               ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-500/40 text-indigo-800 dark:text-indigo-300'
               : 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
           }`}>
             <span className={`w-2 h-2 rounded-full shrink-0 ${isCryptoUnderweight ? 'bg-indigo-500 dark:bg-indigo-400 animate-pulse' : 'bg-emerald-500'}`} />
-            <span className="whitespace-nowrap">
+            <span className="truncate">
               کریپتو: {formatPercent(cryptoPercentActual)} {isCryptoUnderweight && 'نیاز به خرید'}
             </span>
           </div>
@@ -597,9 +597,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-600 dark:text-gold-400" />
+              <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-2 flex-wrap">
+                <Sparkles className="w-4 h-4 text-amber-600 dark:text-gold-400 shrink-0" />
                 <span>محاسبه و خرید هوشمند دارایی‌ها</span>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-500/10 text-amber-800 dark:text-gold-300">
+                  سهم پس‌انداز: {formatPercent(settings.savingsPercent)}
+                </span>
               </h3>
             </div>
 

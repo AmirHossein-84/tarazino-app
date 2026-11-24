@@ -41,8 +41,8 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
           <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
             پشتیبان‌گیری و ذخیره‌سازی داده‌ها
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            اطلاعات شما در حافظه محلی گوشی ذخیره می‌شود. می‌توانید از اطلاعات خود فایل خروجی بگیرید.
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            اطلاعات هر پروفایل به صورت مجزا ذخیره می‌شود. بازیابی فایل بکاپ فقط روی پروفایل فعال فعلی اعمال می‌گردد و به پروفایل‌های دیگر دست نمی‌زند.
           </p>
         </div>
       </div>
@@ -51,17 +51,17 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
         {/* Export Backup Button */}
         <button
           onClick={onExport}
-          className="p-4 rounded-2xl bg-white dark:bg-slate-900/90 hover:bg-slate-50 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 flex items-center gap-3 text-right transition-all cursor-pointer group shadow-xs"
+          className="p-4 rounded-2xl bg-white dark:bg-slate-900/90 hover:bg-slate-50 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 flex items-center gap-3 text-right transition-all cursor-pointer group shadow-xs min-w-0"
         >
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform border border-emerald-200 dark:border-transparent">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform border border-emerald-200 dark:border-transparent shrink-0">
             <Download className="w-5 h-5" />
           </div>
-          <div>
-            <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
+          <div className="min-w-0">
+            <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
               دانلود فایل پشتیبان (Backup)
             </div>
-            <div className="text-[11px] text-slate-500 dark:text-slate-400">
-              ذخیره تمامی دارایی‌ها و تنظیمات در قالب فایل JSON
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+              ذخیره دارایی‌ها و تنظیمات پروفایل فعال در قالب JSON
             </div>
           </div>
         </button>
@@ -69,7 +69,7 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
         {/* Import Backup Button */}
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="p-4 rounded-2xl bg-white dark:bg-slate-900/90 hover:bg-slate-50 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 flex items-center gap-3 text-right transition-all cursor-pointer group shadow-xs"
+          className="p-4 rounded-2xl bg-white dark:bg-slate-900/90 hover:bg-slate-50 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 flex items-center gap-3 text-right transition-all cursor-pointer group shadow-xs min-w-0"
         >
           <input
             type="file"
@@ -78,15 +78,15 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
             accept=".json"
             className="hidden"
           />
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 flex items-center justify-center group-hover:scale-105 transition-transform border border-indigo-200 dark:border-transparent">
+          <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 flex items-center justify-center group-hover:scale-105 transition-transform border border-indigo-200 dark:border-transparent shrink-0">
             <Upload className="w-5 h-5" />
           </div>
-          <div>
-            <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
+          <div className="min-w-0">
+            <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
               بازیابی از فایل پشتیبان (Restore)
             </div>
-            <div className="text-[11px] text-slate-500 dark:text-slate-400">
-              بارگذاری فایل بکاپ و جایگزینی داده‌ها
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+              بارگذاری فایل بکاپ و جایگزینی در پروفایل فعال
             </div>
           </div>
         </button>

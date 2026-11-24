@@ -87,8 +87,8 @@ export const GoldBuyCard: React.FC<GoldBuyCardProps> = ({
               <Coins className="w-5 h-5 text-amber-600 dark:text-gold-400" />
             </div>
           </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2 min-w-0">
               <h3 className="text-base font-black text-slate-900 dark:text-slate-100 truncate">
                 خرید پیشنهادی <span className="gold-gradient-text">صندوق طلای بورس</span>
               </h3>
@@ -128,22 +128,22 @@ export const GoldBuyCard: React.FC<GoldBuyCardProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         
         {/* Toman Value Box */}
-        <div className="p-4 rounded-2xl bg-white/90 dark:bg-slate-950/90 border border-amber-200 dark:border-amber-500/30 flex items-center justify-between shadow-sm dark:shadow-none">
-          <div>
-            <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-1">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white/90 dark:bg-slate-950/90 border border-amber-200 dark:border-amber-500/30 flex items-center justify-between gap-2 shadow-sm dark:shadow-none min-w-0">
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-1 truncate">
               مبلغ کل خرید طلا به تومان
             </div>
-            <div className="text-xl sm:text-2xl font-black text-amber-700 dark:text-gold-400 dir-ltr tabular-nums whitespace-nowrap">
+            <div className="text-lg sm:text-2xl font-black text-amber-700 dark:text-gold-400 dir-ltr tabular-nums truncate">
               {formatToman(goldBuyAmount)}{' '}
               <span className="text-xs font-bold text-slate-500 dark:text-slate-400">تومان</span>
             </div>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex flex-wrap items-center gap-2 mt-1">
               <span className="text-[11px] text-slate-500 dark:text-slate-400 dir-ltr font-medium tabular-nums">
                 نرخ واحد: <strong className="text-slate-800 dark:text-slate-200">{formatToman(unitPriceTomans)} ت</strong>
               </span>
               {quote && (
                 <span
-                  className={`text-[10px] font-black px-1.5 py-0.5 rounded-md dir-ltr ${
+                  className={`text-[10px] font-black px-1.5 py-0.5 rounded-md dir-ltr shrink-0 ${
                     quote.priceChangePercent >= 0
                       ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
                       : 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30'
@@ -156,7 +156,7 @@ export const GoldBuyCard: React.FC<GoldBuyCardProps> = ({
           </div>
           <button
             onClick={handleCopyAmount}
-            className={`p-3 rounded-2xl border transition-all interactive-tap touch-target ${
+            className={`p-3 rounded-2xl border transition-all interactive-tap touch-target shrink-0 ${
               copiedAmount
                 ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/50'
                 : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 hover:text-amber-700 dark:text-slate-300 dark:hover:text-gold-400 border border-slate-200 dark:border-slate-700/80'
@@ -172,23 +172,23 @@ export const GoldBuyCard: React.FC<GoldBuyCardProps> = ({
         </div>
 
         {/* Calculated Units Box */}
-        <div className="p-4 rounded-2xl bg-white/90 dark:bg-slate-950/90 border border-amber-200 dark:border-amber-500/30 flex items-center justify-between shadow-sm dark:shadow-none">
-          <div>
-            <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
-              <Layers className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400" />
-              <span>تعداد واحد / برگه قابل سفارش در کارگزاری</span>
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white/90 dark:bg-slate-950/90 border border-amber-200 dark:border-amber-500/30 flex items-center justify-between gap-2 shadow-sm dark:shadow-none min-w-0">
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1 min-w-0">
+              <Layers className="w-3.5 h-3.5 text-amber-600 dark:text-gold-400 shrink-0" />
+              <span className="truncate">تعداد واحد / برگه قابل سفارش در کارگزاری</span>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 dir-ltr tabular-nums whitespace-nowrap">
+            <div className="text-lg sm:text-2xl font-black text-slate-900 dark:text-slate-100 dir-ltr tabular-nums truncate">
               {toPersianDigits(new Intl.NumberFormat('en-US').format(unitsToBuy))}{' '}
               <span className="text-xs font-bold text-amber-700 dark:text-gold-400">واحد {selectedSymbol}</span>
             </div>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5 tabular-nums">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5 tabular-nums truncate">
               مبلغ دقیق سفارش: <span className="dir-ltr">{formatToman(exactBuyValue)}</span> تومان
             </span>
           </div>
           <button
             onClick={handleCopyUnits}
-            className={`p-3 rounded-2xl border transition-all interactive-tap touch-target ${
+            className={`p-3 rounded-2xl border transition-all interactive-tap touch-target shrink-0 ${
               copiedUnits
                 ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/50'
                 : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 hover:text-amber-700 dark:text-slate-300 dark:hover:text-gold-400 border border-slate-200 dark:border-slate-700/80'

@@ -212,7 +212,7 @@ export const SellView: React.FC<SellViewProps> = ({
     calculationResult.physicalGoldSales.length > 0;
 
   return (
-    <div className="space-y-5 pb-24 animate-fadeIn">
+    <div className="space-y-4 sm:space-y-5 animate-fadeIn min-w-0">
       
       {/* 1. Header Card */}
       <div className="p-3 sm:p-4 rounded-3xl bg-gradient-to-br from-rose-50/80 via-white to-orange-50/40 dark:from-rose-950/40 dark:via-slate-900 dark:to-slate-950 border border-rose-200 dark:border-rose-500/30 shadow-sm dark:shadow-xl">
@@ -354,8 +354,8 @@ export const SellView: React.FC<SellViewProps> = ({
 
         {/* Custom Mode Checkboxes */}
         {sellMode === 'custom' && (
-          <div className="pt-2 grid grid-cols-3 gap-2 animate-fadeIn">
-            <label className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center gap-2 cursor-pointer text-xs text-slate-800 dark:text-slate-200">
+          <div className="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-2 animate-fadeIn min-w-0">
+            <label className="touch-target p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center gap-2 cursor-pointer text-xs text-slate-800 dark:text-slate-200 min-w-0">
               <input
                 type="checkbox"
                 checked={includeBourseGold}
@@ -404,10 +404,10 @@ export const SellView: React.FC<SellViewProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
-              <div className="p-2.5 rounded-2xl bg-white dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80">
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 block">ارزش باقی‌مانده سبد:</span>
-                <span className="font-black text-slate-900 dark:text-slate-100 dir-ltr block text-right mt-0.5">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs min-w-0">
+              <div className="p-2.5 rounded-2xl bg-white dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 min-w-0">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">ارزش باقی‌مانده سبد:</span>
+                <span className="font-black text-slate-900 dark:text-slate-100 dir-ltr tabular-nums block text-right mt-0.5 truncate">
                   {formatCurrency(calculationResult.resultingPortfolioValue)}
                 </span>
               </div>

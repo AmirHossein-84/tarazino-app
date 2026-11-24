@@ -45,6 +45,7 @@ export const AddEditVehicleModal: React.FC<AddEditVehicleModalProps> = ({
   const [title, setTitle] = useState('');
   const [vehicleType, setVehicleType] = useState<VehicleType>('car');
   const [model, setModel] = useState('');
+  const [validationError, setValidationError] = useState('');
   const [year, setYear] = useState('');
   const [mileageKm, setMileageKm] = useState('');
   const [purchasePriceToman, setPurchasePriceToman] = useState('');
@@ -96,9 +97,10 @@ export const AddEditVehicleModal: React.FC<AddEditVehicleModalProps> = ({
   const handleSave = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!title.trim()) {
-      alert('لطفاً عنوان یا نام وسیله نقلیه را وارد کنید.');
+      setValidationError('لطفاً عنوان یا نام وسیله نقلیه را وارد کنید.');
       return;
     }
+    setValidationError('');
 
     triggerHaptic('medium');
 
@@ -152,6 +154,11 @@ export const AddEditVehicleModal: React.FC<AddEditVehicleModalProps> = ({
       maxWidth="max-w-lg"
     >
       <form onSubmit={handleSave} className="space-y-4">
+        {validationError && (
+          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-bold">
+            {validationError}
+          </div>
+        )}
         
         {/* 1. Vehicle Type Selector */}
         <div className="space-y-1.5">

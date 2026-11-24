@@ -14,6 +14,8 @@ import {
   Plus,
   TrendingUp,
   TrendingDown,
+  Banknote,
+  Trash2,
 } from 'lucide-react';
 import {
   PhysicalGoldItem,
@@ -26,6 +28,8 @@ import { triggerHaptic } from '../../utils/haptics';
 import { EditPhysicalGoldModal } from './EditPhysicalGoldModal';
 import { AddGoldLotModal } from './AddGoldLotModal';
 import { PhysicalGoldHistoryModal } from './PhysicalGoldHistoryModal';
+import { SellPhysicalGoldModal } from './SellPhysicalGoldModal';
+import { ConfirmDeleteModal } from '../common/ConfirmDeleteModal';
 import { CurrencyDisplayMode } from '../../hooks/useCurrencyDisplay';
 import { calculateGoldItemPnl, calculateTotalPhysicalGoldPnl } from '../../utils/goldPnlCalculators';
 
@@ -41,6 +45,15 @@ interface PhysicalGoldSectionProps {
   onRefresh: () => Promise<void>;
   onUpdateQuantity: (id: PhysicalGoldType, quantity: number) => void;
   onUpdatePrice: (id: PhysicalGoldType, priceTomans: number, isCustom: boolean) => void;
+  onUpdateCostBasis?: (id: PhysicalGoldType, avgCostTomans: number) => void;
+  onRecordGoldSale?: (
+    id: PhysicalGoldType,
+    quantitySold: number,
+    saleUnitPriceTomans?: number,
+    notes?: string,
+    persianSaleDate?: string
+  ) => void;
+  onRemoveItem?: (id: PhysicalGoldType) => void;
   onAddGoldBuyLot?: (lot: Omit<PhysicalGoldBuyLot, 'id' | 'totalCostTomans'>) => void;
   onDeleteGoldSale?: (id: string) => void;
   onClearGoldSales?: () => void;
@@ -59,12 +72,17 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
   onRefresh,
   onUpdateQuantity,
   onUpdatePrice,
+  onUpdateCostBasis,
+  onRecordGoldSale,
+  onRemoveItem,
   onAddGoldBuyLot,
   onDeleteGoldSale,
   onClearGoldSales,
   onNotify,
 }) => {
   const [selectedItem, setSelectedItem] = useState<PhysicalGoldItem | null>(null);
+  const [sellTargetItem, setSellTargetItem] = useState<PhysicalGoldItem | null>(null);
+  const [deleteTargetItem, setDeleteTargetItem] = useState<PhysicalGoldItem | null>(null);
   const [isAddLotOpen, setIsAddLotOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [selectedLotGoldType, setSelectedLotGoldType] = useState<PhysicalGoldType>('gold_18k');
@@ -82,7 +100,7 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
   };
 
   const hasAnyPrice = items.some((i) => i.unitPriceTomans > 0);
-  const displayedItems = items.filter((i) => !i.id.startsWith('coin_') && i.quantity > 0);
+  const displayedItems = items.filter((i) => i.quantity > 0);
 
   return (
     <div className="p-4 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-yellow-50/40 dark:from-amber-950/30 dark:via-slate-900 dark:to-slate-950 border border-amber-200 dark:border-gold-500/40 shadow-sm dark:shadow-xl space-y-4">
@@ -338,23 +356,66 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
                 </div>
               )}
 
-              {/* Quick Action: Register Buy Lot */}
-              {onAddGoldBuyLot && (
-                <div className="pt-1 flex items-center justify-end">
+              {/* Card Actions: Sell, Edit, Add Buy Lot, Delete */}
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <button
                     type="button"
                     onClick={() => {
                       triggerHaptic('light');
-                      setSelectedLotGoldType(item.id);
-                      setIsAddLotOpen(true);
+                      setSellTargetItem(item);
                     }}
-                    className="text-[10px] font-bold text-amber-700 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300 flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+                    className="min-h-[36px] px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 text-[11px] font-black flex items-center gap-1 transition-colors interactive-tap"
+                    title={`فروش ${item.title}`}
                   >
-                    <Plus className="w-3 h-3" />
-                    <span>خرید جدید</span>
+                    <Banknote className="w-3.5 h-3.5" />
+                    <span>فروش</span>
+                  </button>
+
+                  {onAddGoldBuyLot && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic('light');
+                        setSelectedLotGoldType(item.id);
+                        setIsAddLotOpen(true);
+                      }}
+                      className="min-h-[36px] px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 text-[11px] font-bold flex items-center gap-1 transition-colors interactive-tap"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>خرید جدید</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic('light');
+                      setSelectedItem(item);
+                    }}
+                    className="min-h-[36px] px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold flex items-center gap-1 transition-colors"
+                    title={`ویرایش ${item.title}`}
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>ویرایش</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic('light');
+                      setDeleteTargetItem(item);
+                    }}
+                    className="min-h-[36px] min-w-[36px] px-2 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-500/30 text-[11px] font-bold flex items-center justify-center transition-colors"
+                    aria-label={`حذف ${item.title}`}
+                    title={`حذف ${item.title}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              )}
+              </div>
 
             </div>
           );
@@ -375,12 +436,43 @@ export const PhysicalGoldSection: React.FC<PhysicalGoldSectionProps> = ({
         onSaveQuantity={onUpdateQuantity}
         onSavePrice={onUpdatePrice}
         onSaveAverageBuyPrice={(id, avgCost) => {
-          onUpdateQuantity(id, selectedItem?.quantity || 0);
-          const itm = items.find((i) => i.id === id);
-          if (itm) {
-            itm.averageBuyPriceTomans = avgCost;
+          onUpdateCostBasis?.(id, avgCost);
+        }}
+      />
+
+      {/* Sell Physical Gold Modal (Partial or Full Sale) */}
+      <SellPhysicalGoldModal
+        item={sellTargetItem}
+        goldBuyLots={goldBuyLots}
+        isOpen={!!sellTargetItem}
+        onClose={() => setSellTargetItem(null)}
+        onConfirmSale={(id, qtySold, unitPrice, notes, persianSaleDate) => {
+          if (onRecordGoldSale) {
+            onRecordGoldSale(id, qtySold, unitPrice, notes, persianSaleDate);
+          } else if (sellTargetItem) {
+            const nextQty = Math.max(0, Number(((sellTargetItem.quantity || 0) - qtySold).toFixed(3)));
+            onUpdateQuantity(id, nextQty);
           }
         }}
+      />
+
+      {/* Confirm Asset Removal Modal */}
+      <ConfirmDeleteModal
+        isOpen={!!deleteTargetItem}
+        onClose={() => setDeleteTargetItem(null)}
+        onConfirm={() => {
+          if (!deleteTargetItem) return;
+          if (onRemoveItem) {
+            onRemoveItem(deleteTargetItem.id);
+          } else {
+            onUpdateQuantity(deleteTargetItem.id, 0);
+          }
+          setDeleteTargetItem(null);
+        }}
+        title="حذف دارایی طلای فیزیکی"
+        itemName={deleteTargetItem ? `${deleteTargetItem.title} (${toPersianDigits(deleteTargetItem.quantity)} ${deleteTargetItem.unit})` : ''}
+        description="با تایید حذف، موجودی و پله‌های خرید مرتبط با این دارایی پاک می‌شوند و از ارزش کل پرتفوی کسر خواهد شد. سوابق فروش ثبت‌شده قبلی محفوظ می‌مانند."
+        confirmLabel="حذف کامل دارایی"
       />
 
       {/* Add Gold Lot Modal */}

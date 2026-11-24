@@ -41,11 +41,13 @@ export const AddGoldLotModal: React.FC<AddGoldLotModalProps> = ({
   const [purchasePriceTomans, setPurchasePriceTomans] = useState('');
   const [purchaseDate, setPurchaseDate] = useState('');
   const [notes, setNotes] = useState('');
+  const [validationError, setValidationError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
       setSelectedType(defaultSelectedType);
       setQuantity('');
+      setValidationError('');
       // Pre-fill live market price as default suggestion
       const currentItem = items.find((i) => i.id === defaultSelectedType);
       setPurchasePriceTomans(currentItem?.unitPriceTomans ? String(currentItem.unitPriceTomans) : '');
@@ -73,9 +75,10 @@ export const AddGoldLotModal: React.FC<AddGoldLotModalProps> = ({
   const handleSave = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (numQty <= 0 || numUnitPrice <= 0) {
-      alert('لطفاً مقدار و قیمت خرید واحد را معتبر وارد نمایید.');
+      setValidationError('لطفاً مقدار و قیمت خرید واحد را معتبر وارد نمایید.');
       return;
     }
+    setValidationError('');
 
     triggerHaptic('medium');
     onSaveLot({
@@ -119,6 +122,11 @@ export const AddGoldLotModal: React.FC<AddGoldLotModalProps> = ({
       maxWidth="max-w-md"
     >
       <form onSubmit={handleSave} className="space-y-4">
+        {validationError && (
+          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-bold">
+            {validationError}
+          </div>
+        )}
         
         {/* 1. Item Selector Chips */}
         <div className="space-y-1.5">

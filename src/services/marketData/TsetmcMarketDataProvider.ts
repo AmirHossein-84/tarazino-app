@@ -8,6 +8,7 @@ import {
   HistoricalPricePoint,
   AssetType,
 } from './types';
+import { fetchWithTimeout, redactSecrets, safeJsonParse } from '../../utils/security';
 
 /**
  * Normalizes Persian/Arabic characters and digits for consistent search matching
@@ -102,11 +103,17 @@ export class TsetmcMarketDataProvider implements MarketDataProvider {
     }
   }
 
-  private async fetchWithThrottle(urlPath: string): Promise<any> {
+  private async fetchWithThrottle(urlPath: string, signal?: AbortSignal): Promise<any> {
+    if (signal?.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
+    }
     const now = Date.now();
     const timeSinceLast = now - this.lastRequestTime;
     if (timeSinceLast < this.minRequestIntervalMs) {
       await new Promise((resolve) => setTimeout(resolve, this.minRequestIntervalMs - timeSinceLast));
+    }
+    if (signal?.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
     }
     this.lastRequestTime = Date.now();
 
@@ -114,10 +121,12 @@ export class TsetmcMarketDataProvider implements MarketDataProvider {
     const primaryUrl = `${this.baseUrl}${urlPath}`;
     
     try {
-      const response = await fetch(primaryUrl, {
+      const response = await fetchWithTimeout(primaryUrl, {
         headers: {
           'Accept': 'application/json, text/plain, */*',
         },
+        signal,
+        timeoutMs: 8000,
       });
 
       if (!response.ok) {
@@ -126,11 +135,17 @@ export class TsetmcMarketDataProvider implements MarketDataProvider {
 
       return await response.json();
     } catch (err) {
+      if ((err as { name?: string })?.name === 'AbortError' && signal?.aborted) {
+        throw err;
+      }
       // If primary failed (e.g. CORS or proxy issue in browser dev), try direct fallback URL
       if (this.baseUrl !== this.fallbackUrl) {
         try {
           const directUrl = `${this.fallbackUrl}${urlPath}`;
-          const fallbackRes = await fetch(directUrl);
+          const fallbackRes = await fetchWithTimeout(directUrl, {
+            signal,
+            timeoutMs: 8000,
+          });
           if (fallbackRes.ok) {
             return await fallbackRes.json();
           }
@@ -138,19 +153,22 @@ export class TsetmcMarketDataProvider implements MarketDataProvider {
           // Both failed, throw original error
         }
       }
-      throw err;
+      throw new Error(redactSecrets(err));
     }
   }
 
   /**
    * Search instruments by Persian symbol or company name
    */
-  async searchInstruments(query: string): Promise<SearchInstrumentResult[]> {
+  async searchInstruments(query: string, signal?: AbortSignal): Promise<SearchInstrumentResult[]> {
     const cleanQuery = normalizePersian(query);
     if (!cleanQuery || cleanQuery.length < 1) return [];
 
     try {
-      const data = await this.fetchWithThrottle(`/Instrument/GetInstrumentSearch/${encodeURIComponent(cleanQuery)}`);
+      const data = await this.fetchWithThrottle(
+        `/Instrument/GetInstrumentSearch/${encodeURIComponent(cleanQuery)}`,
+        signal
+      );
       
       const rawList = data?.instrumentSearch || [];
       if (!Array.isArray(rawList)) return [];
@@ -179,7 +197,7 @@ export class TsetmcMarketDataProvider implements MarketDataProvider {
    * Get single quote by Instrument definition
    * Handles both Market Open (live traded price) and Market Closed (latest available closing price)
    */
-  async getQuote(instrument: MarketInstrument): Promise<MarketQuote> {
+  async getQuote(instrument: MarketInstrument, signal?: AbortSignal): Promise<MarketQuote> {
     const insCode = instrument.providerInstrumentId;
     const now = Date.now();
 
@@ -191,7 +209,7 @@ export class TsetmcMarketDataProvider implements MarketDataProvider {
 
     try {
       const [quoteData, status] = await Promise.all([
-        this.fetchWithThrottle(`/ClosingPrice/GetClosingPriceInfo/${insCode}`),
+        this.fetchWithThrottle(`/ClosingPrice/GetClosingPriceInfo/${insCode}`, signal),
         this.getMarketStatus(),
       ]);
 
@@ -295,13 +313,19 @@ export class TsetmcMarketDataProvider implements MarketDataProvider {
   /**
    * Get multiple quotes concurrently with throttling
    */
-  async getQuotes(instruments: MarketInstrument[]): Promise<Record<string, MarketQuote>> {
+  async getQuotes(
+    instruments: MarketInstrument[],
+    signal?: AbortSignal
+  ): Promise<Record<string, MarketQuote>> {
     const results: Record<string, MarketQuote> = {};
     if (!instruments || instruments.length === 0) return results;
 
     const promises = instruments.map(async (inst) => {
-      const quote = await this.getQuote(inst);
-      results[inst.id] = quote;
+      if (signal?.aborted) return;
+      const quote = await this.getQuote(inst, signal);
+      if (!signal?.aborted) {
+        results[inst.id] = quote;
+      }
     });
 
     await Promise.allSettled(promises);
@@ -311,10 +335,17 @@ export class TsetmcMarketDataProvider implements MarketDataProvider {
   /**
    * Get historical closing prices for an instrument
    */
-  async getHistoricalData(instrument: MarketInstrument, days: number = 30): Promise<HistoricalPricePoint[]> {
+  async getHistoricalData(
+    instrument: MarketInstrument,
+    days: number = 30,
+    signal?: AbortSignal
+  ): Promise<HistoricalPricePoint[]> {
     const insCode = instrument.providerInstrumentId;
     try {
-      const data = await this.fetchWithThrottle(`/ClosingPrice/GetClosingPriceDailyList/${insCode}/${days}`);
+      const data = await this.fetchWithThrottle(
+        `/ClosingPrice/GetClosingPriceDailyList/${insCode}/${days}`,
+        signal
+      );
       const list = data?.closingPriceDaily || [];
       if (!Array.isArray(list)) return [];
 

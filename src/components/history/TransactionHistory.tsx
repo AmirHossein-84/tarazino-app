@@ -91,15 +91,22 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                 className="p-4 rounded-3xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all space-y-3 shadow-xs dark:shadow-lg"
               >
                 {/* Top Summary */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                    <Calendar className="w-3.5 h-3.5 text-amber-700 dark:text-gold-400" />
-                    <span>{tx.persianDate}</span>
+                <div className="flex items-center justify-between gap-2 min-w-0">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 min-w-0">
+                    <Calendar className="w-3.5 h-3.5 shrink-0 text-amber-700 dark:text-gold-400" />
+                    <span className="truncate">{tx.persianDate}</span>
+                    {tx.kind === 'physical_gold_sale' && (
+                      <span className="px-2 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 text-[10px] font-bold shrink-0">
+                        فروش طلا
+                      </span>
+                    )}
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-black px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/30">
-                      پس‌انداز: {formatToman(tx.totalSavingsAmount)} ت
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-xs font-black px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/30 dir-ltr tabular-nums">
+                      {tx.kind === 'physical_gold_sale'
+                        ? `دریافتی: ${formatToman(tx.totalInputAmount)} ت`
+                        : `پس‌انداز: ${formatToman(tx.totalSavingsAmount)} ت`}
                     </span>
                     <button
                       onClick={() => handleDelete(tx.id)}
@@ -112,16 +119,37 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                 </div>
 
                 {/* Amount Details */}
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-gold-500/20">
-                    <span className="text-slate-500 dark:text-slate-400 block text-[11px]">خرید طلا:</span>
-                    <span className="font-black text-amber-700 dark:text-gold-400 text-sm dir-ltr">{formatToman(tx.goldBuyAmount)} تومان</span>
+                {tx.kind === 'physical_gold_sale' ? (
+                  <div className="p-3 rounded-2xl bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200 dark:border-gold-500/20 flex items-center justify-between gap-2 text-xs min-w-0">
+                    <div className="min-w-0">
+                      <p className="font-black text-slate-900 dark:text-white truncate">{tx.title || 'فروش طلای فیزیکی'}</p>
+                      {tx.note && <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{tx.note}</p>}
+                    </div>
+                    {tx.realizedProfitTomans !== undefined && (
+                      <span
+                        className={`font-black dir-ltr tabular-nums shrink-0 ${
+                          tx.realizedProfitTomans >= 0
+                            ? 'text-emerald-700 dark:text-emerald-400'
+                            : 'text-rose-600 dark:text-rose-400'
+                        }`}
+                      >
+                        {tx.realizedProfitTomans >= 0 ? '+' : ''}
+                        {formatToman(tx.realizedProfitTomans)} ت
+                      </span>
+                    )}
                   </div>
-                  <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20">
+                ) : (
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-gold-500/20 min-w-0">
+                    <span className="text-slate-500 dark:text-slate-400 block text-[11px]">خرید طلا:</span>
+                    <span className="font-black text-amber-700 dark:text-gold-400 text-sm dir-ltr tabular-nums block truncate">{formatToman(tx.goldBuyAmount)} تومان</span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 min-w-0">
                     <span className="text-slate-500 dark:text-slate-400 block text-[11px]">خرید رمزارزها:</span>
-                    <span className="font-black text-indigo-700 dark:text-indigo-400 text-sm dir-ltr">{formatToman(tx.cryptoBuyAmount)} تومان</span>
+                    <span className="font-black text-indigo-700 dark:text-indigo-400 text-sm dir-ltr tabular-nums block truncate">{formatToman(tx.cryptoBuyAmount)} تومان</span>
                   </div>
                 </div>
+                )}
 
                 {/* Collapsible Crypto Breakdown */}
                 {tx.cryptoBuys && tx.cryptoBuys.length > 0 && (

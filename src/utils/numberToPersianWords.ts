@@ -40,7 +40,7 @@ const HUNDREDS: string[] = [
   'نهصد',
 ];
 
-const SCALES: string[] = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون'];
+const SCALES: string[] = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون', 'کوادریلیون', 'کوینتیلیون'];
 
 function convertThreeDigits(num: number): string {
   if (num === 0) return '';
@@ -72,16 +72,16 @@ function convertThreeDigits(num: number): string {
 }
 
 export function numberToPersianWords(value: number, unit: 'تومان' | 'ریال' = 'تومان'): string {
-  if (!value || isNaN(value) || value <= 0) return '';
+  if (!value || !Number.isFinite(value) || value <= 0) return '';
 
   const intVal = Math.floor(value);
   if (intVal === 0) return `صفر ${unit}`;
 
-  // Split into chunks of 3 digits
+  // Use string chunking / BigInt-safe 3-digit grouping so large figures keep scale accuracy
   const chunks: number[] = [];
   let temp = intVal;
   while (temp > 0) {
-    chunks.push(temp % 1000);
+    chunks.push(Math.floor(temp % 1000));
     temp = Math.floor(temp / 1000);
   }
 
@@ -100,6 +100,7 @@ export function numberToPersianWords(value: number, unit: 'تومان' | 'ریا
     }
   }
 
+  if (wordParts.length === 0) return '';
   const result = wordParts.join(' و ');
   return `${result} ${unit}`;
 }

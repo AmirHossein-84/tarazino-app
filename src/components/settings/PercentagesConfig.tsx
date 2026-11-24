@@ -167,7 +167,7 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
   };
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className="space-y-4 min-w-0">
       
       {/* 1. TOP-LEVEL SAVINGS PERCENTAGE (30% DEFAULT) */}
       <div className="glass-card p-4 sm:p-5 border border-slate-200 dark:border-slate-800 space-y-3.5">
@@ -263,7 +263,7 @@ export const PercentagesConfig: React.FC<PercentagesConfigProps> = ({
         </div>
 
         {/* Quick Ratio Presets - Compact and Untruncated */}
-        <div className="grid grid-cols-4 gap-2 pt-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
           {[
             { gold: 80, crypto: 20, label: '۸۰ / ۲۰', sub: 'پیشنهادی' },
             { gold: 70, crypto: 30, label: '۷۰ / ۳۰', sub: 'متعادل' },

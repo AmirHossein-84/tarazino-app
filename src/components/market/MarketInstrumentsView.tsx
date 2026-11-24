@@ -131,7 +131,7 @@ export const MarketInstrumentsView: React.FC<MarketInstrumentsViewProps> = ({
   const allDonutItems: DonutChartItem[] = [...physicalDonutItems, ...bourseDonutItems];
 
   return (
-    <PullToRefreshContainer onRefresh={handleManualRefresh} isRefreshing={isRefreshing} className="space-y-4 pb-24">
+    <PullToRefreshContainer onRefresh={handleManualRefresh} isRefreshing={isRefreshing} className="space-y-4 min-w-0">
       
       {/* 1. Header & Market Status Card */}
       <div className="glass-card p-4 sm:p-5 border border-slate-200 dark:border-slate-800 space-y-4">

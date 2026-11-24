@@ -1,8 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronRight, ChevronLeft, Calendar as CalendarIcon, Check } from 'lucide-react';
 import { BottomSheetModal } from './BottomSheetModal';
-import { toPersianDigits, toEnglishDigits, getTodayPersianDate, gregorianToPersianDate } from '../../utils/formatters';
+import { toPersianDigits, toEnglishDigits, getTodayPersianDate } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
+import {
+  PERSIAN_MONTHS,
+  PERSIAN_WEEKDAYS as WEEKDAY_NAMES,
+  getDaysInJalaliMonth,
+  getFirstDayWeekday,
+  parsePersianDateString,
+} from '../../utils/persianCalendar';
 
 interface PersianDatePickerModalProps {
   isOpen: boolean;
@@ -10,124 +17,6 @@ interface PersianDatePickerModalProps {
   selectedDate?: string; // e.g. "1403/06/09" or "2026-09-02"
   onSelectDate: (persianDate: string) => void;
   title?: string;
-}
-
-const PERSIAN_MONTHS = [
-  'فروردین',
-  'اردیبهشت',
-  'خرداد',
-  'تیر',
-  'مرداد',
-  'شهریور',
-  'مهر',
-  'آبان',
-  'آذر',
-  'دی',
-  'بهمن',
-  'اسفند',
-];
-
-const WEEKDAY_NAMES = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'];
-
-function isJalaliLeapYear(jy: number): boolean {
-  return ((((((jy - (jy > 0 ? 474 : 473)) % 2820) + 474) + 38) * 682) % 2816) < 682;
-}
-
-function getDaysInJalaliMonth(year: number, month: number): number {
-  if (month >= 1 && month <= 6) return 31;
-  if (month >= 7 && month <= 11) return 30;
-  return isJalaliLeapYear(year) ? 30 : 29;
-}
-
-function jalaliToGregorian(jy: number, jm: number, jd: number): [number, number, number] {
-  let gy = jy <= 979 ? 621 : 1600;
-  jy -= jy <= 979 ? 0 : 979;
-  let days =
-    365 * jy +
-    Math.floor(jy / 33) * 8 +
-    Math.floor(((jy % 33) + 3) / 4) +
-    78 +
-    jd +
-    (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
-  gy += 400 * Math.floor(days / 146097);
-  days %= 146097;
-  if (days > 36524) {
-    gy += 100 * Math.floor(--days / 36524);
-    days %= 36524;
-    if (days >= 365) days++;
-  }
-  gy += 4 * Math.floor(days / 1461);
-  days %= 1461;
-  gy += Math.floor((days - 1) / 365);
-  if (days > 365) days = (days - 1) % 365;
-  let gd = days + 1;
-  const sal_a = [0, 31, (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  let gm = 0;
-  for (gm = 0; gm < 13; gm++) {
-    const v = sal_a[gm];
-    if (gd <= v) break;
-    gd -= v;
-  }
-  return [gy, gm, gd];
-}
-
-// Get Persian weekday index: 0 for Saturday (شنبه), 6 for Friday (جمعه)
-function getFirstDayWeekday(year: number, month: number): number {
-  try {
-    const [gy, gm, gd] = jalaliToGregorian(year, month, 1);
-    const d = new Date(gy, gm - 1, gd);
-    const day = d.getDay();
-    if (isNaN(day)) return 0;
-    return (day + 1) % 7;
-  } catch {
-    return 0;
-  }
-}
-
-function parsePersianDateString(dateStr?: string): { year: number; month: number; day: number } {
-  const todayStr = getTodayPersianDate();
-  if (!dateStr || typeof dateStr !== 'string' || !dateStr.trim()) {
-    const todayParts = todayStr.split('/').map((p) => parseInt(p, 10));
-    return {
-      year: todayParts[0] || 1403,
-      month: todayParts[1] || 1,
-      day: todayParts[2] || 1,
-    };
-  }
-
-  try {
-    let cleanStr = toEnglishDigits(dateStr.trim()).replace(/[-.]/g, '/');
-    const rawParts = cleanStr.split('/').map((p) => parseInt(p, 10));
-
-    // If input is Gregorian (year > 1600, e.g. 2026-09-02), convert via native Intl
-    if (rawParts.length === 3 && rawParts[0] > 1600) {
-      const converted = gregorianToPersianDate(dateStr);
-      if (converted && converted.includes('/')) {
-        cleanStr = converted;
-      }
-    }
-
-    const parts = cleanStr.split('/').map((p) => parseInt(p, 10));
-    if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
-      const safeYear = parts[0] >= 1300 && parts[0] <= 1500 ? parts[0] : 1403;
-      const safeMonth = Math.min(12, Math.max(1, parts[1]));
-      const safeDay = Math.min(31, Math.max(1, parts[2]));
-      return {
-        year: safeYear,
-        month: safeMonth,
-        day: safeDay,
-      };
-    }
-  } catch (e) {
-    console.warn('Failed to parse date string, defaulting to today:', e);
-  }
-
-  const todayParts = todayStr.split('/').map((p) => parseInt(p, 10));
-  return {
-    year: todayParts[0] || 1403,
-    month: todayParts[1] || 1,
-    day: todayParts[2] || 1,
-  };
 }
 
 export const PersianDatePickerModal: React.FC<PersianDatePickerModalProps> = ({

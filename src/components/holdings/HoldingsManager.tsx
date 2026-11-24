@@ -51,6 +51,15 @@ interface HoldingsManagerProps {
   onRefreshPhysicalGold?: () => Promise<void>;
   onUpdatePhysicalGoldQuantity?: (id: PhysicalGoldType, quantity: number) => void;
   onUpdatePhysicalGoldPrice?: (id: PhysicalGoldType, priceTomans: number, isCustom: boolean) => void;
+  onUpdatePhysicalGoldCostBasis?: (id: PhysicalGoldType, avgCostTomans: number) => void;
+  onRecordGoldSale?: (
+    id: PhysicalGoldType,
+    quantitySold: number,
+    saleUnitPriceTomans?: number,
+    notes?: string,
+    persianSaleDate?: string
+  ) => void;
+  onRemovePhysicalGoldItem?: (id: PhysicalGoldType) => void;
   onAddGoldBuyLot?: (lot: Omit<PhysicalGoldBuyLot, 'id' | 'totalCostTomans'>) => void;
   onDeleteGoldSale?: (id: string) => void;
   onClearGoldSales?: () => void;
@@ -91,6 +100,9 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
   onRefreshPhysicalGold = async () => {},
   onUpdatePhysicalGoldQuantity = () => {},
   onUpdatePhysicalGoldPrice = () => {},
+  onUpdatePhysicalGoldCostBasis,
+  onRecordGoldSale,
+  onRemovePhysicalGoldItem,
   onAddGoldBuyLot,
   onDeleteGoldSale,
   onClearGoldSales,
@@ -235,6 +247,9 @@ export const HoldingsManager: React.FC<HoldingsManagerProps> = ({
             onRefresh={onRefreshPhysicalGold}
             onUpdateQuantity={onUpdatePhysicalGoldQuantity}
             onUpdatePrice={onUpdatePhysicalGoldPrice}
+            onUpdateCostBasis={onUpdatePhysicalGoldCostBasis}
+            onRecordGoldSale={onRecordGoldSale}
+            onRemoveItem={onRemovePhysicalGoldItem}
             onAddGoldBuyLot={onAddGoldBuyLot}
             onDeleteGoldSale={onDeleteGoldSale}
             onClearGoldSales={onClearGoldSales}

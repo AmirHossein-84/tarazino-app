@@ -61,10 +61,12 @@
 }
 
 @layer components {
-  /* Disable transitions during theme toggle to eliminate GPU jank */
-  .disable-transitions,
-  .disable-transitions * {
-    transition: none !important;
+  /* Scoped theme transition helper applied only during toggle fallback */
+  .theme-transitioning,
+  .theme-transitioning * {
+    transition-property: background-color, border-color, color, fill, stroke !important;
+    transition-duration: 250ms !important;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
   .glass-card {
@@ -209,4 +211,45 @@
 
 .animate-slideInFromLeft {
   animation: slideInFromLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes themeReveal {
+  from {
+    clip-path: circle(0% at var(--theme-origin-x, 50%) var(--theme-origin-y, 32px));
+    opacity: 0.92;
+  }
+  to {
+    clip-path: circle(150% at var(--theme-origin-x, 50%) var(--theme-origin-y, 32px));
+    opacity: 1;
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+  animation: themeReveal 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+  .theme-transitioning,
+  .theme-transitioning * {
+    transition: none !important;
+  }
+  .animate-fadeIn,
+  .animate-slideUp,
+  .animate-slideInFromLeft {
+    animation: none !important;
+  }
 }

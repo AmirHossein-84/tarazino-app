@@ -76,6 +76,9 @@ export const BottomSheetModal: React.FC<BottomSheetModalProps> = ({
 
   const modalContent = (
     <div
+      role="dialog"
+      aria-modal="true"
+      data-modal-open="true"
       onClick={handleBackdropClick}
       className={`fixed inset-0 z-50 ${zIndex && zIndex !== 'z-50' ? zIndex : ''} bg-slate-900/60 dark:bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn`}
     >

@@ -2,6 +2,8 @@ import { Capacitor } from '@capacitor/core';
 import { CryptoAsset } from '../../types/investment';
 import { NobitexWallet, NobitexMarketStat, NobitexProfile, NobitexConfig } from './types';
 import { signNobitexRequest } from './nobitexSigner';
+import { getProfileScopedKey } from '../../utils/storage';
+import { fetchWithTimeout, redactSecrets, safeJsonParse } from '../../utils/security';
 
 // Normalize Nobitex English currency names to standard tickers
 const NOBITEX_NAME_TO_SYMBOL: Record<string, string> = {
@@ -140,50 +142,66 @@ class NobitexService {
     ]);
   }
 
+  private getBuyPricesCacheKey(profileId?: string | null): string {
+    return getProfileScopedKey(this.CACHE_KEY_BUY_PRICES, profileId);
+  }
+
+  public clearCachedBuyPrices(profileId?: string | null): void {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem(this.getBuyPricesCacheKey(profileId));
+      }
+    } catch (e) {
+      console.warn('[NobitexService] Failed to clear buy price cache:', redactSecrets(e));
+    }
+  }
+
   /**
-   * Load cached average buy prices from localStorage
+   * Load cached average buy prices from profile-scoped localStorage
    */
-  private getCachedBuyPrices(): Map<string, number> {
+  private getCachedBuyPrices(profileId?: string | null): Map<string, number> {
     const map = new Map<string, number>();
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
-        const raw = window.localStorage.getItem(this.CACHE_KEY_BUY_PRICES);
+        const raw = window.localStorage.getItem(this.getBuyPricesCacheKey(profileId));
         if (raw) {
-          const parsed = JSON.parse(raw);
-          for (const [sym, price] of Object.entries(parsed)) {
-            if (typeof price === 'number' && price > 0) {
-              map.set(sym.toLowerCase(), price);
+          const parsed = safeJsonParse<Record<string, unknown>>(raw);
+          if (parsed && typeof parsed === 'object') {
+            for (const [sym, price] of Object.entries(parsed)) {
+              if (typeof price === 'number' && Number.isFinite(price) && price > 0) {
+                map.set(sym.toLowerCase(), price);
+              }
             }
           }
         }
       }
     } catch (e) {
-      console.warn('[NobitexService] Failed to read buy price cache:', e);
+      console.warn('[NobitexService] Failed to read buy price cache:', redactSecrets(e));
     }
     return map;
   }
 
   /**
-   * Save calculated average buy prices to localStorage
+   * Save calculated average buy prices to profile-scoped localStorage
    */
-  private saveCachedBuyPrices(priceMap: Map<string, number>): void {
+  private saveCachedBuyPrices(priceMap: Map<string, number>, profileId?: string | null): void {
     try {
       if (typeof window !== 'undefined' && window.localStorage && priceMap.size > 0) {
         const obj: Record<string, number> = {};
         priceMap.forEach((price, sym) => {
-          if (price > 0) obj[sym.toLowerCase()] = price;
+          if (Number.isFinite(price) && price > 0) obj[sym.toLowerCase()] = price;
         });
-        window.localStorage.setItem(this.CACHE_KEY_BUY_PRICES, JSON.stringify(obj));
+        window.localStorage.setItem(this.getBuyPricesCacheKey(profileId), JSON.stringify(obj));
       }
     } catch (e) {
-      console.warn('[NobitexService] Failed to save buy price cache:', e);
+      console.warn('[NobitexService] Failed to save buy price cache:', redactSecrets(e));
     }
   }
 
   /**
    * Fetch User Profile to test API Key / Token validity
    */
-  async getProfile(config: NobitexConfig): Promise<NobitexProfile> {
+  async getProfile(config: NobitexConfig, signal?: AbortSignal): Promise<NobitexProfile> {
     const base = this.getBaseUrl();
     const path = '/users/profile';
     const url = `${base}${path}`;
@@ -195,9 +213,11 @@ class NobitexService {
       body: '',
     });
 
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
       method: 'GET',
       headers,
+      signal,
+      timeoutMs: 10000,
     });
 
     let data: any = {};
@@ -217,7 +237,7 @@ class NobitexService {
   /**
    * Fetch User Wallets List
    */
-  async getWallets(config: NobitexConfig): Promise<NobitexWallet[]> {
+  async getWallets(config: NobitexConfig, signal?: AbortSignal): Promise<NobitexWallet[]> {
     const base = this.getBaseUrl();
     const path = '/users/wallets/list';
     const url = `${base}${path}`;
@@ -229,9 +249,11 @@ class NobitexService {
       body: '',
     });
 
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
       method: 'POST',
       headers,
+      signal,
+      timeoutMs: 10000,
     });
 
     let data: any = {};
@@ -252,7 +274,7 @@ class NobitexService {
    * Fetch User Trades (History of executed buy/sell orders in last 180 days)
    * Official Doc: https://apidocs.nobitex.ir/spot_trade/فهرست-معاملات-کاربر
    */
-  async getUserTrades(config: NobitexConfig): Promise<any[]> {
+  async getUserTrades(config: NobitexConfig, signal?: AbortSignal): Promise<any[]> {
     const base = this.getBaseUrl();
     const pathWithQuery = '/market/trades/list?pageSize=500';
 
@@ -264,9 +286,11 @@ class NobitexService {
         body: '',
       });
 
-      const res = await fetch(`${base}${pathWithQuery}`, {
+      const res = await fetchWithTimeout(`${base}${pathWithQuery}`, {
         method: 'GET',
         headers,
+        signal,
+        timeoutMs: 8000,
       });
 
       if (res.ok) {
@@ -282,9 +306,11 @@ class NobitexService {
         path: fallbackPath,
         body: '',
       });
-      const fallbackRes = await fetch(`${base}${fallbackPath}`, {
+      const fallbackRes = await fetchWithTimeout(`${base}${fallbackPath}`, {
         method: 'GET',
         headers: fallbackHeaders,
+        signal,
+        timeoutMs: 8000,
       });
 
       if (fallbackRes.ok) {
@@ -293,7 +319,9 @@ class NobitexService {
       }
       return [];
     } catch (e) {
-      console.warn('[NobitexService] Could not fetch user trades:', e);
+      if ((e as { name?: string })?.name !== 'AbortError') {
+        console.warn('[NobitexService] Could not fetch user trades:', redactSecrets(e, [config.secretKey || '', config.token || '']));
+      }
       return [];
     }
   }
@@ -302,7 +330,7 @@ class NobitexService {
    * Fetch User Orders (Orders list fallback)
    * Official Doc: https://apidocs.nobitex.ir/spot_trade/فهرست-سفارش-های-کاربر
    */
-  async getUserOrders(config: NobitexConfig): Promise<any[]> {
+  async getUserOrders(config: NobitexConfig, signal?: AbortSignal): Promise<any[]> {
     const base = this.getBaseUrl();
     const pathWithQuery = '/market/orders/list?status=all';
 
@@ -314,9 +342,11 @@ class NobitexService {
         body: '',
       });
 
-      const res = await fetch(`${base}${pathWithQuery}`, {
+      const res = await fetchWithTimeout(`${base}${pathWithQuery}`, {
         method: 'GET',
         headers,
+        signal,
+        timeoutMs: 8000,
       });
 
       if (res.ok) {
@@ -332,9 +362,11 @@ class NobitexService {
         path: fallbackPath,
         body: '',
       });
-      const fallbackRes = await fetch(`${base}${fallbackPath}`, {
+      const fallbackRes = await fetchWithTimeout(`${base}${fallbackPath}`, {
         method: 'GET',
         headers: fallbackHeaders,
+        signal,
+        timeoutMs: 8000,
       });
 
       if (fallbackRes.ok) {
@@ -343,7 +375,9 @@ class NobitexService {
       }
       return [];
     } catch (e) {
-      console.warn('[NobitexService] Could not fetch user orders:', e);
+      if ((e as { name?: string })?.name !== 'AbortError') {
+        console.warn('[NobitexService] Could not fetch user orders:', redactSecrets(e, [config.secretKey || '', config.token || '']));
+      }
       return [];
     }
   }
@@ -352,7 +386,10 @@ class NobitexService {
    * Fetch Portfolio Overall Profit & Loss from Nobitex native portfolio API
    * Official Doc: https://apidocs.nobitex.ir/portfolio/سود-و-زیان-کل-ماه-گذشته
    */
-  async getPortfolioTotalProfit(config: NobitexConfig): Promise<{
+  async getPortfolioTotalProfit(
+    config: NobitexConfig,
+    signal?: AbortSignal
+  ): Promise<{
     totalProfitTomans?: number;
     totalProfitPercent?: number;
   } | null> {
@@ -366,9 +403,11 @@ class NobitexService {
         body: '',
       });
 
-      const res = await fetch(`${base}${path}`, {
+      const res = await fetchWithTimeout(`${base}${path}`, {
         method: 'POST',
         headers,
+        signal,
+        timeoutMs: 8000,
       });
 
       if (res.ok) {
@@ -383,7 +422,9 @@ class NobitexService {
         }
       }
     } catch (e) {
-      console.warn('[NobitexService] Native portfolio total profit fetch failed:', e);
+      if ((e as { name?: string })?.name !== 'AbortError') {
+        console.warn('[NobitexService] Native portfolio total profit fetch failed:', redactSecrets(e, [config.secretKey || '', config.token || '']));
+      }
     }
     return null;
   }
@@ -393,17 +434,20 @@ class NobitexService {
    */
   async getMarketStats(
     _srcCurrencies?: string[],
-    dstCurrency: 'rls' | 'usdt' = 'rls'
+    dstCurrency: 'rls' | 'usdt' = 'rls',
+    signal?: AbortSignal
   ): Promise<Record<string, NobitexMarketStat>> {
     const base = this.getBaseUrl();
     const url = `${base}/market/stats?dstCurrency=${dstCurrency}`;
 
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
       method: 'GET',
       headers: {
         'User-Agent': 'TraderBot/InvestmentApp-1.0.0',
         'Accept': 'application/json',
       },
+      signal,
+      timeoutMs: 9000,
     });
 
     if (!res.ok) {
@@ -412,7 +456,7 @@ class NobitexService {
 
     const data = await res.json();
     if (data.status === 'failed') {
-      throw new Error(data.message || 'خطا در دریافت آمار بازار نوبیتکس');
+      throw new Error(redactSecrets(data.message || 'خطا در دریافت آمار بازار نوبیتکس'));
     }
 
     return data.stats || {};
@@ -477,7 +521,8 @@ class NobitexService {
    */
   private async fetchAndComputeBuyPrices(
     config: NobitexConfig,
-    usdtPriceTomans: number
+    usdtPriceTomans: number,
+    options?: { profileId?: string | null; signal?: AbortSignal }
   ): Promise<{ priceMap: Map<string, number>; tradesCount: number }> {
     const avgBuyPriceMap = new Map<string, number>();
     const buyStatsBySymbol: Record<string, { totalAmount: number; totalCostTomans: number }> = {};
@@ -485,8 +530,8 @@ class NobitexService {
 
     try {
       const [trades, orders] = await Promise.all([
-        this.withTimeout(this.getUserTrades(config), 3000, []),
-        this.withTimeout(this.getUserOrders(config), 3000, []),
+        this.withTimeout(this.getUserTrades(config, options?.signal), 4500, []),
+        this.withTimeout(this.getUserOrders(config, options?.signal), 4500, []),
       ]);
 
       // 1. Process Trades
@@ -571,10 +616,12 @@ class NobitexService {
       }
 
       if (avgBuyPriceMap.size > 0) {
-        this.saveCachedBuyPrices(avgBuyPriceMap);
+        this.saveCachedBuyPrices(avgBuyPriceMap, options?.profileId);
       }
     } catch (e) {
-      console.warn('[NobitexService] Error computing buy prices:', e);
+      if ((e as { name?: string })?.name !== 'AbortError') {
+        console.warn('[NobitexService] Error computing buy prices:', redactSecrets(e, [config.secretKey || '', config.token || '']));
+      }
     }
 
     return { priceMap: avgBuyPriceMap, tradesCount: totalParsedTrades };
@@ -589,7 +636,8 @@ class NobitexService {
    */
   async syncUserCryptoHoldings(
     config: NobitexConfig,
-    existingAssets: CryptoAsset[]
+    existingAssets: CryptoAsset[],
+    options?: { profileId?: string | null; signal?: AbortSignal }
   ): Promise<{
     updatedAssets: CryptoAsset[];
     syncedCount: number;
@@ -597,22 +645,25 @@ class NobitexService {
     tomanBalance: number;
     profile?: NobitexProfile;
   }> {
+    const profileId = options?.profileId;
+    const signal = options?.signal;
+
     // 1. Fetch Wallets & Live Market Prices in single ultra-fast parallel batch
     const [wallets, stats] = await Promise.all([
-      this.getWallets(config),
-      this.getMarketStats(undefined, 'rls'),
+      this.getWallets(config, signal),
+      this.getMarketStats(undefined, 'rls', signal),
     ]);
 
     // Live Tether price in Tomans
     const usdtPriceRials = stats['usdt-rls']?.latest ? parseFloat(stats['usdt-rls'].latest) : 930000;
     const usdtPriceTomans = Math.round(usdtPriceRials / 10);
 
-    // 2. Load cached buy prices immediately for instantaneous calculation
-    const cachedBuyPrices = this.getCachedBuyPrices();
+    // 2. Load cached buy prices immediately per profile for instantaneous calculation
+    const cachedBuyPrices = this.getCachedBuyPrices(profileId);
 
     // 3. Fetch trade records in parallel with timeout (won't block UI if cache exists)
     const hasCachedPrices = cachedBuyPrices.size > 0;
-    const tradePromise = this.fetchAndComputeBuyPrices(config, usdtPriceTomans);
+    const tradePromise = this.fetchAndComputeBuyPrices(config, usdtPriceTomans, { profileId, signal });
 
     let avgBuyPriceMap = cachedBuyPrices;
     let totalParsedTrades = 0;
@@ -628,12 +679,15 @@ class NobitexService {
       // If cache exists, process fresh trades in background
       tradePromise
         .then((res) => {
+          if (signal?.aborted) return;
           if (res.priceMap.size > 0) {
             console.log('[NobitexService] Background buy prices updated');
           }
         })
         .catch((err) => {
-          console.warn('[NobitexService] Background buy prices calculation failed:', err);
+          if ((err as { name?: string })?.name !== 'AbortError') {
+            console.warn('[NobitexService] Background buy prices calculation failed:', redactSecrets(err, [config.secretKey || '', config.token || '']));
+          }
         });
     }
 

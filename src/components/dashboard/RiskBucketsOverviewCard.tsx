@@ -107,7 +107,7 @@ export const RiskBucketsOverviewCard: React.FC<RiskBucketsOverviewCardProps> = (
                         ({b.subtitle})
                       </span>
                     </div>
-                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block truncate">
                       <span className="dir-ltr tabular-nums">{formatToman(b.value)}</span>{' '}
                       <span className="text-[10px] font-medium text-slate-400">تومان</span>
                     </span>
@@ -138,15 +138,15 @@ export const RiskBucketsOverviewCard: React.FC<RiskBucketsOverviewCardProps> = (
               </div>
 
               {/* Status Hint */}
-              <div className="flex items-center justify-between gap-2 text-[10px] text-slate-400">
-                <span className="whitespace-nowrap">
+              <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[10px] text-slate-400">
+                <span>
                   {Math.abs(diff) <= 2
                     ? 'متوازن و منطبق بر هدف'
                     : diff > 0
                     ? `بیش از وزن هدف (${toPersianDigits(Math.abs(diff))}٪+)`
                     : `کمتر از وزن هدف (${toPersianDigits(Math.abs(diff))}٪-)`}
                 </span>
-                <span className="whitespace-nowrap">سهم از کل سبد: {totalNetWorthTomans > 0 ? formatPercent(b.actual) : '۰٪'}</span>
+                <span className="tabular-nums">سهم از کل سبد: {totalNetWorthTomans > 0 ? formatPercent(b.actual) : '۰٪'}</span>
               </div>
             </div>
           );

@@ -61,6 +61,7 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
   const [purchaseDate, setPurchaseDate] = useState('');
   const [notes, setNotes] = useState('');
   const [includeInTotalNetWorth, setIncludeInTotalNetWorth] = useState(true);
+  const [validationError, setValidationError] = useState('');
 
   useEffect(() => {
     if (initialProperty) {
@@ -103,9 +104,10 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
   const handleSave = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!title.trim()) {
-      alert('لطفاً عنوان ملک را وارد کنید.');
+      setValidationError('لطفاً عنوان ملک را وارد کنید.');
       return;
     }
+    setValidationError('');
 
     triggerHaptic('medium');
 
@@ -161,6 +163,11 @@ export const AddEditPropertyModal: React.FC<AddEditPropertyModalProps> = ({
       maxWidth="max-w-lg"
     >
       <form onSubmit={handleSave} className="space-y-4">
+        {validationError && (
+          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-bold">
+            {validationError}
+          </div>
+        )}
         
         {/* 1. Title */}
         <div className="space-y-1.5">

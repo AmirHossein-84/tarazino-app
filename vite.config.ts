@@ -70,6 +70,29 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('recharts') || id.includes('d3-')) {
+              return 'vendor-charts';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('@capacitor/')) {
+              return 'vendor-capacitor';
+            }
+            if (id.includes('react-dom') || /[\\/]react[\\/]/.test(id)) {
+              return 'vendor-react';
+            }
+          }
+          return undefined;
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     strictPort: false,

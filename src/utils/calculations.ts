@@ -8,16 +8,20 @@ function distributeIntegerBudget(
   items: { id: string; rawBuy: number }[],
   totalBudget: number
 ): { id: string; suggestedBuy: number }[] {
-  if (totalBudget <= 0 || items.length === 0) {
+  if (!Number.isFinite(totalBudget) || totalBudget <= 0 || items.length === 0) {
     return items.map((item) => ({ id: item.id, suggestedBuy: 0 }));
   }
 
   const intBudget = Math.round(totalBudget);
-  const floors = items.map((item) => ({
-    id: item.id,
-    floor: Math.floor(Math.max(0, item.rawBuy)),
-    remainder: Math.max(0, item.rawBuy) - Math.floor(Math.max(0, item.rawBuy)),
-  }));
+  const floors = items.map((item) => {
+    const safeRaw = Number.isFinite(item.rawBuy) && item.rawBuy > 0 ? item.rawBuy : 0;
+    const floored = Math.floor(safeRaw);
+    return {
+      id: item.id,
+      floor: floored,
+      remainder: safeRaw - floored,
+    };
+  });
 
   const currentFloorSum = floors.reduce((sum, item) => sum + item.floor, 0);
   let diff = intBudget - currentFloorSum;
@@ -65,33 +69,36 @@ export function calculateRebalancedBuys(
   assets: { id: string; targetWeight: number; currentValue: number }[],
   totalBudget: number
 ): { id: string; suggestedBuy: number }[] {
-  if (totalBudget <= 0) {
+  const safeBudget = Number.isFinite(totalBudget) ? totalBudget : 0;
+  if (safeBudget <= 0) {
     return assets.map((a) => ({ id: a.id, suggestedBuy: 0 }));
   }
 
   const n = assets.length;
   if (n === 0) return [];
 
+  const safeNum = (v: number) => (Number.isFinite(v) && v > 0 ? v : 0);
+
   // Normalize target weights
-  const totalWeight = assets.reduce((sum, a) => sum + Math.max(0, a.targetWeight || 0), 0);
+  const totalWeight = assets.reduce((sum, a) => sum + safeNum(a.targetWeight), 0);
   if (totalWeight <= 0) {
     // If no valid weights, split equally
-    const equalShare = totalBudget / n;
+    const equalShare = safeBudget / n;
     return distributeIntegerBudget(
       assets.map((a) => ({ id: a.id, rawBuy: equalShare })),
-      totalBudget
+      safeBudget
     );
   }
 
   const normalized = assets.map((a) => ({
     ...a,
-    currentValue: Math.max(0, a.currentValue || 0),
-    weight: Math.max(0, a.targetWeight || 0) / totalWeight,
+    currentValue: safeNum(a.currentValue),
+    weight: safeNum(a.targetWeight) / totalWeight,
     buy: 0,
     locked: false,
   }));
 
-  const remainingBudget = totalBudget;
+  const remainingBudget = safeBudget;
   let activeAssets = [...normalized];
 
   // Iterative waterfilling
@@ -143,25 +150,27 @@ export function calculateDirectBuys(
   assets: { id: string; targetWeight: number }[],
   totalBudget: number
 ): { id: string; suggestedBuy: number }[] {
-  if (totalBudget <= 0 || assets.length === 0) {
+  const safeBudget = Number.isFinite(totalBudget) ? totalBudget : 0;
+  if (safeBudget <= 0 || assets.length === 0) {
     return assets.map((a) => ({ id: a.id, suggestedBuy: 0 }));
   }
 
-  const totalWeight = assets.reduce((sum, a) => sum + Math.max(0, a.targetWeight || 0), 0);
+  const safeWeight = (w: number) => (Number.isFinite(w) && w > 0 ? w : 0);
+  const totalWeight = assets.reduce((sum, a) => sum + safeWeight(a.targetWeight), 0);
   if (totalWeight <= 0) {
-    const share = totalBudget / assets.length;
+    const share = safeBudget / assets.length;
     return distributeIntegerBudget(
       assets.map((a) => ({ id: a.id, rawBuy: share })),
-      totalBudget
+      safeBudget
     );
   }
 
   const rawAllocations = assets.map((a) => ({
     id: a.id,
-    rawBuy: (Math.max(0, a.targetWeight || 0) / totalWeight) * totalBudget,
+    rawBuy: (safeWeight(a.targetWeight) / totalWeight) * safeBudget,
   }));
 
-  return distributeIntegerBudget(rawAllocations, totalBudget);
+  return distributeIntegerBudget(rawAllocations, safeBudget);
 }
 
 /**
@@ -173,22 +182,26 @@ export function calculatePortfolioAllocation(
   cryptoAssets: CryptoAsset[],
   goldHolding: GoldHolding
 ): CalculationResult {
-  const totalInputAmount = Math.max(0, inputAmount || 0);
+  const safeNum = (v: number | undefined | null) =>
+    v !== undefined && v !== null && Number.isFinite(v) && v > 0 ? v : 0;
+
+  const totalInputAmount = safeNum(inputAmount);
   const isDirect = settings.capitalInputMode === 'direct';
-  const savingsPct = isDirect ? 100 : Math.min(100, Math.max(0, settings.savingsPercent ?? 30));
+  const rawSavings = Number.isFinite(settings.savingsPercent) ? settings.savingsPercent : 30;
+  const savingsPct = isDirect ? 100 : Math.min(100, Math.max(0, rawSavings));
   const totalSavingsAmount = isDirect ? totalInputAmount : Math.round(totalInputAmount * (savingsPct / 100));
 
   let goldBuyAmount = 0;
   let cryptoBuyAmount = 0;
 
-  const currentGoldVal = Math.max(0, goldHolding.currentHoldingValue || 0);
-  const currentCryptoTotalVal = Math.max(
-    0,
-    cryptoAssets.reduce((sum, c) => sum + Math.max(0, c.currentHoldingValue || 0), 0)
+  const currentGoldVal = safeNum(goldHolding?.currentHoldingValue);
+  const currentCryptoTotalVal = cryptoAssets.reduce(
+    (sum, c) => sum + safeNum(c.currentHoldingValue),
+    0
   );
 
-  const targetGoldWeight = Math.max(0, settings.goldPercent || 0);
-  const targetCryptoWeight = Math.max(0, settings.cryptoPercent || 0);
+  const targetGoldWeight = safeNum(settings.goldPercent);
+  const targetCryptoWeight = safeNum(settings.cryptoPercent);
   const topTotalWeight = targetGoldWeight + targetCryptoWeight;
 
   const effectiveGoldWeight = topTotalWeight > 0 ? targetGoldWeight : 80;
@@ -306,7 +319,11 @@ export function calculateRiskBuckets(
   mediumRiskPercent: number;
   highRiskPercent: number;
 } {
-  const safeAge = Math.max(5, Math.min(85, Math.round(Number(age) || 25)));
+  const numericAge = Number(age);
+  const safeAge =
+    Number.isFinite(numericAge) && numericAge !== 0
+      ? Math.max(5, Math.min(85, Math.round(numericAge)))
+      : 25;
 
   let highRiskPercent = 11;
   if (riskTolerance === 'conservative') {

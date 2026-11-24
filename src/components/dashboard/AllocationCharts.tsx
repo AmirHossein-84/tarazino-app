@@ -43,12 +43,12 @@ export const AllocationCharts: React.FC<AllocationChartsProps> = ({
     <div className="glass-card p-4 sm:p-5 border border-slate-200 dark:border-slate-800">
       
       {/* Chart Header & Toggle */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
             <PieIcon className="w-4 h-4" />
           </div>
-          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
+          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
             نمودار بصری تخصیص سرمایه
           </h3>
         </div>
@@ -142,21 +142,21 @@ export const AllocationCharts: React.FC<AllocationChartsProps> = ({
         </div>
 
         {/* Legend Grid */}
-        <div className="sm:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="sm:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-2 min-w-0">
           {chartView === 'crypto' ? (
             cryptoData.map((item) => (
               <div
                 key={item.name}
-                className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs"
+                className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-1 text-xs min-w-0"
               >
-                <div className="flex items-center gap-1.5 truncate">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <span
                     className="w-2.5 h-2.5 rounded-full shrink-0 shadow-sm"
                     style={{ backgroundColor: item.color }}
                   />
                   <span className="font-bold text-slate-800 dark:text-slate-200 truncate">{item.name}</span>
                 </div>
-                <span className="text-slate-500 dark:text-slate-400 text-[11px] font-medium mr-1">
+                <span className="text-slate-500 dark:text-slate-400 text-[11px] font-medium shrink-0 tabular-nums">
                   {toPersianDigits(item.percent)}٪
                 </span>
               </div>
@@ -165,16 +165,16 @@ export const AllocationCharts: React.FC<AllocationChartsProps> = ({
             topData.map((item) => (
               <div
                 key={item.name}
-                className="col-span-1 sm:col-span-3 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs"
+                className="col-span-2 sm:col-span-3 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-2 text-xs min-w-0"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <span
                     className="w-3 h-3 rounded-full shrink-0 shadow-sm"
                     style={{ backgroundColor: item.color }}
                   />
-                  <span className="font-bold text-slate-800 dark:text-slate-200">{item.name}</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 truncate">{item.name}</span>
                 </div>
-                <span className="font-bold text-amber-700 dark:text-gold-400">
+                <span className="font-bold text-amber-700 dark:text-gold-400 dir-ltr tabular-nums truncate shrink-0">
                   {formatToman(item.value)} تومان
                 </span>
               </div>

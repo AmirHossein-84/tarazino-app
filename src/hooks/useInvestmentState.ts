@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   AppSettings,
   CryptoAsset,
@@ -50,6 +50,8 @@ import {
   exportBackupData,
   importBackupData,
   resetAllDataToDefault,
+  setActiveStorageProfileId,
+  sanitizeProfileId,
 } from '../utils/storage';
 import { calculatePortfolioAllocation } from '../utils/calculations';
 import { getPersianFormattedDate, formatToman } from '../utils/formatters';
@@ -59,45 +61,109 @@ import {
   calculateTotalPhysicalGoldPnl,
   processGoldSale,
 } from '../utils/goldPnlCalculators';
+import { redactSecrets, sanitizePlainData } from '../utils/security';
 
-interface UseInvestmentStateProps {
+export interface UseInvestmentStateProps {
   externalGoldValueTomans?: number;
   onApplyGoldPurchase?: (goldBuyAmountTomans: number) => void;
+  activeProfileId?: string | null;
+  onBackupRestored?: (profileId: string | null) => void;
 }
 
 export function useInvestmentState(props?: UseInvestmentStateProps) {
+  const initialProfileId = sanitizeProfileId(props?.activeProfileId);
+  const activeProfileIdRef = useRef<string | null>(initialProfileId);
+  const [hydratedProfileId, setHydratedProfileId] = useState<string | null>(initialProfileId);
+  useEffect(() => {
+    const cleanId = sanitizeProfileId(props?.activeProfileId);
+    activeProfileIdRef.current = cleanId;
+  }, [props?.activeProfileId]);
+
   const [activeTab, setActiveTab] = useState<ActiveTab>('calculator');
-  const [inputAmount, setInputAmountState] = useState<number>(() => loadLastInput());
-  const [settings, setSettingsState] = useState<AppSettings>(() => loadSettings());
-  const [cryptoAssets, setCryptoAssetsState] = useState<CryptoAsset[]>(() => loadCryptoAssets());
-  const [goldHolding, setGoldHoldingState] = useState<GoldHolding>(() => loadGoldHolding());
-  const [physicalGoldItems, setPhysicalGoldItemsState] = useState<PhysicalGoldItem[]>(() => loadPhysicalGold());
-  const [goldBuyLots, setGoldBuyLotsState] = useState<PhysicalGoldBuyLot[]>(() => loadGoldBuyLots());
-  const [physicalGoldSales, setPhysicalGoldSalesState] = useState<PhysicalGoldSaleRecord[]>(() => loadPhysicalGoldSales());
-  const [properties, setPropertiesState] = useState<PropertyItem[]>(() => loadProperties());
-  const [vehicles, setVehiclesState] = useState<VehicleItem[]>(() => loadVehicles());
-  const [dollarHolding, setDollarHoldingState] = useState<DollarHolding>(() => loadDollarHolding());
+  const [inputAmount, setInputAmountState] = useState<number>(() =>
+    loadLastInput(activeProfileIdRef.current)
+  );
+  const [settings, setSettingsState] = useState<AppSettings>(() =>
+    loadSettings(activeProfileIdRef.current)
+  );
+  const [cryptoAssets, setCryptoAssetsState] = useState<CryptoAsset[]>(() =>
+    loadCryptoAssets(activeProfileIdRef.current)
+  );
+  const [goldHolding, setGoldHoldingState] = useState<GoldHolding>(() =>
+    loadGoldHolding(activeProfileIdRef.current)
+  );
+  const [physicalGoldItems, setPhysicalGoldItemsState] = useState<PhysicalGoldItem[]>(() =>
+    loadPhysicalGold(activeProfileIdRef.current)
+  );
+  const [goldBuyLots, setGoldBuyLotsState] = useState<PhysicalGoldBuyLot[]>(() =>
+    loadGoldBuyLots(activeProfileIdRef.current)
+  );
+  const [physicalGoldSales, setPhysicalGoldSalesState] = useState<PhysicalGoldSaleRecord[]>(() =>
+    loadPhysicalGoldSales(activeProfileIdRef.current)
+  );
+  const [properties, setPropertiesState] = useState<PropertyItem[]>(() =>
+    loadProperties(activeProfileIdRef.current)
+  );
+  const [vehicles, setVehiclesState] = useState<VehicleItem[]>(() =>
+    loadVehicles(activeProfileIdRef.current)
+  );
+  const [dollarHolding, setDollarHoldingState] = useState<DollarHolding>(() =>
+    loadDollarHolding(activeProfileIdRef.current)
+  );
   const [isRefreshingGold, setIsRefreshingGold] = useState<boolean>(false);
   const [isGoldFetchError, setIsGoldFetchError] = useState<boolean>(false);
-  const [transactions, setTransactionsState] = useState<TransactionRecord[]>(() => loadTransactions());
-  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'error' | 'warning' } | null>(null);
+  const [transactions, setTransactionsState] = useState<TransactionRecord[]>(() =>
+    loadTransactions(activeProfileIdRef.current)
+  );
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: 'success' | 'info' | 'error' | 'warning';
+  } | null>(null);
 
-  const showNotification = useCallback((message: string, type: 'success' | 'info' | 'error' | 'warning' = 'success') => {
-    setNotification({ message, type });
-    setTimeout(() => {
-      setNotification(null);
-    }, 4000);
+  const notificationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const goldRefreshAbortRef = useRef<AbortController | null>(null);
+  const goldRefreshGenRef = useRef<number>(0);
+
+  const physicalGoldItemsRef = useRef<PhysicalGoldItem[]>(physicalGoldItems);
+  const goldBuyLotsRef = useRef<PhysicalGoldBuyLot[]>(goldBuyLots);
+  const physicalGoldSalesRef = useRef<PhysicalGoldSaleRecord[]>(physicalGoldSales);
+  physicalGoldItemsRef.current = physicalGoldItems;
+  goldBuyLotsRef.current = goldBuyLots;
+  physicalGoldSalesRef.current = physicalGoldSales;
+
+  useEffect(() => {
+    return () => {
+      if (notificationTimerRef.current) {
+        clearTimeout(notificationTimerRef.current);
+      }
+      goldRefreshAbortRef.current?.abort();
+    };
   }, []);
 
+  const showNotification = useCallback(
+    (message: string, type: 'success' | 'info' | 'error' | 'warning' = 'success') => {
+      setNotification({ message, type });
+      if (notificationTimerRef.current) {
+        clearTimeout(notificationTimerRef.current);
+      }
+      notificationTimerRef.current = setTimeout(() => {
+        setNotification(null);
+        notificationTimerRef.current = null;
+      }, 4000);
+    },
+    []
+  );
+
   const setInputAmount = useCallback((val: number) => {
-    setInputAmountState(val);
-    saveLastInput(val);
+    const safeVal = Number.isFinite(val) ? Math.max(0, val) : 0;
+    setInputAmountState(safeVal);
+    saveLastInput(safeVal, activeProfileIdRef.current);
   }, []);
 
   const updateSettings = useCallback((newSettings: Partial<AppSettings>) => {
     setSettingsState((prev) => {
       const updated = { ...prev, ...newSettings };
-      saveSettings(updated);
+      saveSettings(updated, activeProfileIdRef.current);
       return updated;
     });
     showNotification('تنظیمات با موفقیت ذخیره شد');
@@ -105,7 +171,7 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
 
   const updateCryptoAssets = useCallback((newAssets: CryptoAsset[]) => {
     setCryptoAssetsState(newAssets);
-    saveCryptoAssets(newAssets);
+    saveCryptoAssets(newAssets, activeProfileIdRef.current);
   }, []);
 
   const updateGoldHolding = useCallback((newGold: Partial<GoldHolding>) => {
@@ -123,6 +189,7 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
 
   const addGoldBuyLot = useCallback(
     (lotData: Omit<PhysicalGoldBuyLot, 'id' | 'totalCostTomans'>) => {
+      const pid = activeProfileIdRef.current;
       const totalCostTomans = Math.round(lotData.quantity * lotData.purchaseUnitPriceTomans);
       const newLot: PhysicalGoldBuyLot = {
         ...lotData,
@@ -130,9 +197,10 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
         totalCostTomans,
       };
 
-      const updatedLots = [newLot, ...goldBuyLots];
+      const updatedLots = [newLot, ...goldBuyLotsRef.current];
+      goldBuyLotsRef.current = updatedLots;
       setGoldBuyLotsState(updatedLots);
-      saveGoldBuyLots(updatedLots);
+      saveGoldBuyLots(updatedLots, pid);
 
       // Automatically update item total quantity and cost basis
       setPhysicalGoldItemsState((prev) => {
@@ -154,37 +222,40 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
           }
           return item;
         });
-        savePhysicalGold(updated);
+        savePhysicalGold(updated, pid);
         return updated;
       });
 
       showNotification(`پله خرید ${lotData.quantity} ${lotData.goldType.startsWith('coin_') ? 'عدد' : 'گرم'} طلا با موفقیت ثبت شد`);
     },
-    [goldBuyLots, showNotification]
+    [showNotification]
   );
 
   const removeGoldBuyLot = useCallback(
     (lotId: string) => {
-      const lotToRemove = goldBuyLots.find((l) => l.id === lotId);
+      const pid = activeProfileIdRef.current;
+      const lotToRemove = goldBuyLotsRef.current.find((l) => l.id === lotId);
       if (!lotToRemove) return;
 
-      const updatedLots = goldBuyLots.filter((l) => l.id !== lotId);
+      const updatedLots = goldBuyLotsRef.current.filter((l) => l.id !== lotId);
+      goldBuyLotsRef.current = updatedLots;
       setGoldBuyLotsState(updatedLots);
-      saveGoldBuyLots(updatedLots);
+      saveGoldBuyLots(updatedLots, pid);
 
       // Recalculate item quantity and cost basis
       setPhysicalGoldItemsState((prev) => {
         const updated = prev.map((item) => {
           if (item.id === lotToRemove.goldType) {
             const newQty = Math.max(0, Number(((item.quantity || 0) - lotToRemove.quantity).toFixed(3)));
-            const itemLots = updatedLots.filter((l) => l.goldType === item.id);
+            const isZero = newQty <= 0.0001;
+            const itemLots = isZero ? [] : updatedLots.filter((l) => l.goldType === item.id);
             const totalCost = itemLots.reduce((sum, l) => sum + l.totalCostTomans, 0);
             const totalQty = itemLots.reduce((sum, l) => sum + l.quantity, 0);
             const avgCost = totalQty > 0 ? Math.round(totalCost / totalQty) : undefined;
 
             return {
               ...item,
-              quantity: newQty,
+              quantity: isZero ? 0 : newQty,
               averageBuyPriceTomans: avgCost,
               totalCostTomans: totalCost,
               buyLots: itemLots,
@@ -192,13 +263,13 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
           }
           return item;
         });
-        savePhysicalGold(updated);
+        savePhysicalGold(updated, pid);
         return updated;
       });
 
       showNotification('پله خرید از سوابق حذف شد', 'info');
     },
-    [goldBuyLots, showNotification]
+    [showNotification]
   );
 
   const recordGoldSale = useCallback(
@@ -206,63 +277,124 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
       id: PhysicalGoldType,
       quantitySold: number,
       saleUnitPriceTomans?: number,
-      notes?: string
+      notes?: string,
+      persianSaleDate?: string
     ) => {
-      const item = physicalGoldItems.find((i) => i.id === id);
-      if (!item || quantitySold <= 0) return;
+      const pid = activeProfileIdRef.current;
+      const item = physicalGoldItemsRef.current.find((i) => i.id === id);
+      if (!item || !Number.isFinite(quantitySold) || quantitySold <= 0 || item.quantity <= 0) return;
 
-      const effectiveSalePrice = saleUnitPriceTomans || item.unitPriceTomans || 0;
+      const ownedQty = Number(item.quantity) || 0;
+      const clampedSold = Math.min(ownedQty, Number(quantitySold.toFixed(3)));
+      if (clampedSold <= 0) return;
+
+      const effectiveSalePrice =
+        saleUnitPriceTomans && saleUnitPriceTomans > 0
+          ? saleUnitPriceTomans
+          : item.unitPriceTomans || 0;
+
       const { saleRecord, updatedLots } = processGoldSale(
         item,
-        quantitySold,
+        clampedSold,
         effectiveSalePrice,
-        goldBuyLots,
-        notes
+        goldBuyLotsRef.current,
+        notes,
+        persianSaleDate
       );
 
+      const remainingQtyRaw = Number((ownedQty - clampedSold).toFixed(3));
+      const isFullSale = remainingQtyRaw <= 0.0001;
+      const cleanRemainingLots = isFullSale
+        ? updatedLots.filter((l) => l.goldType !== id)
+        : updatedLots;
+
       // Save sale record
-      const updatedSales = [saleRecord, ...physicalGoldSales];
+      const updatedSales = [saleRecord, ...physicalGoldSalesRef.current];
+      physicalGoldSalesRef.current = updatedSales;
       setPhysicalGoldSalesState(updatedSales);
-      savePhysicalGoldSales(updatedSales);
+      savePhysicalGoldSales(updatedSales, pid);
 
-      // Update remaining lots
-      setGoldBuyLotsState(updatedLots);
-      saveGoldBuyLots(updatedLots);
+      // Update remaining lots cleanly
+      goldBuyLotsRef.current = cleanRemainingLots;
+      setGoldBuyLotsState(cleanRemainingLots);
+      saveGoldBuyLots(cleanRemainingLots, pid);
 
-      // Update item holdings
+      // Update item holdings immutably
       setPhysicalGoldItemsState((prev) => {
         const updated = prev.map((it) => {
           if (it.id === id) {
-            const newQty = Math.max(0, Number(((it.quantity || 0) - quantitySold).toFixed(3)));
-            const itemLots = updatedLots.filter((l) => l.goldType === id);
-            const totalCost = itemLots.reduce((sum, l) => sum + (l.totalCostTomans || l.quantity * l.purchaseUnitPriceTomans), 0);
+            if (isFullSale) {
+              return {
+                ...it,
+                quantity: 0,
+                averageBuyPriceTomans: undefined,
+                totalCostTomans: 0,
+                buyLots: [],
+              };
+            }
+
+            const itemLots = cleanRemainingLots.filter((l) => l.goldType === id);
+            const totalCost = itemLots.reduce(
+              (sum, l) => sum + (l.totalCostTomans || l.quantity * l.purchaseUnitPriceTomans),
+              0
+            );
             const totalQty = itemLots.reduce((sum, l) => sum + l.quantity, 0);
-            const avgCost = totalQty > 0 ? Math.round(totalCost / totalQty) : undefined;
+            const avgCost =
+              totalQty > 0 ? Math.round(totalCost / totalQty) : it.averageBuyPriceTomans;
 
             return {
               ...it,
-              quantity: newQty,
+              quantity: remainingQtyRaw,
               averageBuyPriceTomans: avgCost,
-              totalCostTomans: totalCost,
+              totalCostTomans: totalQty > 0 ? totalCost : Math.round(remainingQtyRaw * (avgCost || 0)),
               buyLots: itemLots,
             };
           }
           return it;
         });
-        savePhysicalGold(updated);
+        savePhysicalGold(updated, pid);
         return updated;
       });
 
-      showNotification(`فروش ${quantitySold} ${item.unit} ${item.title} با موفقیت ثبت شد`, 'success');
+      // Mirror the sale into general TransactionHistory for unified auditability
+      const txRecord: TransactionRecord = {
+        id: `tx_${saleRecord.id}`,
+        date: saleRecord.saleDate,
+        persianDate: saleRecord.persianDate || getPersianFormattedDate(new Date()),
+        totalInputAmount: saleRecord.totalRevenueTomans,
+        totalSavingsAmount: saleRecord.totalRevenueTomans,
+        goldBuyAmount: saleRecord.totalRevenueTomans,
+        cryptoBuyAmount: 0,
+        cryptoBuys: [],
+        appliedToHoldings: true,
+        kind: 'physical_gold_sale',
+        title: `فروش ${saleRecord.title} (${saleRecord.quantitySold} ${item.unit})`,
+        note: notes,
+        realizedProfitTomans: saleRecord.realizedProfitTomans,
+      };
+      setTransactionsState((prev) => {
+        const nextTx = [txRecord, ...prev];
+        saveTransactions(nextTx, pid);
+        return nextTx;
+      });
+
+      showNotification(
+        isFullSale
+          ? `فروش کامل ${item.title} ثبت و دارایی از فهرست حذف شد`
+          : `فروش ${clampedSold} ${item.unit} ${item.title} با موفقیت ثبت شد`,
+        'success'
+      );
     },
-    [physicalGoldItems, goldBuyLots, physicalGoldSales, showNotification]
+    [showNotification]
   );
 
   const deleteGoldSaleRecord = useCallback(
     (id: string) => {
+      const pid = activeProfileIdRef.current;
       setPhysicalGoldSalesState((prev) => {
         const updated = prev.filter((s) => s.id !== id);
-        savePhysicalGoldSales(updated);
+        physicalGoldSalesRef.current = updated;
+        savePhysicalGoldSales(updated, pid);
         return updated;
       });
       showNotification('سند فروش از دفتر کل حذف شد', 'info');
@@ -271,101 +403,206 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
   );
 
   const clearGoldSaleHistory = useCallback(() => {
+    const pid = activeProfileIdRef.current;
+    physicalGoldSalesRef.current = [];
     setPhysicalGoldSalesState([]);
-    savePhysicalGoldSales([]);
+    savePhysicalGoldSales([], pid);
     showNotification('کل دفتر سوابق فروش طلا پاک شد', 'info');
   }, [showNotification]);
 
   const updatePhysicalGoldQuantity = useCallback(
     (id: PhysicalGoldType, newQuantity: number) => {
-      const safeNewQty = Math.max(0, Number(newQuantity.toFixed(3)));
+      const pid = activeProfileIdRef.current;
+      const safeNewQty = Math.max(0, Number((Number.isFinite(newQuantity) ? newQuantity : 0).toFixed(3)));
+      const isZero = safeNewQty <= 0.0001;
+
+      if (isZero) {
+        const remainingLots = goldBuyLotsRef.current.filter((l) => l.goldType !== id);
+        goldBuyLotsRef.current = remainingLots;
+        setGoldBuyLotsState(remainingLots);
+        saveGoldBuyLots(remainingLots, pid);
+      }
+
       setPhysicalGoldItemsState((prev) => {
         const updated = prev.map((item) => {
           if (item.id === id) {
+            if (isZero) {
+              return {
+                ...item,
+                quantity: 0,
+                averageBuyPriceTomans: undefined,
+                totalCostTomans: 0,
+                buyLots: [],
+              };
+            }
             return { ...item, quantity: safeNewQty };
           }
           return item;
         });
-        savePhysicalGold(updated);
+        savePhysicalGold(updated, pid);
         return updated;
       });
-      showNotification('موجودی طلای فیزیکی به‌روزرسانی شد');
+      showNotification(isZero ? 'دارایی طلا با موفقیت حذف شد' : 'موجودی طلای فیزیکی به‌روزرسانی شد');
+    },
+    [showNotification]
+  );
+
+  const updatePhysicalGoldCostBasis = useCallback(
+    (id: PhysicalGoldType, averageBuyPriceTomans: number) => {
+      const pid = activeProfileIdRef.current;
+      const safeCost = Math.max(
+        0,
+        Math.round(Number.isFinite(averageBuyPriceTomans) ? averageBuyPriceTomans : 0)
+      );
+      setPhysicalGoldItemsState((prev) => {
+        const updated = prev.map((item) => {
+          if (item.id === id) {
+            return {
+              ...item,
+              averageBuyPriceTomans: safeCost > 0 ? safeCost : undefined,
+              totalCostTomans: safeCost > 0 ? Math.round((item.quantity || 0) * safeCost) : 0,
+            };
+          }
+          return item;
+        });
+        savePhysicalGold(updated, pid);
+        return updated;
+      });
+    },
+    []
+  );
+
+  const removePhysicalGoldItem = useCallback(
+    (id: PhysicalGoldType) => {
+      const pid = activeProfileIdRef.current;
+      const remainingLots = goldBuyLotsRef.current.filter((l) => l.goldType !== id);
+      goldBuyLotsRef.current = remainingLots;
+      setGoldBuyLotsState(remainingLots);
+      saveGoldBuyLots(remainingLots, pid);
+
+      setPhysicalGoldItemsState((prev) => {
+        const updated = prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                quantity: 0,
+                averageBuyPriceTomans: undefined,
+                totalCostTomans: 0,
+                buyLots: [],
+              }
+            : item
+        );
+        savePhysicalGold(updated, pid);
+        return updated;
+      });
+      showNotification('دارایی طلای فیزیکی با موفقیت حذف شد', 'info');
     },
     [showNotification]
   );
 
   const updatePhysicalGoldPrice = useCallback((id: PhysicalGoldType, unitPriceTomans: number, isCustom = true) => {
+    const pid = activeProfileIdRef.current;
     setPhysicalGoldItemsState((prev) => {
       const updated = prev.map((item) => {
         if (item.id === id) {
           return {
             ...item,
-            unitPriceTomans: Math.max(0, unitPriceTomans),
+            unitPriceTomans: Math.max(0, Number.isFinite(unitPriceTomans) ? unitPriceTomans : 0),
             isCustomPrice: isCustom,
           };
         }
         return item;
       });
-      savePhysicalGold(updated);
+      savePhysicalGold(updated, pid);
       return updated;
     });
     showNotification('قیمت واحد به‌روزرسانی شد');
   }, [showNotification]);
 
-  const refreshPhysicalGoldPrices = useCallback(async () => {
-    setIsRefreshingGold(true);
-    try {
-      const liveRates = await physicalGoldService.fetchLiveRates();
-      const hasRates = Object.keys(liveRates).length > 0;
-      setIsGoldFetchError(!hasRates);
+  const refreshPhysicalGoldPrices = useCallback(
+    async (forceRefresh = false, externalSignal?: AbortSignal) => {
+      goldRefreshAbortRef.current?.abort();
+      const controller = new AbortController();
+      goldRefreshAbortRef.current = controller;
+      const onExtAbort = () => controller.abort();
+      externalSignal?.addEventListener('abort', onExtAbort, { once: true });
 
-      if (hasRates) {
-        setPhysicalGoldItemsState((prev) => {
-          const updated = prev.map((item) => {
-            const liveRate = liveRates[item.id];
-            if (liveRate && !item.isCustomPrice) {
-              return {
-                ...item,
-                unitPriceTomans: liveRate.priceTomans,
-                priceChangePercent: liveRate.changePercent,
-                lastFetchedAt: Date.now(),
-              };
-            }
-            return item;
-          });
-          savePhysicalGold(updated);
-          return updated;
-        });
-      }
+      const gen = ++goldRefreshGenRef.current;
+      const startedPid = activeProfileIdRef.current;
 
-      // TGJU dollar → dollarHolding.currentPriceTomans (no custom flag on
-      // DollarHolding, so always sync the live rate and stamp lastUpdated).
-      // getDollarRateTomans() reuses the fresh /ajax.json payload when
-      // fetchLiveRates just ran, otherwise it fetches on its own TTL.
+      setIsRefreshingGold(true);
       try {
-        const dollarRateTomans = await physicalGoldService.getDollarRateTomans();
-        if (dollarRateTomans > 0) {
-          setDollarHoldingState((prev) => {
-            if (prev.currentPriceTomans === dollarRateTomans) return prev;
-            const updated = {
-              ...prev,
-              currentPriceTomans: dollarRateTomans,
-              lastUpdated: Date.now(),
-            };
-            saveDollarHolding(updated);
+        const liveRates = await physicalGoldService.fetchLiveRates(forceRefresh, controller.signal);
+        if (
+          controller.signal.aborted ||
+          gen !== goldRefreshGenRef.current ||
+          activeProfileIdRef.current !== startedPid
+        ) {
+          return;
+        }
+        const hasRates = Object.keys(liveRates).length > 0;
+        setIsGoldFetchError(!hasRates);
+
+        if (hasRates) {
+          setPhysicalGoldItemsState((prev) => {
+            const updated = prev.map((item) => {
+              const liveRate = liveRates[item.id];
+              if (liveRate && !item.isCustomPrice) {
+                return {
+                  ...item,
+                  unitPriceTomans: liveRate.priceTomans,
+                  priceChangePercent: liveRate.changePercent,
+                  lastFetchedAt: Date.now(),
+                };
+              }
+              return item;
+            });
+            savePhysicalGold(updated, startedPid);
             return updated;
           });
         }
-      } catch (dollarError) {
-        console.warn('Failed to refresh TGJU dollar rate:', dollarError);
+
+        // Uses fresh cache populated by fetchLiveRates without duplicate network hit
+        try {
+          const dollarRateTomans = await physicalGoldService.getDollarRateTomans(controller.signal);
+          if (
+            controller.signal.aborted ||
+            gen !== goldRefreshGenRef.current ||
+            activeProfileIdRef.current !== startedPid
+          ) {
+            return;
+          }
+          if (dollarRateTomans > 0) {
+            setDollarHoldingState((prev) => {
+              if (prev.currentPriceTomans === dollarRateTomans) return prev;
+              const updated = {
+                ...prev,
+                currentPriceTomans: dollarRateTomans,
+                lastUpdated: Date.now(),
+              };
+              saveDollarHolding(updated, startedPid);
+              return updated;
+            });
+          }
+        } catch (dollarError) {
+          if ((dollarError as { name?: string })?.name !== 'AbortError') {
+            console.warn('Failed to refresh TGJU dollar rate:', redactSecrets(dollarError));
+          }
+        }
+      } catch (e) {
+        if ((e as { name?: string })?.name !== 'AbortError') {
+          console.warn('Failed to refresh physical gold prices:', redactSecrets(e));
+          setIsGoldFetchError(true);
+        }
+      } finally {
+        externalSignal?.removeEventListener('abort', onExtAbort);
+        if (gen === goldRefreshGenRef.current) {
+          setIsRefreshingGold(false);
+        }
       }
-    } catch (e) {
-      console.warn('Failed to refresh physical gold prices:', e);
-      setIsGoldFetchError(true);
-    } finally {
-      setIsRefreshingGold(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   // Auto-fetch live gold & coin rates on load
   useEffect(() => {
@@ -769,24 +1006,25 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
   }, [showNotification]);
 
   const resetToFactoryDefaults = useCallback(() => {
-    resetAllDataToDefault();
-    setSettingsState(loadSettings());
-    setCryptoAssetsState(loadCryptoAssets());
-    setGoldHoldingState(loadGoldHolding());
-    setPhysicalGoldItemsState(loadPhysicalGold());
+    const pid = activeProfileIdRef.current;
+    resetAllDataToDefault(pid);
+    setSettingsState(loadSettings(pid));
+    setCryptoAssetsState(loadCryptoAssets(pid));
+    setGoldHoldingState(loadGoldHolding(pid));
+    setPhysicalGoldItemsState(loadPhysicalGold(pid));
     setGoldBuyLotsState([]);
     setPhysicalGoldSalesState([]);
     setPropertiesState([]);
     setVehiclesState([]);
-    setDollarHoldingState(loadDollarHolding());
+    setDollarHoldingState(loadDollarHolding(pid));
     setTransactionsState([]);
     setInputAmountState(0);
-    showNotification('تمامی اطلاعات به تنظیمات پیش‌فرض کارخانه بازنشانی شد', 'info');
+    showNotification('تمامی اطلاعات این پروفایل به تنظیمات پیش‌فرض بازنشانی شد', 'info');
   }, [showNotification]);
 
   const handleExportBackup = useCallback(() => {
     try {
-      const dataStr = exportBackupData();
+      const dataStr = exportBackupData(activeProfileIdRef.current);
       const blob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -796,42 +1034,54 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      showNotification('فایل پشتیبان با موفقیت دانلود شد');
-    } catch (e) {
+      showNotification('فایل پشتیبان پروفایل فعلی با موفقیت دانلود شد');
+    } catch {
       showNotification('خطا در ایجاد فایل پشتیبان', 'error');
     }
   }, [showNotification]);
 
-  const handleImportBackup = useCallback((jsonString: string) => {
-    const success = importBackupData(jsonString);
-    if (success) {
-      setSettingsState(loadSettings());
-      setCryptoAssetsState(loadCryptoAssets());
-      setGoldHoldingState(loadGoldHolding());
-      setPhysicalGoldItemsState(loadPhysicalGold());
-      setGoldBuyLotsState(loadGoldBuyLots());
-      setPhysicalGoldSalesState(loadPhysicalGoldSales());
-      setPropertiesState(loadProperties());
-      setVehiclesState(loadVehicles());
-      setDollarHoldingState(loadDollarHolding());
-      setTransactionsState(loadTransactions());
-      showNotification('اطلاعات با موفقیت از فایل پشتیبان بازیابی شدند');
-    } else {
-      showNotification('فایل پشتیبان نامعتبر است', 'error');
-    }
-    return success;
-  }, [showNotification]);
+  const handleImportBackup = useCallback(
+    (jsonString: string) => {
+      const pid = activeProfileIdRef.current;
+      const success = importBackupData(jsonString, pid);
+      if (success) {
+        setSettingsState(loadSettings(pid));
+        setCryptoAssetsState(loadCryptoAssets(pid));
+        setGoldHoldingState(loadGoldHolding(pid));
+        setPhysicalGoldItemsState(loadPhysicalGold(pid));
+        setGoldBuyLotsState(loadGoldBuyLots(pid));
+        setPhysicalGoldSalesState(loadPhysicalGoldSales(pid));
+        setPropertiesState(loadProperties(pid));
+        setVehiclesState(loadVehicles(pid));
+        setDollarHoldingState(loadDollarHolding(pid));
+        setTransactionsState(loadTransactions(pid));
+        setInputAmountState(loadLastInput(pid));
+        props?.onBackupRestored?.(pid);
+        showNotification('اطلاعات پروفایل فعلی با موفقیت از فایل پشتیبان بازیابی شد');
+      } else {
+        showNotification('فایل پشتیبان نامعتبر است یا ساختار آن همخوانی ندارد', 'error');
+      }
+      return success;
+    },
+    [props, showNotification]
+  );
 
   // -------------------------------------------------------------
   // MULTI-PROFILE HYDRATION — load a profile's snapshot into local state
   // -------------------------------------------------------------
   const hydrateFromProfile = useCallback((profile: UserProfile) => {
+    const pid = sanitizeProfileId(profile.id);
+    activeProfileIdRef.current = pid;
+    setActiveStorageProfileId(pid);
+    goldRefreshAbortRef.current?.abort();
+    goldRefreshGenRef.current += 1;
+
     const clone = <T,>(value: T | undefined, fallback: T): T => {
       try {
-        if (value === undefined || value === null) return JSON.parse(JSON.stringify(fallback));
-        return JSON.parse(JSON.stringify(value));
+        const source = value === undefined || value === null ? fallback : value;
+        return sanitizePlainData(JSON.parse(JSON.stringify(source))) as T;
       } catch {
-        return fallback;
+        return sanitizePlainData(JSON.parse(JSON.stringify(fallback))) as T;
       }
     };
 
@@ -845,30 +1095,36 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     const nextLots = clone(profile.goldBuyLots, []);
     const nextSales = clone(profile.physicalGoldSales, []);
     const nextTx = clone(profile.transactions, []);
+    const nextLastInput =
+      profile.lastInput !== undefined ? Number(profile.lastInput) || 0 : loadLastInput(pid);
 
     setSettingsState(nextSettings);
-    saveSettings(nextSettings);
+    saveSettings(nextSettings, pid);
     setCryptoAssetsState(nextCrypto);
-    saveCryptoAssets(nextCrypto);
+    saveCryptoAssets(nextCrypto, pid);
     setGoldHoldingState(nextGold);
-    saveGoldHolding(nextGold);
+    saveGoldHolding(nextGold, pid);
     setPhysicalGoldItemsState(nextPhysical);
-    savePhysicalGold(nextPhysical);
+    savePhysicalGold(nextPhysical, pid);
     setPropertiesState(nextProperties);
-    saveProperties(nextProperties);
+    saveProperties(nextProperties, pid);
     setVehiclesState(nextVehicles);
-    saveVehicles(nextVehicles);
+    saveVehicles(nextVehicles, pid);
     setDollarHoldingState(nextDollar);
-    saveDollarHolding(nextDollar);
+    saveDollarHolding(nextDollar, pid);
     setGoldBuyLotsState(nextLots);
-    saveGoldBuyLots(nextLots);
+    saveGoldBuyLots(nextLots, pid);
     setPhysicalGoldSalesState(nextSales);
-    savePhysicalGoldSales(nextSales);
+    savePhysicalGoldSales(nextSales, pid);
     setTransactionsState(nextTx);
-    saveTransactions(nextTx);
+    saveTransactions(nextTx, pid);
+    setInputAmountState(nextLastInput);
+    saveLastInput(nextLastInput, pid);
+    setHydratedProfileId(pid);
   }, []);
 
   return {
+    hydratedProfileId,
     activeTab,
     setActiveTab,
     inputAmount,
@@ -896,6 +1152,8 @@ export function useInvestmentState(props?: UseInvestmentStateProps) {
     deleteGoldSaleRecord,
     clearGoldSaleHistory,
     updatePhysicalGoldQuantity,
+    updatePhysicalGoldCostBasis,
+    removePhysicalGoldItem,
     updatePhysicalGoldPrice,
     refreshPhysicalGoldPrices,
     properties,

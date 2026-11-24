@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { useInvestmentState } from './hooks/useInvestmentState';
 import { MarketDataProvider, useMarketData } from './hooks/useMarketData';
 import { useNobitex } from './hooks/useNobitex';
@@ -8,25 +8,69 @@ import { useProfileState } from './hooks/useProfileState';
 import { Header } from './components/layout/Header';
 import { BottomNav } from './components/layout/BottomNav';
 import { DashboardView } from './components/dashboard/DashboardView';
-import { MarketsHubView } from './components/market/MarketsHubView';
-import { HoldingsManager } from './components/holdings/HoldingsManager';
-import { SellView } from './components/sell/SellView';
-import { PercentagesConfig } from './components/settings/PercentagesConfig';
-import { BackupRestore } from './components/settings/BackupRestore';
-import { AccountSettingsView } from './components/settings/AccountSettingsView';
-import { TransactionHistory } from './components/history/TransactionHistory';
-import { WelcomeOnboardingModal } from './components/onboarding/WelcomeOnboardingModal';
-import { ProfileSwitcherModal } from './components/account/ProfileSwitcherModal';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { CardSkeleton } from './components/common/SkeletonLoader';
 import { CheckCircle, Info, AlertCircle } from 'lucide-react';
-import { PhysicalGoldType, ActiveTab } from './types/investment';
+import { PhysicalGoldType } from './types/investment';
 import { NobitexConfig } from './services/nobitex/types';
+import { MarketInstrument, UserMarketHolding } from './services/marketData/types';
+import {
+  loadMarketInstruments,
+  loadMarketHoldings,
+  loadNobitexConfig,
+  sanitizeProfileId,
+} from './utils/storage';
 
-const AppContent: React.FC = () => {
+const MarketsHubView = lazy(() =>
+  import('./components/market/MarketsHubView').then((m) => ({ default: m.MarketsHubView }))
+);
+const HoldingsManager = lazy(() =>
+  import('./components/holdings/HoldingsManager').then((m) => ({ default: m.HoldingsManager }))
+);
+const SellView = lazy(() =>
+  import('./components/sell/SellView').then((m) => ({ default: m.SellView }))
+);
+const PercentagesConfig = lazy(() =>
+  import('./components/settings/PercentagesConfig').then((m) => ({ default: m.PercentagesConfig }))
+);
+const BackupRestore = lazy(() =>
+  import('./components/settings/BackupRestore').then((m) => ({ default: m.BackupRestore }))
+);
+const AccountSettingsView = lazy(() =>
+  import('./components/settings/AccountSettingsView').then((m) => ({
+    default: m.AccountSettingsView,
+  }))
+);
+const TransactionHistory = lazy(() =>
+  import('./components/history/TransactionHistory').then((m) => ({
+    default: m.TransactionHistory,
+  }))
+);
+const WelcomeOnboardingModal = lazy(() =>
+  import('./components/onboarding/WelcomeOnboardingModal').then((m) => ({
+    default: m.WelcomeOnboardingModal,
+  }))
+);
+const ProfileSwitcherModal = lazy(() =>
+  import('./components/account/ProfileSwitcherModal').then((m) => ({
+    default: m.ProfileSwitcherModal,
+  }))
+);
+
+type ProfileState = ReturnType<typeof useProfileState>;
+
+const TabSuspenseFallback: React.FC = () => (
+  <div className="space-y-4 py-2">
+    <CardSkeleton count={3} />
+  </div>
+);
+
+const AppContent: React.FC<{ profileState: ProfileState }> = ({ profileState }) => {
   const { isDark, toggleTheme } = useTheme();
   const [activeGoldFund, setActiveGoldFund] = useState<string>('عیار');
   const [isRefreshingAll, setIsRefreshingAll] = useState(false);
 
-  // Multi-User Profile State
+  // Multi-User Profile State (lifted so MarketDataProvider stays strictly isolated per profile)
   const {
     vault,
     activeProfile,
@@ -42,7 +86,7 @@ const AppContent: React.FC = () => {
     cancelOnboarding,
     updateActiveProfileData,
     deleteProfile,
-  } = useProfileState();
+  } = profileState;
 
   const {
     currencyMode,
@@ -51,7 +95,7 @@ const AppContent: React.FC = () => {
     formatCurrency,
     toDisplayValue,
     refreshUsdtRate,
-  } = useCurrencyDisplay();
+  } = useCurrencyDisplay(activeProfileId);
 
   const {
     totalGoldMarketValueTomans,
@@ -62,16 +106,52 @@ const AppContent: React.FC = () => {
     updateHolding,
     removeHolding,
     refreshQuotes,
+    hydrateMarketDataFromProfile,
   } = useMarketData();
 
   const {
     config: nobitexConfig,
+    loadedProfileId: nobitexLoadedProfileId,
     isConfigured: isNobitexConfigured,
     tomanCashBalance,
     syncWithNobitex,
     refreshCryptoPrices,
     saveConfig: saveNobitexConfigState,
-  } = useNobitex();
+  } = useNobitex(activeProfileId);
+
+  const handleBackupRestored = useCallback(
+    (targetProfileId: string | null) => {
+      const pid = sanitizeProfileId(targetProfileId);
+      const restoredInstruments = loadMarketInstruments(pid);
+      const restoredHoldings = loadMarketHoldings(pid);
+      const restoredNobitex = loadNobitexConfig(pid);
+
+      hydrateMarketDataFromProfile(pid, restoredInstruments, restoredHoldings);
+      saveNobitexConfigState(
+        {
+          authType: restoredNobitex.authType || 'api_key',
+          publicKey: restoredNobitex.publicKey || '',
+          secretKey: restoredNobitex.secretKey || '',
+          token: restoredNobitex.token || '',
+          autoSyncEnabled: restoredNobitex.autoSyncEnabled ?? false,
+          lastSyncedAt: restoredNobitex.lastSyncedAt,
+        },
+        pid
+      );
+
+      if (pid) {
+        updateActiveProfileData(
+          {
+            marketInstruments: restoredInstruments,
+            marketHoldings: restoredHoldings,
+            nobitexConfig: restoredNobitex,
+          },
+          pid
+        );
+      }
+    },
+    [hydrateMarketDataFromProfile, saveNobitexConfigState, updateActiveProfileData]
+  );
 
   // Handler to automatically add purchased TSETMC Gold units to user holdings
   const handleApplyGoldPurchase = useCallback(
@@ -94,6 +174,7 @@ const AppContent: React.FC = () => {
   );
 
   const {
+    hydratedProfileId,
     activeTab,
     setActiveTab,
     inputAmount,
@@ -111,26 +192,23 @@ const AppContent: React.FC = () => {
     isRefreshingGold,
     isGoldFetchError,
     totalPhysicalGoldValueTomans,
-    totalPhysicalGoldPnl,
     goldBuyLots,
     physicalGoldSales,
     addGoldBuyLot,
-    removeGoldBuyLot,
     recordGoldSale,
     deleteGoldSaleRecord,
     clearGoldSaleHistory,
     updatePhysicalGoldQuantity,
+    updatePhysicalGoldCostBasis,
+    removePhysicalGoldItem,
     updatePhysicalGoldPrice,
     refreshPhysicalGoldPrices,
     properties,
-    totalPropertiesValueTomans,
     netWorthPropertiesValueTomans,
     addProperty,
     editProperty,
     removeProperty,
-    updatePropertyValuation,
     vehicles,
-    totalVehiclesValueTomans,
     netWorthVehiclesValueTomans,
     addVehicle,
     editVehicle,
@@ -151,64 +229,89 @@ const AppContent: React.FC = () => {
     notification,
     showNotification,
   } = useInvestmentState({
+    activeProfileId,
     externalGoldValueTomans: totalGoldMarketValueTomans,
     onApplyGoldPurchase: handleApplyGoldPurchase,
+    onBackupRestored: handleBackupRestored,
   });
 
-  // Track which profile the local investment state currently reflects.
-  // Prevents the sync-back effect below from overwriting a freshly
-  // selected/created profile with the previous profile's stale state.
+  // Track which profile local state reflects AND guard sync-back with state-matched IDs
+  // so rapid profile switching never writes Profile A state onto Profile B.
   const lastHydratedProfileRef = useRef<string>('');
+  const refreshAbortRef = useRef<AbortController | null>(null);
 
-  // Hydrate local state + per-profile Nobitex keys when the active profile changes
+  useEffect(() => {
+    return () => {
+      refreshAbortRef.current?.abort();
+    };
+  }, [activeProfileId]);
+
+  // Hydrate local state + market instruments + per-profile Nobitex keys when active profile changes
   useEffect(() => {
     if (!activeProfileId || !activeProfile) return;
     if (lastHydratedProfileRef.current === activeProfileId) return;
     lastHydratedProfileRef.current = activeProfileId;
 
     hydrateFromProfile(activeProfile);
+    hydrateMarketDataFromProfile(
+      activeProfileId,
+      activeProfile.marketInstruments,
+      activeProfile.marketHoldings
+    );
 
     const profileNobitex = activeProfile.nobitexConfig as NobitexConfig | undefined;
     if (profileNobitex && (profileNobitex.publicKey?.trim() || profileNobitex.token?.trim())) {
-      saveNobitexConfigState({
-        authType: profileNobitex.authType || 'api_key',
-        publicKey: profileNobitex.publicKey || '',
-        secretKey: profileNobitex.secretKey || '',
-        token: profileNobitex.token || '',
-        autoSyncEnabled: profileNobitex.autoSyncEnabled ?? true,
-        lastSyncedAt: profileNobitex.lastSyncedAt,
-      });
+      saveNobitexConfigState(
+        {
+          authType: profileNobitex.authType || 'api_key',
+          publicKey: profileNobitex.publicKey || '',
+          secretKey: profileNobitex.secretKey || '',
+          token: profileNobitex.token || '',
+          autoSyncEnabled: profileNobitex.autoSyncEnabled ?? true,
+          lastSyncedAt: profileNobitex.lastSyncedAt,
+        },
+        activeProfileId
+      );
     } else {
-      saveNobitexConfigState({
-        authType: 'api_key',
-        publicKey: '',
-        secretKey: '',
-        token: '',
-        autoSyncEnabled: false,
-        lastSyncedAt: undefined,
-      });
+      saveNobitexConfigState(
+        {
+          authType: 'api_key',
+          publicKey: '',
+          secretKey: '',
+          token: '',
+          autoSyncEnabled: false,
+          lastSyncedAt: undefined,
+        },
+        activeProfileId
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeProfileId, activeProfile, hydrateFromProfile]);
+  }, [activeProfileId, activeProfile, hydrateFromProfile, hydrateMarketDataFromProfile]);
 
-  // Sync active profile data into device vault when local state changes
+  // Sync active profile data into device vault only once state belongs to activeProfileId
   useEffect(() => {
     if (!activeProfileId) return;
     if (lastHydratedProfileRef.current !== activeProfileId) return;
-    updateActiveProfileData({
-      settings,
-      cryptoAssets,
-      goldHolding,
-      physicalGold: physicalGoldItems,
-      properties,
-      vehicles,
-      dollarHolding,
-      goldBuyLots,
-      physicalGoldSales,
-      transactions,
-    });
+    if (hydratedProfileId !== activeProfileId) return;
+    updateActiveProfileData(
+      {
+        settings,
+        cryptoAssets,
+        goldHolding,
+        physicalGold: physicalGoldItems,
+        properties,
+        vehicles,
+        dollarHolding,
+        goldBuyLots,
+        physicalGoldSales,
+        transactions,
+        lastInput: inputAmount,
+      },
+      activeProfileId
+    );
   }, [
     activeProfileId,
+    hydratedProfileId,
     settings,
     cryptoAssets,
     goldHolding,
@@ -219,16 +322,18 @@ const AppContent: React.FC = () => {
     goldBuyLots,
     physicalGoldSales,
     transactions,
+    inputAmount,
     updateActiveProfileData,
   ]);
 
-  // Persist per-profile Nobitex keys when they change (isolated per profile)
+  // Persist per-profile Nobitex keys when they change (strictly isolated per profile)
   useEffect(() => {
     if (!activeProfileId) return;
     if (lastHydratedProfileRef.current !== activeProfileId) return;
+    if (nobitexLoadedProfileId !== activeProfileId) return;
     if (!nobitexConfig) return;
-    updateActiveProfileData({ nobitexConfig });
-  }, [activeProfileId, nobitexConfig, updateActiveProfileData]);
+    updateActiveProfileData({ nobitexConfig }, activeProfileId);
+  }, [activeProfileId, nobitexLoadedProfileId, nobitexConfig, updateActiveProfileData]);
 
   // Handlers to deduct sold gold units from holdings
   const handleDeductBourseGold = useCallback(
@@ -248,13 +353,10 @@ const AppContent: React.FC = () => {
 
   const handleDeductPhysicalGold = useCallback(
     (id: PhysicalGoldType, quantityToDeduct: number) => {
-      const item = physicalGoldItems.find((i) => i.id === id);
-      if (item) {
-        const newQty = Math.max(0, Number((item.quantity - quantityToDeduct).toFixed(2)));
-        updatePhysicalGoldQuantity(id, newQty);
-      }
+      if (!Number.isFinite(quantityToDeduct) || quantityToDeduct <= 0) return;
+      recordGoldSale(id, quantityToDeduct, undefined, 'فروش از بخش محاسبه‌گر فروش');
     },
-    [physicalGoldItems, updatePhysicalGoldQuantity]
+    [recordGoldSale]
   );
 
   // Calculate live Gold ETF unit price and 24h change
@@ -268,28 +370,63 @@ const AppContent: React.FC = () => {
   const totalCryptoValue = cryptoAssets.reduce((sum, a) => sum + (a.currentHoldingValue || 0), 0);
   const totalPortfolioValue = totalGoldValue + totalCryptoValue;
 
-  // Unified pull-to-refresh handler across TSETMC, TGJU Gold & Coins, and Nobitex
-  const handleRefreshAll = async () => {
+  // Unified concurrent pull-to-refresh handler across TSETMC, TGJU Gold & Coins, USDT, and Nobitex
+  const handleRefreshAll = useCallback(async () => {
+    refreshAbortRef.current?.abort();
+    const controller = new AbortController();
+    refreshAbortRef.current = controller;
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    const startedProfileId = activeProfileId;
+
     setIsRefreshingAll(true);
     try {
-      await Promise.all([
+      const results = await Promise.allSettled([
         refreshQuotes(true),
-        refreshPhysicalGoldPrices(),
-        refreshUsdtRate(),
+        refreshPhysicalGoldPrices(true, controller.signal),
+        refreshUsdtRate(controller.signal),
         isNobitexConfigured
           ? syncWithNobitex(cryptoAssets, updateCryptoAssets)
-          : refreshCryptoPrices(cryptoAssets, updateCryptoAssets),
+          : refreshCryptoPrices(cryptoAssets, updateCryptoAssets, controller.signal),
       ]);
-      showNotification('اطلاعات بورس، طلا، سکه و رمزارزها به‌روزرسانی شد', 'success');
+
+      if (controller.signal.aborted || startedProfileId !== activeProfileId) {
+        return;
+      }
+
+      const failedCount = results.filter((r) => r.status === 'rejected').length;
+      if (failedCount === 0) {
+        showNotification('اطلاعات بورس، طلا، سکه و رمزارزها به‌روزرسانی شد', 'success');
+      } else if (failedCount < results.length) {
+        showNotification('برخی از قیمت‌ها به‌روزرسانی شدند', 'info');
+      } else {
+        showNotification('خطا در دریافت قیمت‌های زنده؛ اتصال اینترنت را بررسی کنید', 'warning');
+      }
     } catch (e) {
-      console.warn('Refresh all error:', e);
+      if ((e as { name?: string })?.name !== 'AbortError') {
+        console.warn('Refresh all error:', e);
+      }
     } finally {
+      clearTimeout(timeoutId);
+      if (refreshAbortRef.current === controller) {
+        refreshAbortRef.current = null;
+      }
       setIsRefreshingAll(false);
     }
-  };
+  }, [
+    activeProfileId,
+    cryptoAssets,
+    isNobitexConfigured,
+    refreshCryptoPrices,
+    refreshPhysicalGoldPrices,
+    refreshQuotes,
+    refreshUsdtRate,
+    showNotification,
+    syncWithNobitex,
+    updateCryptoAssets,
+  ]);
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-gold-500/30 selection:text-gold-900 dark:selection:text-gold-200 pb-[max(7rem,calc(env(safe-area-inset-bottom)+5.5rem))] transition-colors duration-200">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-gold-500/30 selection:text-gold-900 dark:selection:text-gold-200 pb-[max(7rem,calc(env(safe-area-inset-bottom)+5.5rem))] overflow-x-clip">
       
       {/* Top Header */}
       <Header
@@ -298,190 +435,212 @@ const AppContent: React.FC = () => {
         currencyMode={currencyMode}
         toggleCurrencyMode={toggleCurrencyMode}
         userName={activeProfile?.name}
+        userColor={activeProfile?.avatarColor}
+        onOpenProfileSwitcher={() => setShowProfileSwitcher(true)}
       />
 
       {/* Main Container */}
       <main className="max-w-4xl mx-auto px-4 py-5 space-y-5">
-        
-        {/* TAB 1: DASHBOARD (OVERVIEW, 80/20 DONUT, SMART BUY & ASSET SUMMARY) */}
-        {(activeTab === 'dashboard' || (activeTab as string) === 'calculator') && (
-          <DashboardView
-            totalInputAmount={inputAmount}
-            setTotalInputAmount={setInputAmount}
-            calculationResult={calculationResult}
-            cryptoAssets={cryptoAssets}
-            goldHoldingValue={totalGoldValue}
-            physicalGoldValue={totalPhysicalGoldValueTomans}
-            bourseGoldValue={totalGoldMarketValueTomans}
-            propertiesValue={netWorthPropertiesValueTomans}
-            vehiclesValue={netWorthVehiclesValueTomans}
-            dollarValue={totalDollarValueTomans}
-            riskBucketsSummary={riskBucketsSummary}
-            totalCryptoValue={totalCryptoValue}
-            totalPortfolioValue={totalPortfolioValue}
-            tomanCashBalance={tomanCashBalance}
-            activeGoldFund={activeGoldFund}
-            setActiveGoldFund={setActiveGoldFund}
-            goldEtfUnitPrice={goldEtfUnitPrice}
-            goldEtfUnitChange={goldEtfUnitChange}
-            settings={settings}
-            updateSettings={updateSettings}
-            isRefreshing={isRefreshingAll}
-            currencyMode={currencyMode}
-            usdtRateTomans={usdtRateTomans}
-            toggleCurrencyMode={toggleCurrencyMode}
-            formatCurrency={formatCurrency}
-            toDisplayValue={toDisplayValue}
-            onRefreshAll={handleRefreshAll}
-            onApplyPurchases={applyPurchasesToHoldings}
-            onNavigateToTab={setActiveTab}
-            onNotify={showNotification}
-          />
-        )}
-
-        {/* TAB 2: MARKETS HUB (TSETMC GOLD FUNDS & NOBITEX CRYPTO) */}
-        {(activeTab === 'markets' || (activeTab as string) === 'gold' || (activeTab as string) === 'crypto') && (
-          <div className="animate-fadeIn">
-            <MarketsHubView
+        <ErrorBoundary fallbackTitle="خطا در نمایش اطلاعات این بخش">
+          {/* TAB 1: DASHBOARD (OVERVIEW, 80/20 DONUT, SMART BUY & ASSET SUMMARY) */}
+          {(activeTab === 'dashboard' || (activeTab as string) === 'calculator') && (
+            <DashboardView
+              totalInputAmount={inputAmount}
+              setTotalInputAmount={setInputAmount}
+              calculationResult={calculationResult}
               cryptoAssets={cryptoAssets}
-              physicalGoldItems={physicalGoldItems}
-              totalPhysicalGoldValueTomans={totalPhysicalGoldValueTomans}
-              currencyMode={currencyMode}
-              formatCurrency={formatCurrency}
-              toDisplayValue={toDisplayValue}
-              onAssetsUpdated={updateCryptoAssets}
-              onNavigateToHoldings={() => setActiveTab('holdings')}
-              onNotify={showNotification}
-            />
-          </div>
-        )}
-
-        {/* TAB 3: HOLDINGS MANAGEMENT (GOLD, CRYPTO, PROPERTIES & VEHICLES) */}
-        {(activeTab === 'holdings' || (activeTab as string) === 'properties' || (activeTab as string) === 'vehicles') && (
-          <div className="animate-fadeIn">
-            <HoldingsManager
-              cryptoAssets={cryptoAssets}
-              updateCryptoAssets={updateCryptoAssets}
-              addCryptoAsset={addCryptoAsset}
-              editCryptoAsset={editCryptoAsset}
-              removeCryptoAsset={removeCryptoAsset}
-              physicalGoldItems={physicalGoldItems}
-              totalPhysicalGoldValueTomans={totalPhysicalGoldValueTomans}
-              isRefreshingGold={isRefreshingGold}
-              isGoldFetchError={isGoldFetchError}
-              goldBuyLots={goldBuyLots}
-              physicalGoldSales={physicalGoldSales}
-              currencyMode={currencyMode}
-              usdtRateTomans={usdtRateTomans}
-              formatCurrency={formatCurrency}
-              toDisplayValue={toDisplayValue}
-              onRefreshPhysicalGold={refreshPhysicalGoldPrices}
-              onUpdatePhysicalGoldQuantity={updatePhysicalGoldQuantity}
-              onUpdatePhysicalGoldPrice={updatePhysicalGoldPrice}
-              onAddGoldBuyLot={addGoldBuyLot}
-              onDeleteGoldSale={deleteGoldSaleRecord}
-              onClearGoldSales={clearGoldSaleHistory}
-              properties={properties}
-              onAddProperty={addProperty}
-              onEditProperty={editProperty}
-              onRemoveProperty={removeProperty}
-              vehicles={vehicles}
-              onAddVehicle={addVehicle}
-              onEditVehicle={editVehicle}
-              onRemoveVehicle={removeVehicle}
-              dollarHolding={dollarHolding}
-              onUpdateDollarHolding={updateDollarHolding}
-              onNavigateToCalculator={() => setActiveTab('dashboard')}
-              onNavigateToMarket={() => setActiveTab('markets')}
-              onNotify={showNotification}
-            />
-          </div>
-        )}
-
-        {/* TAB 4: SELL & REBALANCE */}
-        {activeTab === 'sell' && (
-          <div className="animate-fadeIn">
-            <SellView
-              cryptoAssets={cryptoAssets}
-              bourseItems={combinedItems}
-              physicalGoldItems={physicalGoldItems}
+              goldHoldingValue={totalGoldValue}
+              physicalGoldValue={totalPhysicalGoldValueTomans}
+              bourseGoldValue={totalGoldMarketValueTomans}
+              propertiesValue={netWorthPropertiesValueTomans}
+              vehiclesValue={netWorthVehiclesValueTomans}
+              dollarValue={totalDollarValueTomans}
+              riskBucketsSummary={riskBucketsSummary}
+              totalCryptoValue={totalCryptoValue}
               totalPortfolioValue={totalPortfolioValue}
-              settings={settings}
-              currencyMode={currencyMode}
-              usdtRateTomans={usdtRateTomans}
-              formatCurrency={formatCurrency}
-              toDisplayValue={toDisplayValue}
-              onDeductBourseGold={handleDeductBourseGold}
-              onDeductPhysicalGold={handleDeductPhysicalGold}
-              onDeductCrypto={deductCryptoAssetHolding}
-              onNotify={showNotification}
-            />
-          </div>
-        )}
-
-        {/* TAB 5: SETTINGS & ACCOUNT MANAGEMENT */}
-        {activeTab === 'settings' && (
-          <div className="space-y-5 animate-fadeIn">
-            {/* Account & Profile Management */}
-            <AccountSettingsView
-              activeProfile={activeProfile}
-              profiles={vault?.profiles || []}
-              onSelectProfile={switchProfile}
-              onCreateProfile={createProfile}
-              onDeleteProfile={deleteProfile}
-              onStartOnboarding={startNewUserOnboarding}
-              cryptoAssets={cryptoAssets}
-              onAssetsUpdated={updateCryptoAssets}
-              onNotify={showNotification}
-            />
-
-            <PercentagesConfig
+              tomanCashBalance={tomanCashBalance}
+              activeGoldFund={activeGoldFund}
+              setActiveGoldFund={setActiveGoldFund}
+              goldEtfUnitPrice={goldEtfUnitPrice}
+              goldEtfUnitChange={goldEtfUnitChange}
               settings={settings}
               updateSettings={updateSettings}
-              cryptoAssets={cryptoAssets}
-              updateCryptoAssets={updateCryptoAssets}
+              isRefreshing={isRefreshingAll}
+              currencyMode={currencyMode}
+              usdtRateTomans={usdtRateTomans}
+              toggleCurrencyMode={toggleCurrencyMode}
+              formatCurrency={formatCurrency}
+              toDisplayValue={toDisplayValue}
+              onRefreshAll={handleRefreshAll}
+              onApplyPurchases={applyPurchasesToHoldings}
+              onNavigateToTab={setActiveTab}
               onNotify={showNotification}
             />
+          )}
 
-            <TransactionHistory
-              transactions={transactions}
-              onDeleteTransaction={deleteTransaction}
-              onClearAll={clearAllHistory}
-            />
+          {/* TAB 2: MARKETS HUB (TSETMC GOLD FUNDS & NOBITEX CRYPTO) */}
+          {(activeTab === 'markets' || (activeTab as string) === 'gold' || (activeTab as string) === 'crypto') && (
+            <Suspense fallback={<TabSuspenseFallback />}>
+              <div className="animate-fadeIn">
+                <MarketsHubView
+                  activeProfileId={activeProfileId}
+                  cryptoAssets={cryptoAssets}
+                  physicalGoldItems={physicalGoldItems}
+                  totalPhysicalGoldValueTomans={totalPhysicalGoldValueTomans}
+                  currencyMode={currencyMode}
+                  formatCurrency={formatCurrency}
+                  toDisplayValue={toDisplayValue}
+                  onAssetsUpdated={updateCryptoAssets}
+                  onNavigateToHoldings={() => setActiveTab('holdings')}
+                  onNotify={showNotification}
+                />
+              </div>
+            </Suspense>
+          )}
 
-            <BackupRestore
-              onExport={handleExportBackup}
-              onImport={handleImportBackup}
-              onResetToDefaults={resetToFactoryDefaults}
-            />
-          </div>
-        )}
+          {/* TAB 3: HOLDINGS MANAGEMENT (GOLD, CRYPTO, PROPERTIES & VEHICLES) */}
+          {(activeTab === 'holdings' || (activeTab as string) === 'properties' || (activeTab as string) === 'vehicles') && (
+            <Suspense fallback={<TabSuspenseFallback />}>
+              <div className="animate-fadeIn">
+                <HoldingsManager
+                  cryptoAssets={cryptoAssets}
+                  updateCryptoAssets={updateCryptoAssets}
+                  addCryptoAsset={addCryptoAsset}
+                  editCryptoAsset={editCryptoAsset}
+                  removeCryptoAsset={removeCryptoAsset}
+                  physicalGoldItems={physicalGoldItems}
+                  totalPhysicalGoldValueTomans={totalPhysicalGoldValueTomans}
+                  isRefreshingGold={isRefreshingGold}
+                  isGoldFetchError={isGoldFetchError}
+                  goldBuyLots={goldBuyLots}
+                  physicalGoldSales={physicalGoldSales}
+                  currencyMode={currencyMode}
+                  usdtRateTomans={usdtRateTomans}
+                  formatCurrency={formatCurrency}
+                  toDisplayValue={toDisplayValue}
+                  onRefreshPhysicalGold={refreshPhysicalGoldPrices}
+                  onUpdatePhysicalGoldQuantity={updatePhysicalGoldQuantity}
+                  onUpdatePhysicalGoldCostBasis={updatePhysicalGoldCostBasis}
+                  onRecordGoldSale={recordGoldSale}
+                  onRemovePhysicalGoldItem={removePhysicalGoldItem}
+                  onUpdatePhysicalGoldPrice={updatePhysicalGoldPrice}
+                  onAddGoldBuyLot={addGoldBuyLot}
+                  onDeleteGoldSale={deleteGoldSaleRecord}
+                  onClearGoldSales={clearGoldSaleHistory}
+                  properties={properties}
+                  onAddProperty={addProperty}
+                  onEditProperty={editProperty}
+                  onRemoveProperty={removeProperty}
+                  vehicles={vehicles}
+                  onAddVehicle={addVehicle}
+                  onEditVehicle={editVehicle}
+                  onRemoveVehicle={removeVehicle}
+                  dollarHolding={dollarHolding}
+                  onUpdateDollarHolding={updateDollarHolding}
+                  onNavigateToCalculator={() => setActiveTab('dashboard')}
+                  onNavigateToMarket={() => setActiveTab('markets')}
+                  onNotify={showNotification}
+                />
+              </div>
+            </Suspense>
+          )}
 
+          {/* TAB 4: SELL & REBALANCE */}
+          {activeTab === 'sell' && (
+            <Suspense fallback={<TabSuspenseFallback />}>
+              <div className="animate-fadeIn">
+                <SellView
+                  cryptoAssets={cryptoAssets}
+                  bourseItems={combinedItems}
+                  physicalGoldItems={physicalGoldItems}
+                  totalPortfolioValue={totalPortfolioValue}
+                  settings={settings}
+                  currencyMode={currencyMode}
+                  usdtRateTomans={usdtRateTomans}
+                  formatCurrency={formatCurrency}
+                  toDisplayValue={toDisplayValue}
+                  onDeductBourseGold={handleDeductBourseGold}
+                  onDeductPhysicalGold={handleDeductPhysicalGold}
+                  onDeductCrypto={deductCryptoAssetHolding}
+                  onNotify={showNotification}
+                />
+              </div>
+            </Suspense>
+          )}
+
+          {/* TAB 5: SETTINGS & ACCOUNT MANAGEMENT */}
+          {activeTab === 'settings' && (
+            <Suspense fallback={<TabSuspenseFallback />}>
+              <div className="space-y-5 animate-fadeIn">
+                {/* Account & Profile Management */}
+                <AccountSettingsView
+                  activeProfile={activeProfile}
+                  profiles={vault?.profiles || []}
+                  onSelectProfile={switchProfile}
+                  onCreateProfile={createProfile}
+                  onDeleteProfile={deleteProfile}
+                  onStartOnboarding={startNewUserOnboarding}
+                  cryptoAssets={cryptoAssets}
+                  onAssetsUpdated={updateCryptoAssets}
+                  onNotify={showNotification}
+                />
+
+                <PercentagesConfig
+                  settings={settings}
+                  updateSettings={updateSettings}
+                  cryptoAssets={cryptoAssets}
+                  updateCryptoAssets={updateCryptoAssets}
+                  onNotify={showNotification}
+                />
+
+                <TransactionHistory
+                  transactions={transactions}
+                  onDeleteTransaction={deleteTransaction}
+                  onClearAll={clearAllHistory}
+                />
+
+                <BackupRestore
+                  onExport={handleExportBackup}
+                  onImport={handleImportBackup}
+                  onResetToDefaults={resetToFactoryDefaults}
+                />
+              </div>
+            </Suspense>
+          )}
+        </ErrorBoundary>
       </main>
 
       {/* Floating Bottom Navigation */}
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Onboarding Modal for First Time Users */}
-      <WelcomeOnboardingModal
-        isOpen={needsOnboarding}
-        onComplete={completeOnboarding}
-        canCancel={canCancelOnboarding}
-        onCancel={cancelOnboarding}
-      />
+      {/* Onboarding Modal for First Time Users (lazy loaded only when open) */}
+      {needsOnboarding && (
+        <Suspense fallback={null}>
+          <WelcomeOnboardingModal
+            isOpen={needsOnboarding}
+            onComplete={completeOnboarding}
+            canCancel={canCancelOnboarding}
+            onCancel={cancelOnboarding}
+          />
+        </Suspense>
+      )}
 
-      {/* Profile Switcher Modal */}
-      <ProfileSwitcherModal
-        isOpen={showProfileSwitcher}
-        onClose={() => setShowProfileSwitcher(false)}
-        profiles={vault?.profiles || []}
-        activeProfileId={activeProfileId}
-        onSelectProfile={switchProfile}
-        onCreateProfile={createProfile}
-        onDeleteProfile={deleteProfile}
-        onStartOnboarding={startNewUserOnboarding}
-        onNotify={showNotification}
-      />
+      {/* Profile Switcher Modal (lazy loaded only when explicitly opened) */}
+      {showProfileSwitcher && (
+        <Suspense fallback={null}>
+          <ProfileSwitcherModal
+            isOpen={showProfileSwitcher}
+            onClose={() => setShowProfileSwitcher(false)}
+            profiles={vault?.profiles || []}
+            activeProfileId={activeProfileId}
+            onSelectProfile={switchProfile}
+            onCreateProfile={createProfile}
+            onDeleteProfile={deleteProfile}
+            onStartOnboarding={startNewUserOnboarding}
+            onNotify={showNotification}
+          />
+        </Suspense>
+      )}
 
       {/* Toast Notification Snackbar (Bottom-Floating above BottomNav) */}
       {notification && (
@@ -519,10 +678,35 @@ const AppContent: React.FC = () => {
 };
 
 export const App: React.FC = () => {
+  const profileState = useProfileState();
+  const { activeProfileId, updateActiveProfileData } = profileState;
+
+  const handlePersistProfileMarketData = useCallback(
+    (
+      nextInstruments: MarketInstrument[],
+      nextHoldings: UserMarketHolding[],
+      targetProfileId: string
+    ) => {
+      updateActiveProfileData(
+        {
+          marketInstruments: nextInstruments,
+          marketHoldings: nextHoldings,
+        },
+        targetProfileId
+      );
+    },
+    [updateActiveProfileData]
+  );
+
   return (
-    <MarketDataProvider>
-      <AppContent />
-    </MarketDataProvider>
+    <ErrorBoundary fallbackTitle="خطا در بارگذاری ترازینو">
+      <MarketDataProvider
+        activeProfileId={activeProfileId}
+        onPersistProfileMarketData={handlePersistProfileMarketData}
+      >
+        <AppContent profileState={profileState} />
+      </MarketDataProvider>
+    </ErrorBoundary>
   );
 };
 

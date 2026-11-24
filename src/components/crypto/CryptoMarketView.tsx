@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   TrendingUp,
   Search,
@@ -27,9 +27,11 @@ import { EditAssetModal } from '../holdings/EditAssetModal';
 import { formatToman, formatPercent, toPersianDigits, getPersianFormattedDate } from '../../utils/formatters';
 import { triggerHaptic } from '../../utils/haptics';
 import { CurrencyDisplayMode } from '../../hooks/useCurrencyDisplay';
+import { redactSecrets, toSafeNumber } from '../../utils/security';
 
 interface CryptoMarketViewProps {
   cryptoAssets: CryptoAsset[];
+  activeProfileId?: string | null;
   currencyMode?: CurrencyDisplayMode;
   formatCurrency?: (amountTomans: number, options?: any) => string;
   toDisplayValue?: (amountTomans: number) => number;
@@ -58,6 +60,7 @@ const POPULAR_TICKERS = [
 
 export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
   cryptoAssets,
+  activeProfileId,
   currencyMode = 'toman',
   formatCurrency = (v, opts) => `${formatToman(v)} ${opts?.isTomanSuffix ? 'ت' : 'تومان'}`,
   toDisplayValue = (v) => v,
@@ -70,30 +73,90 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [editingAsset, setEditingAsset] = useState<CryptoAsset | null>(null);
 
-  const { isConfigured, isSyncing, syncWithNobitex, tomanCashBalance } = useNobitex();
+  const { isConfigured, isSyncing, syncWithNobitex, tomanCashBalance } = useNobitex(activeProfileId);
+
+  const cryptoAssetsRef = useRef(cryptoAssets);
+  cryptoAssetsRef.current = cryptoAssets;
+
+  const onAssetsUpdatedRef = useRef(onAssetsUpdated);
+  onAssetsUpdatedRef.current = onAssetsUpdated;
+
+  const activeProfileIdRef = useRef<string | null | undefined>(activeProfileId);
+  activeProfileIdRef.current = activeProfileId;
+
+  const isMountedRef = useRef(true);
+  const statsAbortRef = useRef<AbortController | null>(null);
+  const fetchGenRef = useRef(0);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      statsAbortRef.current?.abort();
+    };
+  }, []);
 
   // Fetch live market stats for all coins
-  const fetchMarketStats = async () => {
+  const fetchMarketStats = useCallback(async () => {
+    statsAbortRef.current?.abort();
+    const controller = new AbortController();
+    statsAbortRef.current = controller;
+
+    const reqGen = ++fetchGenRef.current;
+    const reqProfileId = activeProfileIdRef.current ?? null;
+
     setIsLoadingStats(true);
     try {
-      const stats = await nobitexService.getMarketStats(undefined, 'rls');
+      const stats = await nobitexService.getMarketStats(undefined, 'rls', controller.signal);
+      if (
+        !isMountedRef.current ||
+        controller.signal.aborted ||
+        reqGen !== fetchGenRef.current ||
+        (activeProfileIdRef.current ?? null) !== reqProfileId
+      ) {
+        return;
+      }
+
       setMarketStats(stats);
       setLastUpdated(new Date());
 
-      // Also update unit prices of existing crypto assets
-      const updatedAssets = cryptoAssets.map((asset) => {
+      // Also update unit prices of existing crypto assets using latest profile snapshot
+      const latestAssets = cryptoAssetsRef.current;
+      let hasPriceChanges = false;
+      const updatedAssets = latestAssets.map((asset) => {
         const sym = asset.symbol.toLowerCase();
         const stat = stats[`${sym}-rls`];
         if (stat && stat.latest) {
-          const priceTomans = Math.round(parseFloat(stat.latest) / 10);
+          const parsedRials = Number.parseFloat(stat.latest);
+          if (!Number.isFinite(parsedRials) || parsedRials <= 0) {
+            return asset;
+          }
+          const priceTomans = Math.round(parsedRials / 10);
           const holdingVal =
-            asset.currentAmount !== undefined
+            asset.currentAmount !== undefined && Number.isFinite(asset.currentAmount)
               ? Math.round(asset.currentAmount * priceTomans)
-              : asset.currentHoldingValue;
+              : toSafeNumber(asset.currentHoldingValue, 0);
 
-          const totalCost = asset.totalCostTomans || (asset.averageBuyPrice && asset.currentAmount ? Math.round(asset.currentAmount * asset.averageBuyPrice) : undefined);
-          const profitTomans = totalCost !== undefined && totalCost > 0 ? holdingVal - totalCost : undefined;
-          const profitPercent = totalCost !== undefined && totalCost > 0 ? ((holdingVal - totalCost) / totalCost) * 100 : undefined;
+          const totalCost =
+            asset.totalCostTomans && Number.isFinite(asset.totalCostTomans)
+              ? asset.totalCostTomans
+              : asset.averageBuyPrice && asset.currentAmount
+              ? Math.round(asset.currentAmount * asset.averageBuyPrice)
+              : undefined;
+          const profitTomans =
+            totalCost !== undefined && totalCost > 0 ? holdingVal - totalCost : undefined;
+          const profitPercent =
+            totalCost !== undefined && totalCost > 0
+              ? ((holdingVal - totalCost) / totalCost) * 100
+              : undefined;
+
+          if (
+            asset.unitPrice !== priceTomans ||
+            asset.currentHoldingValue !== holdingVal ||
+            asset.profitTomans !== profitTomans
+          ) {
+            hasPriceChanges = true;
+          }
 
           return {
             ...asset,
@@ -106,27 +169,45 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
         return asset;
       });
 
-      onAssetsUpdated(updatedAssets);
+      if (hasPriceChanges) {
+        onAssetsUpdatedRef.current(updatedAssets);
+      }
     } catch (e: any) {
-      console.warn('Failed to fetch Nobitex market stats:', e);
+      if (e?.name === 'AbortError' || controller.signal.aborted) {
+        return;
+      }
+      console.warn('Failed to fetch Nobitex market stats:', redactSecrets(e?.message || String(e)));
     } finally {
-      setIsLoadingStats(false);
+      if (isMountedRef.current && reqGen === fetchGenRef.current) {
+        setIsLoadingStats(false);
+      }
     }
-  };
+  }, []);
 
   useEffect(() => {
+    setEditingAsset(null);
     fetchMarketStats();
     const interval = setInterval(fetchMarketStats, 60000);
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      clearInterval(interval);
+      statsAbortRef.current?.abort();
+    };
+  }, [activeProfileId, fetchMarketStats]);
 
   const handleRefresh = async () => {
     triggerHaptic('light');
-    await fetchMarketStats();
+    const tasks: Promise<unknown>[] = [fetchMarketStats()];
     if (isConfigured) {
-      await syncWithNobitex(cryptoAssets, onAssetsUpdated);
+      tasks.push(syncWithNobitex(cryptoAssetsRef.current, onAssetsUpdatedRef.current));
     }
-    onNotify?.('قیمت‌های بازار و سوابق معاملات رمزارز به‌روزرسانی شدند', 'success');
+    const results = await Promise.allSettled(tasks);
+    const hasFailure = results.some((r) => r.status === 'rejected');
+    onNotify?.(
+      hasFailure
+        ? 'به‌روزرسانی بخشی از اطلاعات با خطا مواجه شد'
+        : 'قیمت‌های بازار و سوابق معاملات رمزارز به‌روزرسانی شدند',
+      hasFailure ? 'warning' : 'success'
+    );
   };
 
   const totalCryptoValue = cryptoAssets.reduce(
@@ -192,7 +273,7 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
 
   return (
     <>
-      <PullToRefreshContainer onRefresh={handleRefresh} isRefreshing={isLoadingStats || isSyncing} className="space-y-5 pb-24">
+      <PullToRefreshContainer onRefresh={handleRefresh} isRefreshing={isLoadingStats || isSyncing} className="space-y-5 min-w-0">
         
         {/* 1. NOBITEX INTEGRATION HERO */}
         <NobitexIntegrationCard
@@ -202,43 +283,43 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
         />
 
         {/* 2. PORTFOLIO P&L SUMMARY BAR */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 space-y-1">
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 space-y-1 min-w-0">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block truncate">
               ارزش کل دارایی‌های کریپتو
             </span>
-            <div className="text-sm sm:text-base font-black text-indigo-700 dark:text-indigo-400 dir-ltr text-right">
+            <div className="text-xs sm:text-base font-black text-indigo-700 dark:text-indigo-400 dir-ltr text-right tabular-nums truncate">
               {formatCurrency(totalCryptoValue)}
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 space-y-1">
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block">
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 space-y-1 min-w-0">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block truncate">
               سود / زیان کل کریپتو
             </span>
             {totalCryptoProfitTomans !== undefined ? (
               <div
-                className={`text-sm sm:text-base font-black flex items-center gap-1 dir-ltr text-right ${
+                className={`text-xs sm:text-base font-black flex flex-wrap items-center gap-1 dir-ltr text-right tabular-nums min-w-0 ${
                   totalCryptoProfitTomans >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
                 }`}
               >
-                <span>{totalCryptoProfitTomans >= 0 ? '+' : ''}{formatCurrency(totalCryptoProfitTomans)}</span>
-                <span className="text-[10px] font-bold">
+                <span className="truncate">{totalCryptoProfitTomans >= 0 ? '+' : ''}{formatCurrency(totalCryptoProfitTomans)}</span>
+                <span className="text-[10px] font-bold shrink-0">
                   ({totalCryptoProfitPercent !== undefined ? formatPercent(totalCryptoProfitPercent) : '0%'})
                 </span>
               </div>
             ) : (
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block truncate">
                 {userOwnedAssets.length > 0 ? 'برای محاسبه روی ارزها بزنید' : 'بدون دارایی فعال'}
               </span>
             )}
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 space-y-1 col-span-2 sm:col-span-1">
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block">
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 space-y-1 col-span-2 sm:col-span-1 min-w-0">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium block truncate">
               موجودی نقد نوبیتکس
             </span>
-            <div className="text-sm sm:text-base font-black text-emerald-700 dark:text-emerald-400 dir-ltr text-right">
+            <div className="text-xs sm:text-base font-black text-emerald-700 dark:text-emerald-400 dir-ltr text-right tabular-nums truncate">
               {formatCurrency(tomanCashBalance)}
             </div>
           </div>
@@ -246,17 +327,17 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
 
         {/* 3. CRYPTO PORTFOLIO DONUT CHART (Above Holdings) */}
         {donutItems.length > 0 && (
-          <div className="p-5 rounded-3xl bg-white dark:bg-slate-900/80 border border-indigo-200 dark:border-indigo-500/30 shadow-md dark:shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-sm">
+          <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-slate-900/80 border border-indigo-200 dark:border-indigo-500/30 shadow-md dark:shadow-xl space-y-4 min-w-0">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-sm shrink-0">
                   <Coins className="w-4 h-4" />
                 </div>
-                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 truncate">
                   ترکیب دارایی‌های کریپتو
                 </h3>
               </div>
-              <span className="text-xs font-black text-indigo-700 dark:text-indigo-400 dir-ltr">
+              <span className="text-xs font-black text-indigo-700 dark:text-indigo-400 dir-ltr tabular-nums shrink-0">
                 مجموع: {formatCurrency(totalCryptoValue, { isTomanSuffix: true })}
               </span>
             </div>
@@ -354,19 +435,19 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                     </div>
 
                     {/* Pricing & Valuation Details */}
-                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800/80 flex items-start justify-between gap-2 text-xs">
-                      <div className="min-w-0">
+                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800/80 flex items-start justify-between gap-2 text-xs min-w-0">
+                      <div className="min-w-0 flex-1">
                         <span className="text-[10px] text-slate-500 dark:text-slate-400 block">ارزش فعلی:</span>
-                        <span className="text-base font-black text-indigo-700 dark:text-indigo-300 dir-ltr text-right tabular-nums whitespace-nowrap block">
+                        <span className="text-sm sm:text-base font-black text-indigo-700 dark:text-indigo-300 dir-ltr text-right tabular-nums truncate block">
                           {formatCurrency(asset.currentHoldingValue, { isTomanSuffix: true })}
                         </span>
                       </div>
 
-                      <div className="text-left shrink-0">
+                      <div className="text-left shrink-0 max-w-[48%] min-w-0">
                         <span className="text-[10px] text-slate-400 dark:text-slate-500 block">
                           {asset.averageBuyPrice ? 'میانگین خرید:' : 'نرخ روز:'}
                         </span>
-                        <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 dir-ltr text-right tabular-nums block">
+                        <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 dir-ltr text-right tabular-nums truncate block">
                           {asset.averageBuyPrice
                             ? formatCurrency(asset.averageBuyPrice, { isUnitPrice: true, isTomanSuffix: true })
                             : asset.unitPrice
@@ -378,13 +459,13 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
 
                     {/* Net Profit amount */}
                     {hasProfit && (
-                      <div className={`flex items-center justify-between gap-2 text-[11px] px-2 py-1 rounded-lg border ${
+                      <div className={`flex items-center justify-between gap-2 text-[11px] px-2 py-1 rounded-lg border min-w-0 ${
                         isProfitPositive
                           ? 'bg-emerald-500/10 border-emerald-500/20'
                           : 'bg-rose-500/10 border-rose-500/20'
                       }`}>
                         <span className="text-slate-500 dark:text-slate-400 shrink-0">سود / زیان خالص:</span>
-                        <span className={`font-black dir-ltr tabular-nums whitespace-nowrap ${isProfitPositive ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
+                        <span className={`font-black dir-ltr tabular-nums truncate min-w-0 ${isProfitPositive ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
                           {isProfitPositive ? '+' : ''}{formatCurrency(profitVal, { isTomanSuffix: true })}
                         </span>
                       </div>
@@ -465,15 +546,15 @@ export const CryptoMarketView: React.FC<CryptoMarketViewProps> = ({
                             </span>
                           </div>
                           {userCoinAmount > 0 && (
-                            <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold block">
-                              موجودی شما: {userCoinAmount} {ticker.symbol.toUpperCase()}
+                            <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold block truncate">
+                              موجودی شما: {toPersianDigits(userCoinAmount)} {ticker.symbol.toUpperCase()}
                             </span>
                           )}
                         </div>
                       </div>
 
-                      <div className="text-left space-y-0.5 shrink-0">
-                        <span className="text-xs font-black text-slate-900 dark:text-slate-100 block dir-ltr text-right tabular-nums whitespace-nowrap">
+                      <div className="text-left space-y-0.5 shrink-0 max-w-[46%] min-w-0">
+                        <span className="text-xs font-black text-slate-900 dark:text-slate-100 block dir-ltr text-right tabular-nums truncate">
                           {priceTomans > 0
                             ? formatCurrency(priceTomans, { isUnitPrice: true, isTomanSuffix: true })
                             : 'در حال دریافت...'}

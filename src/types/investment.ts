@@ -207,6 +207,10 @@ export interface TransactionRecord {
     amount: number;
   }[];
   appliedToHoldings: boolean;
+  kind?: 'allocation' | 'physical_gold_sale';
+  title?: string;
+  note?: string;
+  realizedProfitTomans?: number;
 }
 
 export interface UserProfile {
@@ -231,6 +235,7 @@ export interface UserProfile {
   marketHoldings?: UserMarketHolding[];
   settings?: AppSettings;
   nobitexConfig?: NobitexConfig;
+  lastInput?: number;
 }
 
 export interface ProfilesVault {

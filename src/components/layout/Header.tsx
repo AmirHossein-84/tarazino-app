@@ -6,10 +6,12 @@ import { CurrencyDisplayMode } from '../../hooks/useCurrencyDisplay';
 
 interface HeaderProps {
   isDark: boolean;
-  toggleTheme: () => void;
+  toggleTheme: (origin?: { clientX?: number; clientY?: number }) => void;
   currencyMode?: CurrencyDisplayMode;
   toggleCurrencyMode?: () => void;
   userName?: string;
+  userColor?: string;
+  onOpenProfileSwitcher?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -18,12 +20,14 @@ export const Header: React.FC<HeaderProps> = ({
   currencyMode = 'toman',
   toggleCurrencyMode,
   userName,
+  userColor,
+  onOpenProfileSwitcher,
 }) => {
   const todayPersian = getPersianFormattedDate(new Date()).split('ساعت')[0];
 
-  const handleToggleTheme = () => {
+  const handleToggleTheme = (e: React.MouseEvent<HTMLButtonElement>) => {
     triggerHaptic('medium');
-    toggleTheme();
+    toggleTheme({ clientX: e.clientX, clientY: e.clientY });
   };
 
   const handleToggleCurrency = () => {
@@ -32,39 +36,59 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full backdrop-blur-2xl bg-white/90 dark:bg-slate-950/85 border-b border-slate-200 dark:border-slate-800/80 transition-colors">
-      <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+    <header className="sticky top-0 z-30 w-full backdrop-blur-2xl bg-white/90 dark:bg-slate-950/85 border-b border-slate-200 dark:border-slate-800/80 transition-colors pt-[env(safe-area-inset-top)]">
+      <div className="max-w-2xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2 min-w-0">
         
         {/* Brand & Logo */}
-        <div className="flex items-center gap-3">
-          <div className="relative w-10 h-10 rounded-2xl flex items-center justify-center">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+          <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center shrink-0">
             <img
               src="/favicon.png"
               alt="لوگوی ترازینو"
-              className="w-full h-full object-cover rounded-2xl"
+              className="w-full h-full object-cover rounded-2xl shadow-md border border-slate-200 dark:border-slate-700/80"
             />
           </div>
 
-          <div>
-            <div className="flex items-center gap-1.5">
-              <h1 className="text-base font-black tracking-tight text-slate-900 dark:text-slate-100">
-                <span className="gold-gradient-text font-black text-lg">ترازینو</span>
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 font-mono tracking-wider">(Tarazino)</span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <h1 className="text-sm sm:text-base font-black tracking-tight text-slate-900 dark:text-slate-100 truncate">
+                <span className="gold-gradient-text font-black text-base sm:text-lg">ترازینو</span>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 font-mono tracking-wider mr-1 hidden sm:inline">(Tarazino)</span>
               </h1>
             </div>
-            <div className="text-[11px] leading-tight">
+            <div className="leading-tight min-w-0">
               {userName && (
-                <span className="block font-bold text-slate-600 dark:text-slate-300 truncate">
-                  سلام، {userName} 👋
-                </span>
+                onOpenProfileSwitcher ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic('light');
+                      onOpenProfileSwitcher();
+                    }}
+                    className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-amber-700 dark:hover:text-gold-300 transition-colors max-w-[160px] sm:max-w-[240px] truncate"
+                    title="تغییر یا مدیریت حساب کاربری"
+                  >
+                    {userColor && (
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ backgroundColor: userColor }}
+                      />
+                    )}
+                    <span className="truncate">سلام، {userName} 👋</span>
+                  </button>
+                ) : (
+                  <span className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 truncate max-w-[160px] sm:max-w-[240px]">
+                    سلام، {userName} 👋
+                  </span>
+                )
               )}
-              <span className="block text-slate-500 dark:text-slate-400">{todayPersian}</span>
+              <span className="block text-[11px] text-slate-500 dark:text-slate-400 truncate">{todayPersian}</span>
             </div>
           </div>
         </div>
 
         {/* Action buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           
           {/* Currency Toggle Button (USD / Toman) */}
           {toggleCurrencyMode && (

@@ -132,13 +132,18 @@ export function processGoldSale(
   quantitySold: number,
   saleUnitPriceTomans: number,
   allLots: PhysicalGoldBuyLot[] = [],
-  notes?: string
+  notes?: string,
+  persianSaleDate?: string
 ): {
   saleRecord: PhysicalGoldSaleRecord;
   updatedLots: PhysicalGoldBuyLot[];
 } {
-  const safeQtySold = Math.max(0, quantitySold);
-  const safeSaleUnitPrice = saleUnitPriceTomans > 0 ? saleUnitPriceTomans : item.unitPriceTomans || 0;
+  const safeQtySold = Math.max(0, Number.isFinite(quantitySold) ? quantitySold : 0);
+  const fallbackUnitPrice = Number.isFinite(item.unitPriceTomans) && item.unitPriceTomans > 0 ? item.unitPriceTomans : 0;
+  const safeSaleUnitPrice =
+    Number.isFinite(saleUnitPriceTomans) && saleUnitPriceTomans > 0
+      ? saleUnitPriceTomans
+      : fallbackUnitPrice;
   const totalRevenueTomans = Math.round(safeQtySold * safeSaleUnitPrice);
 
   const itemLots = allLots.filter((lot) => lot.goldType === item.id);
@@ -152,25 +157,27 @@ export function processGoldSale(
   if (itemLots.length > 0) {
     // FIFO deduction from lots and compute exact sold cost basis
     for (const lot of itemLots) {
-      if (remainingQtyToDeduct <= 0) {
+      if (remainingQtyToDeduct <= 0.0001) {
         updatedItemLots.push(lot);
-      } else if (lot.quantity <= remainingQtyToDeduct) {
+      } else if (lot.quantity <= remainingQtyToDeduct + 0.0001) {
         const lotCost = lot.totalCostTomans || Math.round(lot.quantity * lot.purchaseUnitPriceTomans);
         saleTotalCostBasis += lotCost;
-        remainingQtyToDeduct = Number((remainingQtyToDeduct - lot.quantity).toFixed(3));
+        remainingQtyToDeduct = Math.max(0, Number((remainingQtyToDeduct - lot.quantity).toFixed(3)));
         // Lot completely exhausted, do not keep
       } else {
         const qtyDeducted = remainingQtyToDeduct;
         const costDeducted = Math.round(qtyDeducted * lot.purchaseUnitPriceTomans);
         saleTotalCostBasis += costDeducted;
-        const newLotQty = Number((lot.quantity - qtyDeducted).toFixed(3));
+        const newLotQty = Math.max(0, Number((lot.quantity - qtyDeducted).toFixed(3)));
         const newLotCost = Math.round(newLotQty * lot.purchaseUnitPriceTomans);
         remainingQtyToDeduct = 0;
-        updatedItemLots.push({
-          ...lot,
-          quantity: newLotQty,
-          totalCostTomans: newLotCost,
-        });
+        if (newLotQty > 0.0001) {
+          updatedItemLots.push({
+            ...lot,
+            quantity: newLotQty,
+            totalCostTomans: newLotCost,
+          });
+        }
       }
     }
 
@@ -187,7 +194,7 @@ export function processGoldSale(
     totalCostBasis > 0 ? (realizedProfitTomans / totalCostBasis) * 100 : 0;
 
   const saleRecord: PhysicalGoldSaleRecord = {
-    id: 'sale_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+    id: 'sale_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8),
     goldType: item.id,
     title: item.title,
     quantitySold: safeQtySold,
@@ -198,7 +205,7 @@ export function processGoldSale(
     realizedProfitTomans,
     realizedProfitPercent,
     saleDate: new Date().toISOString(),
-    persianDate: getPersianFormattedDate(new Date()),
+    persianDate: persianSaleDate?.trim() || getPersianFormattedDate(new Date()),
     notes: notes || undefined,
   };
 

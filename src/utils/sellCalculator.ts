@@ -81,39 +81,44 @@ export function calculateOptimalSales(
     selectedAssetIds,
   } = options;
 
+  const safeNum = (v: number | undefined | null) =>
+    v !== undefined && v !== null && Number.isFinite(v) && v > 0 ? v : 0;
+
+  const safeRequestedAmount = safeNum(requestedAmountTomans);
+
   // Filter items with actual holdings and selection
   const isSelected = (id: string) => !selectedAssetIds || selectedAssetIds.length === 0 || selectedAssetIds.includes(id);
 
   const activeBourseGold = bourseItems
-    .filter((item) => (item.currentValueTomans || 0) > 0 && item.holding && item.holding.quantity > 0)
+    .filter((item) => safeNum(item.currentValueTomans) > 0 && item.holding && safeNum(item.holding.quantity) > 0)
     .filter((item) => isSelected(item.instrument.id));
 
   const activePhysicalGold = physicalGoldItems
-    .filter((item) => item.quantity > 0 && item.unitPriceTomans > 0)
+    .filter((item) => safeNum(item.quantity) > 0 && safeNum(item.unitPriceTomans) > 0)
     .filter((item) => isSelected(item.id));
 
   const activeCrypto = cryptoAssets
-    .filter((a) => (a.currentHoldingValue || 0) > 0)
+    .filter((a) => safeNum(a.currentHoldingValue) > 0)
     .filter((a) => isSelected(a.id));
 
   const totalBourseGoldValue = activeBourseGold.reduce(
-    (sum, item) => sum + (item.currentValueTomans || 0),
+    (sum, item) => sum + safeNum(item.currentValueTomans),
     0
   );
   const totalPhysicalGoldValue = activePhysicalGold.reduce(
-    (sum, item) => sum + item.quantity * item.unitPriceTomans,
+    (sum, item) => sum + safeNum(item.quantity) * safeNum(item.unitPriceTomans),
     0
   );
   const totalGoldValue = totalBourseGoldValue + totalPhysicalGoldValue;
   const totalCryptoValue = activeCrypto.reduce(
-    (sum, a) => sum + (a.currentHoldingValue || 0),
+    (sum, a) => sum + safeNum(a.currentHoldingValue),
     0
   );
   const totalPortfolioValue = totalGoldValue + totalCryptoValue;
 
-  if (requestedAmountTomans <= 0 || totalPortfolioValue <= 0) {
+  if (safeRequestedAmount <= 0 || totalPortfolioValue <= 0) {
     return {
-      requestedAmountTomans,
+      requestedAmountTomans: safeRequestedAmount,
       actualTotalSaleTomans: 0,
       goldSaleTomans: 0,
       cryptoSaleTomans: 0,
@@ -137,12 +142,34 @@ export function calculateOptimalSales(
   const eligibleCryptoValue = includeCrypto ? totalCryptoValue : 0;
   const totalEligibleValue = eligibleTotalGoldValue + eligibleCryptoValue;
 
-  const targetWithdrawal = Math.min(requestedAmountTomans, totalEligibleValue);
+  if (totalEligibleValue <= 0) {
+    return {
+      requestedAmountTomans: safeRequestedAmount,
+      actualTotalSaleTomans: 0,
+      goldSaleTomans: 0,
+      cryptoSaleTomans: 0,
+      physicalGoldSaleTomans: 0,
+      bourseGoldSales: [],
+      cryptoSales: [],
+      physicalGoldSales: [],
+      currentPortfolioValue: totalPortfolioValue,
+      resultingPortfolioValue: totalPortfolioValue,
+      resultingGoldValue: totalGoldValue,
+      resultingCryptoValue: totalCryptoValue,
+      resultingGoldPercent: totalPortfolioValue > 0 ? (totalGoldValue / totalPortfolioValue) * 100 : 0,
+      resultingCryptoPercent: totalPortfolioValue > 0 ? (totalCryptoValue / totalPortfolioValue) * 100 : 0,
+    };
+  }
+
+  const targetWithdrawal = Math.min(safeRequestedAmount, totalEligibleValue);
   const targetRemainingPortfolio = Math.max(0, totalPortfolioValue - targetWithdrawal);
 
-  // Target ratios (e.g. 80% Gold, 20% Crypto)
-  const targetGoldRatio = (settings.goldPercent || 80) / 100;
-  const targetCryptoRatio = (settings.cryptoPercent || 20) / 100;
+  // Target ratios (normalized cleanly even if user ratios differ from 100)
+  const rawGoldPct = Number.isFinite(settings.goldPercent) && settings.goldPercent >= 0 ? settings.goldPercent : 80;
+  const rawCryptoPct = Number.isFinite(settings.cryptoPercent) && settings.cryptoPercent >= 0 ? settings.cryptoPercent : 20;
+  const ratioSum = rawGoldPct + rawCryptoPct;
+  const targetGoldRatio = ratioSum > 0 ? rawGoldPct / ratioSum : 0.8;
+  const targetCryptoRatio = ratioSum > 0 ? rawCryptoPct / ratioSum : 0.2;
 
   let targetGoldRemaining = targetRemainingPortfolio * targetGoldRatio;
   let targetCryptoRemaining = targetRemainingPortfolio * targetCryptoRatio;
@@ -290,24 +317,26 @@ export function calculateOptimalSales(
       );
 
       // Derive unit price safely
-      const unitPrice =
-        asset.unitPrice && asset.unitPrice > 0
-          ? asset.unitPrice
-          : asset.currentAmount && asset.currentAmount > 0
-          ? Math.round(asset.currentHoldingValue / asset.currentAmount)
+      const safeHoldingVal = safeNum(asset.currentHoldingValue);
+      const rawUnitPrice =
+        safeNum(asset.unitPrice) > 0
+          ? safeNum(asset.unitPrice)
+          : safeNum(asset.currentAmount) > 0
+          ? Math.round(safeHoldingVal / safeNum(asset.currentAmount))
           : 1;
+      const unitPrice = Math.max(1, rawUnitPrice);
 
       let amountToSell = 0;
 
-      if (asset.currentAmount !== undefined && asset.currentAmount > 0) {
+      if (safeNum(asset.currentAmount) > 0) {
         amountToSell = Math.min(
           Number((coinSaleTomans / unitPrice).toFixed(6)),
-          asset.currentAmount
+          safeNum(asset.currentAmount)
         );
       }
 
       const totalSaleValue =
-        amountToSell > 0 && asset.currentAmount
+        amountToSell > 0 && safeNum(asset.currentAmount) > 0
           ? Math.round(amountToSell * unitPrice)
           : Math.round(coinSaleTomans);
 
@@ -343,7 +372,7 @@ export function calculateOptimalSales(
     resultingPortfolioValue > 0 ? (resultingCryptoValue / resultingPortfolioValue) * 100 : 0;
 
   return {
-    requestedAmountTomans,
+    requestedAmountTomans: safeRequestedAmount,
     actualTotalSaleTomans,
     goldSaleTomans: actualGoldSaleTomans,
     cryptoSaleTomans: actualCryptoSaleTomans,

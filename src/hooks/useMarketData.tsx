@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from 'react';
 import {
   MarketInstrument,
   UserMarketHolding,
@@ -12,7 +20,9 @@ import {
   saveMarketInstruments,
   loadMarketHoldings,
   saveMarketHoldings,
+  sanitizeProfileId,
 } from '../utils/storage';
+import { redactSecrets } from '../utils/security';
 
 export interface CombinedMarketItem {
   instrument: MarketInstrument;
@@ -53,88 +63,217 @@ export interface MarketDataContextType {
   ) => void;
   removeHolding: (holdingId: string) => void;
   refreshQuotes: (isManual?: boolean) => Promise<void>;
+  hydrateMarketDataFromProfile: (
+    profileId: string | null,
+    profileInstruments?: MarketInstrument[],
+    profileHoldings?: UserMarketHolding[]
+  ) => void;
 }
 
 const MarketDataContext = createContext<MarketDataContextType | null>(null);
 
-export const MarketDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [instruments, setInstruments] = useState<MarketInstrument[]>(() => {
-    const loaded = loadMarketInstruments();
-    return loaded.map((inst) => {
-      if (inst.symbol === 'عیار' && inst.providerInstrumentId !== '34144395039913458') {
-        return {
-          ...inst,
-          providerInstrumentId: '34144395039913458',
-          name: 'صندوق س. پشتوانه طلای لوتوس',
-        };
-      }
-      return inst;
-    });
+function normalizeMarketInstruments(raw: MarketInstrument[]): MarketInstrument[] {
+  return (raw || []).map((inst) => {
+    if (inst.symbol === 'عیار' && inst.providerInstrumentId !== '34144395039913458') {
+      return {
+        ...inst,
+        providerInstrumentId: '34144395039913458',
+        name: 'صندوق س. پشتوانه طلای لوتوس',
+      };
+    }
+    return { ...inst };
   });
-  const [holdings, setHoldings] = useState<UserMarketHolding[]>(() => loadMarketHoldings());
+}
+
+export interface MarketDataProviderProps {
+  children: React.ReactNode;
+  activeProfileId?: string | null;
+  onPersistProfileMarketData?: (
+    instruments: MarketInstrument[],
+    holdings: UserMarketHolding[],
+    profileId: string
+  ) => void;
+}
+
+export const MarketDataProvider: React.FC<MarketDataProviderProps> = ({
+  children,
+  activeProfileId = null,
+  onPersistProfileMarketData,
+}) => {
+  const cleanProfileId = sanitizeProfileId(activeProfileId);
+  const hydratedKeyRef = useRef<string>(cleanProfileId || '__default__');
+  const activeProfileRef = useRef<string | null>(cleanProfileId);
+  const fetchGenRef = useRef<number>(0);
+  const abortRef = useRef<AbortController | null>(null);
+  const isFetchingRef = useRef<boolean>(false);
+
+  const [instruments, setInstruments] = useState<MarketInstrument[]>(() =>
+    normalizeMarketInstruments(loadMarketInstruments(cleanProfileId))
+  );
+  const [holdings, setHoldings] = useState<UserMarketHolding[]>(() =>
+    loadMarketHoldings(cleanProfileId).map((h) => ({ ...h }))
+  );
   const [quotes, setQuotes] = useState<Record<string, MarketQuote>>({});
   const [marketStatus, setMarketStatus] = useState<MarketStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<number>(Date.now());
 
-  // Ref to prevent overlapping fetches
-  const isFetchingRef = useRef(false);
+  const instrumentsRef = useRef<MarketInstrument[]>(instruments);
+  const holdingsRef = useRef<UserMarketHolding[]>(holdings);
+  instrumentsRef.current = instruments;
+  holdingsRef.current = holdings;
 
-  // Sync instruments to local storage
+  // Synchronously isolate & re-hydrate market instruments/holdings whenever activeProfileId switches
   useEffect(() => {
-    saveMarketInstruments(instruments);
-  }, [instruments]);
+    const nextKey = cleanProfileId || '__default__';
+    if (hydratedKeyRef.current !== nextKey) {
+      abortRef.current?.abort();
+      abortRef.current = null;
+      fetchGenRef.current += 1;
+      isFetchingRef.current = false;
+      activeProfileRef.current = cleanProfileId;
 
-  // Sync holdings to local storage
+      const loadedInstruments = normalizeMarketInstruments(loadMarketInstruments(cleanProfileId));
+      const loadedHoldings = loadMarketHoldings(cleanProfileId).map((h) => ({ ...h }));
+
+      hydratedKeyRef.current = nextKey;
+      instrumentsRef.current = loadedInstruments;
+      holdingsRef.current = loadedHoldings;
+
+      setInstruments(loadedInstruments);
+      setHoldings(loadedHoldings);
+      setQuotes({});
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }, [cleanProfileId]);
+
   useEffect(() => {
-    saveMarketHoldings(holdings);
-  }, [holdings]);
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
-  // Fetch Quotes and Market Status
+  const hydrateMarketDataFromProfile = useCallback(
+    (
+      profileId: string | null,
+      profileInstruments?: MarketInstrument[],
+      profileHoldings?: UserMarketHolding[]
+    ) => {
+      const cleanId = sanitizeProfileId(profileId);
+      const nextKey = cleanId || '__default__';
+      abortRef.current?.abort();
+      abortRef.current = null;
+      fetchGenRef.current += 1;
+      isFetchingRef.current = false;
+      activeProfileRef.current = cleanId;
+
+      const resolvedInstruments = normalizeMarketInstruments(
+        Array.isArray(profileInstruments) ? profileInstruments : loadMarketInstruments(cleanId)
+      );
+      const resolvedHoldings = (
+        Array.isArray(profileHoldings) ? profileHoldings : loadMarketHoldings(cleanId)
+      ).map((h) => ({ ...h }));
+
+      hydratedKeyRef.current = nextKey;
+      instrumentsRef.current = resolvedInstruments;
+      holdingsRef.current = resolvedHoldings;
+
+      saveMarketInstruments(resolvedInstruments, cleanId);
+      saveMarketHoldings(resolvedHoldings, cleanId);
+
+      setInstruments(resolvedInstruments);
+      setHoldings(resolvedHoldings);
+      setQuotes({});
+      setIsLoading(false);
+      setIsRefreshing(false);
+    },
+    []
+  );
+
+  // Persist instruments & holdings strictly under the hydrated active profile
+  useEffect(() => {
+    const currentKey = cleanProfileId || '__default__';
+    if (hydratedKeyRef.current !== currentKey) return;
+    saveMarketInstruments(instruments, cleanProfileId);
+    if (cleanProfileId && onPersistProfileMarketData) {
+      onPersistProfileMarketData(instruments, holdingsRef.current, cleanProfileId);
+    }
+  }, [instruments, cleanProfileId, onPersistProfileMarketData]);
+
+  useEffect(() => {
+    const currentKey = cleanProfileId || '__default__';
+    if (hydratedKeyRef.current !== currentKey) return;
+    saveMarketHoldings(holdings, cleanProfileId);
+    if (cleanProfileId && onPersistProfileMarketData) {
+      onPersistProfileMarketData(instrumentsRef.current, holdings, cleanProfileId);
+    }
+  }, [holdings, cleanProfileId, onPersistProfileMarketData]);
+
+  // Fetch Quotes and Market Status with AbortController + profile-generation guard
   const refreshQuotes = useCallback(async (isManual = false) => {
-    if (isFetchingRef.current) return;
-    isFetchingRef.current = true;
+    if (isFetchingRef.current && !isManual) return;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const gen = ++fetchGenRef.current;
+    const startedProfileKey = hydratedKeyRef.current;
+    const snapshotInstruments = instrumentsRef.current;
 
+    isFetchingRef.current = true;
     if (isManual) setIsRefreshing(true);
     else setIsLoading(true);
 
     try {
-      // 1. Fetch Market Status
       const status = await marketDataProvider.getMarketStatus();
+      if (controller.signal.aborted || gen !== fetchGenRef.current || hydratedKeyRef.current !== startedProfileKey) {
+        return;
+      }
       setMarketStatus(status);
 
-      // 2. Fetch Quotes for all user-created instruments
-      if (instruments.length > 0) {
-        const newQuotes = await marketDataProvider.getQuotes(instruments);
+      if (snapshotInstruments.length > 0) {
+        const provider = marketDataProvider as unknown as {
+          getQuotes: (insts: MarketInstrument[], signal?: AbortSignal) => Promise<Record<string, MarketQuote>>;
+        };
+        const newQuotes = await provider.getQuotes(snapshotInstruments, controller.signal);
+        if (controller.signal.aborted || gen !== fetchGenRef.current || hydratedKeyRef.current !== startedProfileKey) {
+          return;
+        }
         setQuotes((prev) => ({ ...prev, ...newQuotes }));
       }
 
       setLastRefreshedAt(Date.now());
     } catch (error) {
-      console.warn('[MarketDataHook] Refresh error:', error);
+      if ((error as { name?: string })?.name !== 'AbortError') {
+        console.warn('[MarketDataHook] Refresh error:', redactSecrets(error));
+      }
     } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-      isFetchingRef.current = false;
+      if (gen === fetchGenRef.current) {
+        isFetchingRef.current = false;
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
     }
-  }, [instruments]);
+  }, []);
 
-  // Initial fetch on mount or when instruments change
+  // Auto-refresh when instrument list changes or profile switches
   useEffect(() => {
-    refreshQuotes(false);
-  }, [instruments.length]);
+    if (instruments.length > 0) {
+      void refreshQuotes(false);
+    }
+  }, [instruments.length, cleanProfileId, refreshQuotes]);
 
-  // Polling: Auto-refresh every 60 seconds
+  // Polling every 60 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      if (instruments.length > 0) {
-        refreshQuotes(false);
+      if (instrumentsRef.current.length > 0) {
+        void refreshQuotes(false);
       }
-    }, 60000); // 60 seconds
+    }, 60000);
 
     return () => clearInterval(interval);
-  }, [instruments.length, refreshQuotes]);
+  }, [refreshQuotes]);
 
   // Add a new Instrument and its initial user holding
   const addInstrumentAndHolding = useCallback(
@@ -144,11 +283,18 @@ export const MarketDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       averageBuyPriceTomans?: number
     ) => {
       const now = new Date().toISOString();
-      const existingInst = instruments.find(
+      const safeQty = Math.max(0, Number.isFinite(quantity) ? quantity : 0);
+      const safeAvg =
+        averageBuyPriceTomans && Number.isFinite(averageBuyPriceTomans) && averageBuyPriceTomans > 0
+          ? averageBuyPriceTomans
+          : undefined;
+
+      const existingInst = instrumentsRef.current.find(
         (i) => i.providerInstrumentId === searchResult.insCode
       );
-
-      let instrumentId = existingInst ? existingInst.id : `inst_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+      const instrumentId = existingInst
+        ? existingInst.id
+        : `inst_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 
       if (!existingInst) {
         const newInst: MarketInstrument = {
@@ -164,52 +310,47 @@ export const MarketDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setInstruments((prev) => [...prev, newInst]);
       }
 
-      // Check if holding already exists for this instrument
-      const existingHolding = holdings.find((h) => h.instrumentId === instrumentId);
+      const existingHolding = holdingsRef.current.find((h) => h.instrumentId === instrumentId);
 
       if (existingHolding) {
-        // Update existing holding quantity
         setHoldings((prev) =>
           prev.map((h) =>
             h.id === existingHolding.id
               ? {
                   ...h,
-                  quantity: h.quantity + quantity,
-                  averageBuyPriceTomans: averageBuyPriceTomans || h.averageBuyPriceTomans,
+                  quantity: h.quantity + safeQty,
+                  averageBuyPriceTomans: safeAvg ?? h.averageBuyPriceTomans,
                   updatedAt: now,
                 }
               : h
           )
         );
       } else {
-        // Create new holding
         const newHolding: UserMarketHolding = {
-          id: `hold_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+          id: `hold_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
           instrumentId,
-          quantity: Math.max(0, quantity),
-          averageBuyPriceTomans: averageBuyPriceTomans && averageBuyPriceTomans > 0 ? averageBuyPriceTomans : undefined,
+          quantity: safeQty,
+          averageBuyPriceTomans: safeAvg,
           createdAt: now,
           updatedAt: now,
         };
         setHoldings((prev) => [...prev, newHolding]);
       }
-
-      // Immediately fetch quote for the newly added instrument
-      setTimeout(() => refreshQuotes(true), 100);
     },
-    [instruments, holdings, refreshQuotes]
+    []
   );
 
-  // Add units directly to an existing or default gold instrument (called when applying purchases)
+  // Add units directly to an existing or default gold instrument
   const addUnitsToGoldInstrument = useCallback(
     (symbol: string, unitsToAdd: number, priceTomans?: number) => {
-      if (unitsToAdd <= 0) return;
+      if (!Number.isFinite(unitsToAdd) || unitsToAdd <= 0) return;
       const now = new Date().toISOString();
-
-      const existingInst = instruments.find((i) => i.symbol === symbol);
+      const existingInst = instrumentsRef.current.find((i) => i.symbol === symbol);
 
       if (existingInst) {
-        const existingHolding = holdings.find((h) => h.instrumentId === existingInst.id);
+        const existingHolding = holdingsRef.current.find(
+          (h) => h.instrumentId === existingInst.id
+        );
         if (existingHolding) {
           setHoldings((prev) =>
             prev.map((h) =>
@@ -224,7 +365,7 @@ export const MarketDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           );
         } else {
           const newHolding: UserMarketHolding = {
-            id: `hold_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+            id: `hold_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
             instrumentId: existingInst.id,
             quantity: unitsToAdd,
             averageBuyPriceTomans: priceTomans,
@@ -234,7 +375,6 @@ export const MarketDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           setHoldings((prev) => [...prev, newHolding]);
         }
       } else {
-        // Create default instrument for Ayar / gold fund
         const newInstId = `inst_gold_${Date.now()}`;
         const newInst: MarketInstrument = {
           id: newInstId,
@@ -247,7 +387,7 @@ export const MarketDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           updatedAt: now,
         };
         const newHolding: UserMarketHolding = {
-          id: `hold_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+          id: `hold_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
           instrumentId: newInstId,
           quantity: unitsToAdd,
           averageBuyPriceTomans: priceTomans,
@@ -258,20 +398,23 @@ export const MarketDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setHoldings((prev) => [...prev, newHolding]);
       }
     },
-    [instruments, holdings]
+    []
   );
 
-  // Update existing user holding
   const updateHolding = useCallback(
     (holdingId: string, quantity: number, averageBuyPriceTomans?: number) => {
       const now = new Date().toISOString();
+      const safeQty = Math.max(0, Number.isFinite(quantity) ? quantity : 0);
       setHoldings((prev) =>
         prev.map((h) =>
           h.id === holdingId
             ? {
                 ...h,
-                quantity: Math.max(0, quantity),
-                averageBuyPriceTomans: averageBuyPriceTomans && averageBuyPriceTomans > 0 ? averageBuyPriceTomans : undefined,
+                quantity: safeQty,
+                averageBuyPriceTomans:
+                  averageBuyPriceTomans && averageBuyPriceTomans > 0
+                    ? averageBuyPriceTomans
+                    : undefined,
                 updatedAt: now,
               }
             : h
@@ -281,28 +424,22 @@ export const MarketDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     []
   );
 
-  // Remove holding and clean up instrument if no holdings remain
-  const removeHolding = useCallback(
-    (holdingId: string) => {
-      const holdingToRemove = holdings.find((h) => h.id === holdingId);
-      if (!holdingToRemove) return;
+  const removeHolding = useCallback((holdingId: string) => {
+    const currentHoldings = holdingsRef.current;
+    const holdingToRemove = currentHoldings.find((h) => h.id === holdingId);
+    if (!holdingToRemove) return;
 
-      const instId = holdingToRemove.instrumentId;
+    const instId = holdingToRemove.instrumentId;
+    setHoldings((prev) => prev.filter((h) => h.id !== holdingId));
 
-      setHoldings((prev) => prev.filter((h) => h.id !== holdingId));
+    const otherHoldingsWithInst = currentHoldings.filter(
+      (h) => h.id !== holdingId && h.instrumentId === instId
+    );
+    if (otherHoldingsWithInst.length === 0) {
+      setInstruments((prev) => prev.filter((i) => i.id !== instId));
+    }
+  }, []);
 
-      // If no other holding references this instrument, remove the instrument
-      const otherHoldingsWithInst = holdings.filter(
-        (h) => h.id !== holdingId && h.instrumentId === instId
-      );
-      if (otherHoldingsWithInst.length === 0) {
-        setInstruments((prev) => prev.filter((i) => i.id !== instId));
-      }
-    },
-    [holdings]
-  );
-
-  // Compute combined items with live valuation
   const combinedItems: CombinedMarketItem[] = useMemo(() => {
     return holdings.map((holding) => {
       const instrument = instruments.find((i) => i.id === holding.instrumentId) || {
@@ -342,12 +479,10 @@ export const MarketDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     });
   }, [holdings, instruments, quotes]);
 
-  // Total valuation of all market instruments
   const totalMarketValueTomans = useMemo(() => {
     return combinedItems.reduce((sum, item) => sum + item.currentValueTomans, 0);
   }, [combinedItems]);
 
-  // Total valuation of Gold specific market instruments (used for 80% Gold rebalancing)
   const totalGoldMarketValueTomans = useMemo(() => {
     return combinedItems
       .filter(
@@ -385,6 +520,7 @@ export const MarketDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       updateHolding,
       removeHolding,
       refreshQuotes,
+      hydrateMarketDataFromProfile,
     }),
     [
       instruments,
@@ -403,6 +539,7 @@ export const MarketDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       updateHolding,
       removeHolding,
       refreshQuotes,
+      hydrateMarketDataFromProfile,
     ]
   );
 

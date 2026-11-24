@@ -78,7 +78,7 @@ export const NobitexIntegrationCard: React.FC<NobitexIntegrationCardProps> = ({
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h4 className="text-sm font-black text-slate-900 dark:text-slate-100 whitespace-nowrap">
+                <h4 className="text-sm font-black text-slate-900 dark:text-slate-100 truncate">
                   اتصال به نوبیتکس و همگام‌سازی
                 </h4>
                 {isConfigured ? (

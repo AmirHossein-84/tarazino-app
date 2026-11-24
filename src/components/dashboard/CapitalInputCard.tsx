@@ -146,7 +146,7 @@ export const CapitalInputCard: React.FC<CapitalInputCardProps> = ({
       </div>
 
       {/* Quick-Add Chips */}
-      <div className="grid grid-cols-5 gap-1.5 pt-1">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 pt-1 min-w-0">
         {[
           { label: '+۱ م', title: '+۱ میلیون تومان', value: 1000000 },
           { label: '+۵ م', title: '+۵ میلیون تومان', value: 5000000 },

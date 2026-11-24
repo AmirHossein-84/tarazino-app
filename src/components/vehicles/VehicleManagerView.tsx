@@ -142,33 +142,33 @@ export const VehicleManagerView: React.FC<VehicleManagerViewProps> = ({
         {/* Aggregate Stats Cards Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-3">
           {/* Total Valuation */}
-          <div className="p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800/80 space-y-1">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 block">
+          <div className="p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800/80 space-y-1 min-w-0">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 block truncate">
               ارزش روز کل خودروها
             </span>
-            <span className="text-xs sm:text-sm font-black text-blue-700 dark:text-blue-400 block">
+            <span className="text-xs sm:text-sm font-black text-blue-700 dark:text-blue-400 block dir-ltr text-right tabular-nums truncate">
               {formatCurrency(stats.totalValuation)}
             </span>
           </div>
 
           {/* Total Purchase Cost */}
-          <div className="p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800/80 space-y-1">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 block">
+          <div className="p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800/80 space-y-1 min-w-0">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 block truncate">
               مجموع بهای خرید
             </span>
-            <span className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 block">
+            <span className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 block dir-ltr text-right tabular-nums truncate">
               {formatCurrency(stats.totalPurchaseCost)}
             </span>
           </div>
 
           {/* Total Capital Gain / Profit */}
-          <div className="p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800/80 space-y-1 col-span-2 sm:col-span-1">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 block">
+          <div className="p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/90 dark:border-slate-800/80 space-y-1 col-span-2 sm:col-span-1 min-w-0">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 block truncate">
               سود / تغییر ارزش روز
             </span>
-            <div className="flex items-center gap-1.5 dir-rtl">
+            <div className="flex flex-wrap items-center gap-1.5 dir-rtl min-w-0">
               <span
-                className={`text-xs sm:text-sm font-black ${
+                className={`text-xs sm:text-sm font-black dir-ltr tabular-nums truncate ${
                   stats.totalGain >= 0
                     ? 'text-emerald-700 dark:text-emerald-400'
                     : 'text-rose-700 dark:text-rose-400'
@@ -178,7 +178,7 @@ export const VehicleManagerView: React.FC<VehicleManagerViewProps> = ({
                 {formatCurrency(stats.totalGain)}
               </span>
               <span
-                className={`text-[10px] font-bold px-1.5 py-0.5 rounded-lg ${
+                className={`text-[10px] font-bold px-1.5 py-0.5 rounded-lg shrink-0 ${
                   stats.totalGain >= 0
                     ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
                     : 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300'
@@ -304,14 +304,14 @@ export const VehicleManagerView: React.FC<VehicleManagerViewProps> = ({
                       <Sparkles className="w-5 h-5" />
                     )}
                   </div>
-                  <div>
-                    <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 truncate">
                       {vehicle.title}
                     </h3>
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                      {vehicle.model && <span>{vehicle.model}</span>}
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                      {vehicle.model && <span className="truncate">{vehicle.model}</span>}
                       {vehicle.year && (
-                        <span>• مدل {toPersianDigits(vehicle.year)}</span>
+                        <span className="shrink-0">• مدل {toPersianDigits(vehicle.year)}</span>
                       )}
                     </div>
                   </div>
@@ -361,17 +361,17 @@ export const VehicleManagerView: React.FC<VehicleManagerViewProps> = ({
               </div>
 
               {/* Price & Current Valuation Card */}
-              <div className="p-2.5 rounded-2xl bg-slate-50/90 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800/80 space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 dark:text-slate-400 font-bold">ارزش روز برآورد شده:</span>
-                  <span className="font-black text-blue-700 dark:text-blue-400 text-sm">
+              <div className="p-2.5 rounded-2xl bg-slate-50/90 dark:bg-slate-950/80 border border-slate-200/80 dark:border-slate-800/80 space-y-1.5 min-w-0">
+                <div className="flex items-center justify-between gap-2 text-xs min-w-0">
+                  <span className="text-slate-500 dark:text-slate-400 font-bold shrink-0">ارزش روز برآورد شده:</span>
+                  <span className="font-black text-blue-700 dark:text-blue-400 text-sm dir-ltr tabular-nums truncate">
                     {formatCurrency(vehicle.currentValuationTomans)}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 dark:text-slate-400">قیمت خرید پرداخت‌شده:</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-300">
+                <div className="flex items-center justify-between gap-2 text-xs min-w-0">
+                  <span className="text-slate-500 dark:text-slate-400 shrink-0">قیمت خرید پرداخت‌شده:</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-300 dir-ltr tabular-nums truncate">
                     {formatCurrency(vehicle.purchasePriceTomans)}
                   </span>
                 </div>

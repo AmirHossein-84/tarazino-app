@@ -91,10 +91,11 @@ describe('Challenger 2 — Milestone 1 Empirical Layout & Shell Verification', (
     assert.ok(fs.existsSync(ptrPath), 'PullToRefreshContainer.tsx must exist');
     const ptrSrc = fs.readFileSync(ptrPath, 'utf8');
 
-    // 1. Damped pull curve and threshold mechanics
-    assert.match(ptrSrc, /Math\.min\(diff \* 0\.45, 90\)/, 'PTR must use 0.45 damping coefficient capped at 90px');
+    // 1. Damped GPU rubber-band pull curve and threshold mechanics (no per-frame React state)
+    assert.match(ptrSrc, /requestAnimationFrame/, 'PTR must drive pull frame updates via requestAnimationFrame');
+    assert.match(ptrSrc, /translate3d\(/, 'PTR must translate DOM refs via GPU composited translate3d');
     assert.match(ptrSrc, /pullThreshold = 65/, 'PTR default threshold must be 65px');
-    assert.match(ptrSrc, /window\.scrollY <= 2/, 'PTR must only engage when scrolled to the top');
+    assert.match(ptrSrc, /window\.scrollY > 2/, 'PTR must only engage when scrolled to the top');
 
     // 2. Dual-mode visual spinner pill
     assert.match(ptrSrc, /bg-white\/95 dark:bg-slate-900\/90/, 'PTR pill must have dual-mode background');
@@ -103,7 +104,7 @@ describe('Challenger 2 — Milestone 1 Empirical Layout & Shell Verification', (
     assert.match(ptrSrc, /text-amber-600 dark:text-gold-400/, 'Refresh icon must have gold accent');
 
     // 3. Dynamic rotation and spin animation
-    assert.match(ptrSrc, /rotate\(\$\{pullDistance \* 4\}deg\)/, 'Icon must rotate smoothly proportional to pull distance');
+    assert.match(ptrSrc, /rotate\(\$\{clamped \* 4\}deg\)/, 'Icon must rotate smoothly proportional to pull distance');
     assert.match(ptrSrc, /animate-spin/, 'Icon must spin continuously during active refresh');
 
     // 4. Persian status messages

@@ -21,6 +21,7 @@
     <!-- PWA meta tags -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#0B0F17" id="theme-color-meta" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -35,19 +36,5 @@
   <body class="bg-slate-100 dark:bg-dark-bg text-slate-900 dark:text-slate-100 font-vazir antialiased select-none min-h-screen overflow-x-hidden transition-colors duration-200">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      // Register Service Worker for PWA
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-              console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-              console.log('SW registration failed: ', registrationError);
-            });
-        });
-      }
-    </script>
   </body>
 </html>

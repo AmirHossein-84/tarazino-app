@@ -123,35 +123,35 @@ export const CryptoBuyTable: React.FC<CryptoBuyTableProps> = ({
             return (
               <div
                 key={crypto.id}
-                className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/90 hover:border-slate-300 dark:hover:border-slate-700 transition-all space-y-2.5"
+                className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/90 hover:border-slate-300 dark:hover:border-slate-700 transition-all space-y-2.5 min-w-0"
               >
                 {/* Card Top: Coin Info + Target Weight */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between gap-2 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
                     <span
                       className="w-3.5 h-3.5 rounded-full shrink-0 shadow-sm"
                       style={{ backgroundColor: crypto.color }}
                     />
-                    <div>
-                      <span className="font-black text-slate-900 dark:text-slate-100 text-sm tracking-wide">
+                    <div className="min-w-0">
+                      <span className="font-black text-slate-900 dark:text-slate-100 text-sm tracking-wide block truncate">
                         {crypto.symbol}
                       </span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate max-w-[120px]">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
                         {crypto.name}
                       </span>
                     </div>
                   </div>
 
-                  <span className="text-[11px] px-2 py-0.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold">
+                  <span className="text-[11px] px-2 py-0.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold shrink-0">
                     هدف: {toPersianDigits(crypto.targetPercent)}٪
                   </span>
                 </div>
 
                 {/* Card Mid: Current vs Suggested Buy */}
-                <div className="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-slate-900 text-xs">
-                  <div>
+                <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-200 dark:border-slate-900 text-xs min-w-0">
+                  <div className="min-w-0 flex-1">
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 block">موجودی فعلی:</span>
-                    <span className="text-slate-700 dark:text-slate-300 font-medium dir-ltr text-xs">
+                    <span className="text-slate-700 dark:text-slate-300 font-medium dir-ltr text-right text-xs tabular-nums truncate block">
                       {crypto.currentHoldingValue > 0
                         ? `${formatToman(crypto.currentHoldingValue)} ت`
                         : '۰ ت'}
@@ -159,11 +159,11 @@ export const CryptoBuyTable: React.FC<CryptoBuyTableProps> = ({
                   </div>
 
                   {/* Suggested Buy Button */}
-                  <div className="flex items-center gap-2">
-                    <div className="text-left">
+                  <div className="flex items-center gap-2 shrink-0 max-w-[55%] min-w-0">
+                    <div className="text-left min-w-0">
                       <span className="text-[10px] text-slate-500 dark:text-slate-400 block">خرید پیشنهادی:</span>
                       <span
-                        className={`font-black dir-ltr text-xs ${
+                        className={`font-black dir-ltr text-right text-xs tabular-nums truncate block ${
                           hasBuy ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'
                         }`}
                       >
@@ -174,7 +174,7 @@ export const CryptoBuyTable: React.FC<CryptoBuyTableProps> = ({
                     {hasBuy && (
                       <button
                         onClick={() => handleCopySingle(crypto.id, crypto.suggestedBuy)}
-                        className={`p-2 rounded-xl border transition-all interactive-tap touch-target ${
+                        className={`p-2 rounded-xl border transition-all interactive-tap touch-target shrink-0 ${
                           isCopied
                             ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 shadow-emerald-glow'
                             : 'bg-white dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700/80'
@@ -195,9 +195,9 @@ export const CryptoBuyTable: React.FC<CryptoBuyTableProps> = ({
           })}
 
           {/* Total Summary Footer Card */}
-          <div className="sm:col-span-2 p-4 rounded-2xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs font-black">
+          <div className="sm:col-span-2 p-4 rounded-2xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs font-black min-w-0">
             <span className="text-amber-800 dark:text-gold-400">مجموع خرید رمزارزها (۱۰۰٪ سبد):</span>
-            <span className="text-emerald-700 dark:text-emerald-400 text-sm dir-ltr">
+            <span className="text-emerald-700 dark:text-emerald-400 text-sm dir-ltr tabular-nums">
               {formatToman(totalCryptoBuySuggested)} تومان
             </span>
           </div>

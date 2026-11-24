@@ -146,7 +146,7 @@ export const PropertyManagerView: React.FC<PropertyManagerViewProps> = ({
   };
 
   return (
-    <div className="space-y-5 pb-24 animate-fadeIn">
+    <div className="space-y-5 animate-fadeIn min-w-0">
       
       {/* 1. Real Estate Summary Hero Card */}
       <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/40 dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-950 border border-emerald-200 dark:border-emerald-500/40 shadow-sm dark:shadow-2xl relative overflow-hidden space-y-4">

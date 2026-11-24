@@ -26,16 +26,16 @@ export const OverviewSummary: React.FC<OverviewSummaryProps> = ({
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
       
       {/* Total Portfolio Value Card */}
-      <div className="sm:col-span-1 p-4 rounded-3xl bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-lg relative overflow-hidden flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold text-slate-500 dark:text-slate-400">مجموع دارایی‌ها (ارزش کل پرتفوی)</span>
-          <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+      <div className="sm:col-span-1 p-4 rounded-3xl bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-lg relative overflow-hidden flex flex-col justify-between min-w-0">
+        <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
+          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">مجموع دارایی‌ها (ارزش کل پرتفوی)</span>
+          <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
             <Wallet className="w-4 h-4" />
           </div>
         </div>
 
-        <div>
-          <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 mb-1.5 dir-ltr">
+        <div className="min-w-0">
+          <div className="text-lg sm:text-2xl font-black text-slate-900 dark:text-slate-100 mb-1.5 dir-ltr tabular-nums truncate">
             {formatToman(totalHoldingsVal)} <span className="text-xs font-bold text-slate-500 dark:text-slate-400">تومان</span>
           </div>
 
@@ -68,19 +68,19 @@ export const OverviewSummary: React.FC<OverviewSummaryProps> = ({
       </div>
 
       {/* Gold & Market Summary Card */}
-      <div className="p-4 rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-amber-50/40 dark:from-amber-950/20 dark:via-slate-900 dark:to-slate-950 border border-gold-400/40 dark:border-amber-500/30 shadow-sm dark:shadow-md relative overflow-hidden flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold text-amber-800 dark:text-amber-300">موجودی طلا و بورس</span>
-          <div className="p-2 rounded-xl bg-amber-500/15 text-amber-700 dark:text-gold-400">
+      <div className="p-4 rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-amber-50/40 dark:from-amber-950/20 dark:via-slate-900 dark:to-slate-950 border border-gold-400/40 dark:border-amber-500/30 shadow-sm dark:shadow-md relative overflow-hidden flex flex-col justify-between min-w-0">
+        <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
+          <span className="text-xs font-bold text-amber-800 dark:text-amber-300 truncate">موجودی طلا و بورس</span>
+          <div className="p-2 rounded-xl bg-amber-500/15 text-amber-700 dark:text-gold-400 shrink-0">
             <Sparkles className="w-4 h-4" />
           </div>
         </div>
 
-        <div>
-          <div className="text-lg sm:text-xl font-black text-amber-700 dark:text-gold-400 mb-1 dir-ltr">
+        <div className="min-w-0">
+          <div className="text-base sm:text-xl font-black text-amber-700 dark:text-gold-400 mb-1 dir-ltr tabular-nums truncate">
             {formatToman(currentGoldVal + marketValueTomans)} <span className="text-xs font-bold text-slate-500 dark:text-slate-400">تومان</span>
           </div>
-          <div className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
+          <div className="text-[11px] text-slate-600 dark:text-slate-300 font-medium truncate">
             {marketValueTomans > 0 ? (
               <span>شامل {formatToman(marketValueTomans)} ت دارایی بورسی</span>
             ) : (
@@ -91,16 +91,16 @@ export const OverviewSummary: React.FC<OverviewSummaryProps> = ({
       </div>
 
       {/* Crypto Summary Card */}
-      <div className="p-4 rounded-3xl bg-gradient-to-br from-indigo-50/80 via-white to-indigo-50/40 dark:from-indigo-950/20 dark:via-slate-900 dark:to-slate-950 border border-indigo-200 dark:border-indigo-500/30 shadow-sm dark:shadow-md relative overflow-hidden flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold text-indigo-800 dark:text-indigo-300">موجودی فعلی رمزارزها</span>
-          <div className="p-2 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400">
+      <div className="p-4 rounded-3xl bg-gradient-to-br from-indigo-50/80 via-white to-indigo-50/40 dark:from-indigo-950/20 dark:via-slate-900 dark:to-slate-950 border border-indigo-200 dark:border-indigo-500/30 shadow-sm dark:shadow-md relative overflow-hidden flex flex-col justify-between min-w-0">
+        <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
+          <span className="text-xs font-bold text-indigo-800 dark:text-indigo-300 truncate">موجودی فعلی رمزارزها</span>
+          <div className="p-2 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 shrink-0">
             <TrendingUp className="w-4 h-4" />
           </div>
         </div>
 
-        <div>
-          <div className="text-lg sm:text-xl font-black text-indigo-600 dark:text-indigo-400 mb-1 dir-ltr">
+        <div className="min-w-0">
+          <div className="text-base sm:text-xl font-black text-indigo-600 dark:text-indigo-400 mb-1 dir-ltr tabular-nums truncate">
             {formatToman(currentCryptoVal)} <span className="text-xs font-bold text-slate-500 dark:text-slate-400">تومان</span>
           </div>
           <div className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">

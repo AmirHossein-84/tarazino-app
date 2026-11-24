@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { PhysicalGoldType } from '../../types/investment';
 import { toEnglishDigits } from '../../utils/formatters';
+import { fetchWithTimeout, redactSecrets, safeJsonParse } from '../../utils/security';
 
 export interface LiveGoldRate {
   id: PhysicalGoldType;
@@ -50,6 +51,7 @@ class PhysicalGoldService {
   private readonly cacheTtlMs = 45000; // 45 seconds cache
   private dollarRateTomans = 0;
   private dollarLastFetchedAt = 0;
+  private inFlightAjaxPromise: Promise<TgjuGoldResponse> | null = null;
 
   constructor() {
     this.loadOfflineCache();
@@ -61,14 +63,58 @@ class PhysicalGoldService {
       if (typeof window === 'undefined') return;
       const raw = localStorage.getItem(OFFLINE_RATES_KEY);
       if (raw) {
-        const parsed: Record<string, LiveGoldRate> = JSON.parse(raw);
-        Object.entries(parsed).forEach(([key, val]) => {
-          this.cache.set(key as PhysicalGoldType, val);
-        });
+        const parsed = safeJsonParse<Record<string, LiveGoldRate>>(raw);
+        if (parsed && typeof parsed === 'object') {
+          Object.entries(parsed).forEach(([key, val]) => {
+            this.cache.set(key as PhysicalGoldType, val);
+          });
+        }
       }
     } catch {
       // Ignore
     }
+  }
+
+  private async fetchAjaxPayload(signal?: AbortSignal): Promise<TgjuGoldResponse> {
+    if (signal?.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
+    }
+    if (!this.inFlightAjaxPromise) {
+      this.inFlightAjaxPromise = (async () => {
+        const baseUrl = this.getBaseUrl();
+        const response = await fetchWithTimeout(`${baseUrl}/ajax.json`, {
+          headers: {
+            Accept: 'application/json, text/plain, */*',
+          },
+          timeoutMs: 7500,
+        });
+        if (!response.ok) {
+          throw new Error(`TGJU HTTP ${response.status}: ${response.statusText}`);
+        }
+        return (await response.json()) as TgjuGoldResponse;
+      })().finally(() => {
+        this.inFlightAjaxPromise = null;
+      });
+    }
+
+    if (!signal) {
+      return this.inFlightAjaxPromise;
+    }
+
+    return new Promise<TgjuGoldResponse>((resolve, reject) => {
+      const onAbort = () => reject(new DOMException('Aborted', 'AbortError'));
+      signal.addEventListener('abort', onAbort, { once: true });
+      this.inFlightAjaxPromise!.then(
+        (data) => {
+          signal.removeEventListener('abort', onAbort);
+          resolve(data);
+        },
+        (err) => {
+          signal.removeEventListener('abort', onAbort);
+          reject(err);
+        }
+      );
+    });
   }
 
   private saveOfflineCache(rates: Record<string, LiveGoldRate>): void {
@@ -152,25 +198,14 @@ class PhysicalGoldService {
    * Fetch the live USD/IRR (dollar) rate in Tomans from TGJU /ajax.json.
    * Returns the cached value on failure, or 0 when nothing is known.
    */
-  async getDollarRateTomans(): Promise<number> {
+  async getDollarRateTomans(signal?: AbortSignal): Promise<number> {
     const now = Date.now();
     if (this.dollarRateTomans > 0 && now - this.dollarLastFetchedAt < this.cacheTtlMs) {
       return this.dollarRateTomans;
     }
 
     try {
-      const baseUrl = this.getBaseUrl();
-      const response = await fetch(`${baseUrl}/ajax.json`, {
-        headers: {
-          Accept: 'application/json, text/plain, */*',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`TGJU HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data: TgjuGoldResponse = await response.json();
+      const data = await this.fetchAjaxPayload(signal);
       const dollarRate = this.parseDollarFromCurrent(data.current || {});
       if (dollarRate > 0) {
         this.dollarRateTomans = dollarRate;
@@ -179,7 +214,9 @@ class PhysicalGoldService {
         return dollarRate;
       }
     } catch (error) {
-      console.warn('[PhysicalGoldService] Failed to fetch live dollar rate:', error);
+      if ((error as { name?: string })?.name !== 'AbortError') {
+        console.warn('[PhysicalGoldService] Failed to fetch live dollar rate:', redactSecrets(error));
+      }
     }
 
     return this.dollarRateTomans > 0 ? this.dollarRateTomans : 0;
@@ -188,11 +225,14 @@ class PhysicalGoldService {
   /**
    * Fetch all live physical gold and coin rates
    */
-  async fetchLiveRates(): Promise<Record<PhysicalGoldType, LiveGoldRate>> {
+  async fetchLiveRates(
+    forceRefresh = false,
+    signal?: AbortSignal
+  ): Promise<Record<PhysicalGoldType, LiveGoldRate>> {
     const now = Date.now();
-    
+
     // Return cache if fresh
-    if (this.cache.size > 0 && now - this.lastFetchedAt < this.cacheTtlMs) {
+    if (!forceRefresh && this.cache.size > 0 && now - this.lastFetchedAt < this.cacheTtlMs) {
       const cachedResult: any = {};
       this.cache.forEach((val, key) => {
         cachedResult[key] = val;
@@ -201,20 +241,7 @@ class PhysicalGoldService {
     }
 
     try {
-      const baseUrl = this.getBaseUrl();
-      const url = `${baseUrl}/ajax.json`;
-
-      const response = await fetch(url, {
-        headers: {
-          Accept: 'application/json, text/plain, */*',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`TGJU HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data: TgjuGoldResponse = await response.json();
+      const data = await this.fetchAjaxPayload(signal);
       const current = data.current || {};
       const results: Record<string, LiveGoldRate> = {};
 
